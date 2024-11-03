@@ -6,14 +6,14 @@
 
 #include "keyboard.h"
 
-volatile uint8_t keys[0xff] = { 0 };
+volatile uint8_t keys[0xff] = {0};
 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
 static void keyboardHandler() {
     uint8_t k = inportb(0x60);
 
-    if(k & 128) {
+    if (k & 128) {
         // Key has been released
         keys[k & 127] = 0;
     } else {

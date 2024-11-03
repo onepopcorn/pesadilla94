@@ -2,7 +2,7 @@
 #define _PLAYER_H
 
 typedef struct Player {
-    int x,y;
+    int x, y;
     int vx, vy;
     int prev_x, prev_y;
     int counter;

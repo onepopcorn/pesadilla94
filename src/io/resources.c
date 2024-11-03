@@ -5,16 +5,16 @@
 
 /**
  * Private. Open given filePath and store its data in memory
- * 
+ *
  * This function shouldn't be called outside this module
- * 
+ *
  * @returns Pointer to memory allocated to keep the file contents
- * 
+ *
  */
 static void *loadResource(const char *filePath, uint8_t resourceType) {
-    FILE *file = fopen(filePath,"rb");
+    FILE *file = fopen(filePath, "rb");
 
-    if(!file) {
+    if (!file) {
         perror("Error opening sprites files");
         return NULL;
     }
@@ -23,39 +23,39 @@ static void *loadResource(const char *filePath, uint8_t resourceType) {
     size_t fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    if(resourceType == RES_TYPE_SPRITE) {
-        Sprite *sprite = (Sprite*)malloc(fileSize);
-        if(!sprite) {
+    if (resourceType == RES_TYPE_SPRITE) {
+        Sprite *sprite = (Sprite *)malloc(fileSize);
+        if (!sprite) {
             perror("Not enough memory to open sprite resource");
             fclose(file);
             return NULL;
         }
 
-        fread(sprite,fileSize, 1, file);
+        fread(sprite, fileSize, 1, file);
         fclose(file);
-        return (void*)sprite;
+        return (void *)sprite;
     }
 
-    if(resourceType == RES_TYPE_MAP) {
-        Map *map = (Map*)malloc(fileSize);
-        if(!map) {
+    if (resourceType == RES_TYPE_MAP) {
+        Map *map = (Map *)malloc(fileSize);
+        if (!map) {
             perror("Not enough memory to open map resource");
             fclose(file);
             return NULL;
         }
 
-        fread(map,fileSize, 1, file);
+        fread(map, fileSize, 1, file);
         fclose(file);
-        return (void*)map;
+        return (void *)map;
     }
 
     fclose(file);
     return NULL;
-} 
+}
 
 /**
  * Load resource on given file path
- * 
+ *
  * @returns Pointer to loaded Sprite data
  */
 Sprite *loadSprite(const char *filePath) {
@@ -65,7 +65,7 @@ Sprite *loadSprite(const char *filePath) {
 
 /**
  * Load Map resource on given file path
- * 
+ *
  * @returns Pointer to loaded Tilemap data
  */
 Map *loadMap(const char *filePath) {

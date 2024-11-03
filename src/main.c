@@ -17,20 +17,20 @@
 // #include "sprites.h"
 
 /**
- * 
+ *
  * Disable memory paging because we use C handler for interrupts
  * That is a drastic solution for not having to lock memory in interrupts
  * more info https://delorie.com/djgpp/v2faq/faq18_9.html
- * 
+ *
  */
 int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     // Config video
     setVideoMode(VIDEO_VGA_MODE);
     uint8_t bufferError = openScreenBuffer();
 
-    if(bufferError) {
+    if (bufferError) {
         printf("Error opening franebuffer");
         return EXIT_FAILURE;
     }
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     Sprite *font = loadSprite("font.fnt");
     Sprite *tileset = loadSprite("tileset.spr");
 
-    if(!res) {
+    if (!res) {
         perror("Error opening sprite files");
         return EXIT_FAILURE;
     }
@@ -58,7 +58,6 @@ int main(int argc, char *argv[]){
     // player
     // playerInit(110, 150, res);
 
-    
     // static const char MESSAGE[] = "MANOLO! NO HAS ESTUDIADO PARA  LOS EXAMENES FINALES!";
     // static const int MESSAGE_LENGTH = sizeof(MESSAGE);
 
@@ -71,20 +70,20 @@ int main(int argc, char *argv[]){
     createEntity(160, 150, TYPE_PLAYER, res);
     createEntity(160, 100, TYPE_ENEMY_A, res);
 
-    while(!keys[KEY_ESC]) {
+    while (!keys[KEY_ESC]) {
         // Render previous frames
         waitVSync();
         dumpBuffer();
 
         // playerUpdate();
         updateEntities();
-        
+
         // Draw sprite
         // drawText(35,7, font, text, 31);
         // playerRender();
         renderEntities();
 
-        // Typewriter effect 
+        // Typewriter effect
         // if(current_charnum <= MESSAGE_LENGTH && ++counter & 1) {
         //     for(int i = 0; i < current_charnum - 1; i++) {
         //         text[i] = MESSAGE[i];
@@ -102,17 +101,17 @@ int main(int argc, char *argv[]){
     // Restore timer interrupt
     timerFree();
     keyboardFree();
-    
+
     // Free memory
     closeScreenBuffer();
-    
+
     free(res);
     res = NULL;
     free(font);
     font = NULL;
     // free(text);
     // text = NULL;
-    
+
     // playerFree();
     return EXIT_SUCCESS;
 }

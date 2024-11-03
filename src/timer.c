@@ -5,11 +5,9 @@
 
 #include "timer.h"
 
-
 volatile static uint32_t ticks = 0;
 
 static _go32_dpmi_seginfo old_handler, new_handler;
-
 
 static void timerHandler() {
     ticks++;

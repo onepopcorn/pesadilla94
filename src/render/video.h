@@ -19,7 +19,6 @@
 
 #define TRANSPARENT_IDX 0
 
-
 void setVideoMode(uint8_t mode);
 
 uint8_t openScreenBuffer(void);

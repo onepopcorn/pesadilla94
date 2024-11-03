@@ -4,15 +4,14 @@
 #include <math.h>
 #include <string.h>
 
-#pragma pack(push, 1) // Disable padding for struct members
+#pragma pack(push, 1)  // Disable padding for struct members
 
 #include "../../shared/files/bmp.h"
 #include "../../shared/files/spritesheet.h"
 
-#pragma pack(pop) // Restore padding
+#pragma pack(pop)  // Restore padding
 
 int readHeader(FILE *file, FILE *outFile, int frames) {
-
     // Read BMP File Header
     BMPFileHeader fileHeader;
     fread(&fileHeader, sizeof(BMPFileHeader), 1, file);
@@ -28,28 +27,28 @@ int readHeader(FILE *file, FILE *outFile, int frames) {
     fread(&dibHeader, sizeof(BMPDIBHeader), 1, file);
 
     // Check if the image is indexed
-    if(dibHeader.biBitCount > 8) {
+    if (dibHeader.biBitCount > 8) {
         printf("This is not an indexed BMP (bit count: %d).\n", dibHeader.biBitCount);
         return EXIT_FAILURE;
     }
 
     // Check image has dimensions divisible by 2
-    if((dibHeader.biWidth & 0x01) != 0) {
+    if ((dibHeader.biWidth & 0x01) != 0) {
         printf("Image width is not divisible by two\n");
         return EXIT_FAILURE;
     }
 
-    if((dibHeader.biHeight & 0x01) != 0) {
+    if ((dibHeader.biHeight & 0x01) != 0) {
         printf("Image height is not divisible by two\n");
         return EXIT_FAILURE;
     }
 
-    // TODO Check sprite width/height to not be bigger than uint_16 
-    
+    // TODO Check sprite width/height to not be bigger than uint_16
+
     // Display image dimensions
     printf("Width: %d pixels\n", dibHeader.biWidth);
     printf("Height: %d pixels\n", dibHeader.biHeight);
-    printf("BPP: %dBits [%d colors]\n", dibHeader.biBitCount, (int) pow(2, dibHeader.biBitCount));
+    printf("BPP: %dBits [%d colors]\n", dibHeader.biBitCount, (int)pow(2, dibHeader.biBitCount));
 
     // Move the file pointer to the start of pixel data
     fseek(file, fileHeader.bfOffBits, SEEK_SET);
@@ -83,22 +82,20 @@ int readHeader(FILE *file, FILE *outFile, int frames) {
 
     const int SPRITE_WIDTH = width / frames;
     // Align each frame pixel data linearly
-    for(int frame = 0; frame < frames; frame++) {
+    for (int frame = 0; frame < frames; frame++) {
         int offset = frame * SPRITE_WIDTH * height;
-        
-        for(int row = 0; row < height; row++) {
-            for(int col = 0; col < SPRITE_WIDTH; col++) {
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < SPRITE_WIDTH; col++) {
                 // BMP stores data upside-down so we must invert it, hence the (height -1 - row)
                 spriteData[col + row * SPRITE_WIDTH + offset] = pixelData[col + (height - 1 - row) * width + frame * SPRITE_WIDTH];
             }
         }
     }
 
-
     // for(int row = 0; row < height; row++) {
     //     memcpy(spriteData + sizeof(uint8_t) * row * width, pixelData + sizeof(uint8_t) * row * width, sizeof(uint8_t) * width);
     // }
-
 
     // fwrite(pixelData, sizeof(uint8_t), numPixels, outFile);
     fwrite(spriteData, sizeof(uint8_t), numPixels, outFile);
@@ -107,10 +104,9 @@ int readHeader(FILE *file, FILE *outFile, int frames) {
     // Free allocated memory
     free(pixelData);
     free(spriteData);
-       
+
     return EXIT_SUCCESS;
 }
-
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
@@ -123,21 +119,20 @@ int main(int argc, char *argv[]) {
     const int frames = atoi(argv[3]);
 
     // Prevent overwrite input
-    if(input == output) {
+    if (input == output) {
         perror("Error output file must be different from input file\n");
         return EXIT_FAILURE;
     }
 
-
     FILE *inputFile = fopen(input, "rb");
     FILE *outFile = fopen(output, "wb");
 
-    int error = readHeader(inputFile, outFile,frames);
+    int error = readHeader(inputFile, outFile, frames);
 
     fclose(inputFile);
     fclose(outFile);
 
-    if(error) {
+    if (error) {
         remove(output);
     }
 

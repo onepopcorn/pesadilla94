@@ -9,21 +9,21 @@ void keyboardInit(void);
 void keyboardFree(void);
 
 // https://kbdlayout.info/kbdusx/scancodes+virtualkeys
-#define KEY_ESC   0x01
-#define KEY_TAB   0x10
+#define KEY_ESC 0x01
+#define KEY_TAB 0x10
 #define KEY_ENTER 0x1C
 #define KEY_SPACE 0x39
 
-#define KEY_A     0x1E
-#define KEY_S     0x1F
-#define KEY_Z     0x2C
-#define KEY_X     0x2D
-#define KEY_P     0x19
+#define KEY_A 0x1E
+#define KEY_S 0x1F
+#define KEY_Z 0x2C
+#define KEY_X 0x2D
+#define KEY_P 0x19
 
-#define KEY_UP    0x48
-#define KEY_LEFT  0x4B
+#define KEY_UP 0x48
+#define KEY_LEFT 0x4B
 #define KEY_RIGHT 0x4D
-#define KEY_DOWN  0x50
+#define KEY_DOWN 0x50
 
 // #define KEY_F1    0x3B
 // #define KEY_F2    0x3C
