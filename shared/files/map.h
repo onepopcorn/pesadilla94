@@ -8,8 +8,7 @@
 
 /**
  * Custom Tilemap format
- * 
- * Tiles are 8x8 pixels
+ *
  * Tile flags are:
  *  - high nibble: type
  *  - low nibble: flags
@@ -23,13 +22,15 @@
 typedef struct Tile
 {
     uint8_t flags;
-    int id;
+    uint8_t id;
 } Tile;
 
 typedef struct Map
 {
-    int width;
-    int height;
+    uint8_t width;
+    uint8_t height;
+    uint8_t tileWidth;
+    uint8_t tileHeight;
     Tile data[];
 } Map;
 

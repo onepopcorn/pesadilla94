@@ -114,8 +114,8 @@ int readHeader(FILE *file, FILE *outFile, int frames) {
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
-        printf("Usage: %s <bmp_file> <num_frames>\n", argv[0]);
-        return 1;
+        printf("Usage: %s <bmp_file> <output_file> <num_frames>\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
     const char *input = argv[1];

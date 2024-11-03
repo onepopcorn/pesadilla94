@@ -42,7 +42,6 @@ void renderEntities() {
         drawSprite(entity->x, entity->y, entity->sprite, entity->frame, entity->flags & ENTITY_FLIP);
         entity++;
     }
-    
 }
 
 void updateEntities() {
