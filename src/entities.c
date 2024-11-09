@@ -6,6 +6,7 @@
 #include "io/resources.h"
 #include "io/keyboard.h"
 #include "render/video.h"
+#include "map.h"
 
 #include "entities.h"
 
@@ -31,14 +32,23 @@ struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr) {
 void renderEntities() {
     struct Entity* entity = entities;
 
+    // TODO: Clean background in an efficient way
     while (entity->flags & ENTITY_ALIVE) {
         // restore background
-        // drawRect((Rect){entity->prev_x, entity->prev_y, entity->sprite->w, entity->sprite->h}, clearRect);
+        if (entity->prev_x != entity->x || entity->prev_y != entity->y) {
+            restoreBackground((Rect){entity->prev_x, entity->prev_y, entity->sprite->width, entity->sprite->height});
+        }
 
-        // Store current data
-        // getBufferData((Rect){entity->x, entity->y, entity->sprite->w, entity->sprite->h}, clearRect);
+#ifdef DEBUG
+        restoreBackgroundDebug((Rect){entity->x, entity->y, entity->sprite->width, entity->sprite->height});
+#endif
 
         drawSprite(entity->x, entity->y, entity->sprite, entity->frame, entity->flags & ENTITY_FLIP);
+
+        // Use counter interrupts for frame animation
+        // entity->frame++;
+        // if (entity->frame == entity->sprite->frames) entity->frame = 0;
+
         entity++;
     }
 }
@@ -46,6 +56,11 @@ void renderEntities() {
 void updateEntities() {
     // Player is always entity 0
     struct Entity* entity = entities;
+
+    /**
+     * The game is single player so no need to read input for each entity
+     * Also, first entity is ALWAYS the player
+     */
     if ((entity->flags >> 4) == TYPE_PLAYER) {
         if (keys[KEY_RIGHT]) {
             entity->vx = 1;
@@ -65,6 +80,11 @@ void updateEntities() {
             entity->vy = 0;
         }
     }
+
+    /**
+     * Update other entities logic here
+     *
+     */
 
     while (entity->flags & ENTITY_ALIVE) {
         entity->prev_x = entity->x;

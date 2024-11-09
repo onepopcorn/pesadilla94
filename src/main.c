@@ -10,7 +10,7 @@
 #include "io/keyboard.h"
 #include "entities.h"
 #include "timer.h"
-#include "player.h"
+#include "map.h"
 
 #include <crt0.h>
 
@@ -38,11 +38,12 @@ int main(int argc, char *argv[]) {
     // Init interrupts
     timerInit();
     keyboardInit();
+    mapInit();
 
     // Entities & game logic
     Sprite *res = loadSprite("player.spr");
     Sprite *font = loadSprite("font.fnt");
-    Sprite *tileset = loadSprite("tileset.spr");
+    // Sprite *tileset = loadSprite("tileset.spr");
 
     if (!res) {
         perror("Error opening sprite files");
@@ -53,10 +54,7 @@ int main(int argc, char *argv[]) {
     fillScreen(0);
 
     // draw map
-    drawMap(0, 40, tileset, 1);
-
-    // player
-    // playerInit(110, 150, res);
+    drawMap(0, 40);
 
     // static const char MESSAGE[] = "MANOLO! NO HAS ESTUDIADO PARA  LOS EXAMENES FINALES!";
     // static const int MESSAGE_LENGTH = sizeof(MESSAGE);
@@ -67,7 +65,7 @@ int main(int argc, char *argv[]) {
     // int counter = 0;
 
     createEntity(110, 150, TYPE_PLAYER, res);
-    createEntity(160, 150, TYPE_PLAYER, res);
+    createEntity(160, 150, TYPE_ENEMY_B, res);
     createEntity(160, 100, TYPE_ENEMY_A, res);
 
     while (!keys[KEY_ESC]) {
@@ -75,12 +73,10 @@ int main(int argc, char *argv[]) {
         waitVSync();
         dumpBuffer();
 
-        // playerUpdate();
         updateEntities();
 
         // Draw sprite
         // drawText(35,7, font, text, 31);
-        // playerRender();
         renderEntities();
 
         // Typewriter effect
@@ -92,8 +88,6 @@ int main(int argc, char *argv[]) {
         //     current_charnum++;
         // }
     }
-
-    // getch();
 
     // Return to text mode
     setVideoMode(VIDEO_TEXT_MODE);
@@ -112,6 +106,5 @@ int main(int argc, char *argv[]) {
     // free(text);
     // text = NULL;
 
-    // playerFree();
     return EXIT_SUCCESS;
 }

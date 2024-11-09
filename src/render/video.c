@@ -118,43 +118,46 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
  */
 void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip) {
     const int offset = frame * sprite->width * sprite->height;
-    for (int i = 0; i < sprite->width * sprite->height; i++) {
-        /**
-         * To flip the sprite we want to substract the column number to the position of the last byte of each row.
-         * So, basically we are reading each row backwards
-         *
-         * (i / sprite->w + 1)  is the last column per each row
-         * i % sprite->w        is the value if each column based on i value
-         *
-         */
-        uint8_t idx = !flip ? sprite->data[i + offset] : sprite->data[offset + ((i / sprite->width + 1) * sprite->width) - i % sprite->width];
-        if (idx == TRANSPARENT_IDX) continue;
 
-        /**
-         * Convert from lineal memory to rectangle on screen memory.
-         *
-         * i / w  is the row number. "i" is an int so all decimal numbers are dropped
-         * i % w  is a way to get the column number by "resetting" the value to 0 when i = w
-         */
-        back_buffer[(i / sprite->width + y) * SCREEN_WIDTH + i % sprite->width + x] = idx;
+    for (int i = 0; i < sprite->height; i++) {
+        for (int j = 0; j < sprite->width; j++) {
+            /**
+             * To flip the sprite we want to substract the column number to the position of the last byte of each row.
+             * So, basically we are reading each row backwards
+             */
+            uint8_t idx = !flip ? sprite->data[offset + i * sprite->width + j] : sprite->data[offset + (i * sprite->width + sprite->width - 1 - j)];  // sprite->data
+            if (idx == TRANSPARENT_IDX) continue;
+            back_buffer[(i + y) * SCREEN_WIDTH + j + x] = idx;
+        }
     }
-}
 
-/**
- * Draw given map with offset coordinates with given tileset
- *
- * @param offset_x X coordinate to start drawing the tilemap
- * @param offset_y Y coordinate to start drawing the tilemap
- * @param tileset Pointer to spritesheet for the tileset
- *
- * TODO: Test performance with nested loops vs divison and modulo operations
- * TODO: Try to use memcpy to copy blocks if finally using nested blocks
- */
-void drawMap(int offset_x, int offset_y, Sprite* tileset, int map_num) {
-    int map_offset = MAP_H * MAP_W * map_num;
-    for (int i = 0; i < MAP_W * MAP_H; i++) {
-        drawSprite(i % MAP_W * tileset->width + offset_x, i / MAP_W * tileset->height + offset_y, tileset, MAPS[map_offset + i] - 1, false);
-    }
+    /**
+     *
+     * NOTE: This was a "too clever" idea to avoid nested loop that has a terrible performance.
+     *       It's left here as a lesson.
+     *       idiv and modulo operations can be very slow on x86
+     *
+     */
+    // for (int i = 0; i < sprite->width * sprite->height; i++) {
+    //     /**
+    //      * To flip the sprite we want to substract the column number to the position of the last byte of each row.
+    //      * So, basically we are reading each row backwards
+    //      *
+    //      * (i / sprite->w + 1)  is the last column per each row
+    //      * i % sprite->w        is the value if each column based on i value
+    //      *
+    //      */
+    //     uint8_t idx = !flip ? sprite->data[i + offset] : sprite->data[offset + ((i / sprite->width + 1) * sprite->width) - i % sprite->width];
+    //     if (idx == TRANSPARENT_IDX) continue;
+
+    //     /**
+    //      * Convert from lineal memory to rectangle on screen memory.
+    //      *
+    //      * i / w  is the row number. "i" is an int so all decimal numbers are dropped
+    //      * i % w  is a way to get the column number by "resetting" the value to 0 when i = w
+    //      */
+    //     back_buffer[(i / sprite->width + y) * SCREEN_WIDTH + i % sprite->width + x] = idx;
+    // }
 }
 
 /**
@@ -166,12 +169,14 @@ void drawMap(int offset_x, int offset_y, Sprite* tileset, int map_num) {
  * TODO Consider using assembly for this
  */
 void drawRect(Rect rect, uint8_t* data) {
-    // for(int i = 0; i < rect.w * rect.h; i++) {
-    //     backBuffer[(i / rect.w + rect.y) * SCREEN_WIDTH + i % rect.w + rect.x] = data[i];
-    // }
-
     for (int row = 0; row < rect.h; row++) {
         memcpy(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, data + row * rect.w, sizeof(uint8_t) * rect.w);
+    }
+}
+
+void drawRectColor(Rect rect, int color) {
+    for (int row = 0; row < rect.h; row++) {
+        memset(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, color, rect.w);
     }
 }
 
@@ -180,26 +185,14 @@ void drawRect(Rect rect, uint8_t* data) {
  *
  * @param rect Rectangle {x, y, width, height} of the area to get the data from
  * @param dest Pointer to where the data is gonna be stored
- *
+ * TODO: Deprecated. Consider removing it
  */
-void getBufferData(Rect rect, uint8_t* dest) {
-    // Efficient but uses idiv
-    // for(int i = 0; i < rect.w * rect.h; i++) {
-    //     dest[i] = backBuffer[(i / rect.w + rect.y) * SCREEN_WIDTH + i % rect.w + rect.x];
-    // }
-
-    // Less efficient
-    // for(int row = 0; row < rect.h; row++) {
-    //     for(int col = 0; col < rect.w; col++) {
-    //         dest[row * rect.w + col] = backBuffer[(rect.y + row) * SCREEN_WIDTH + col + rect.x];
-    //     }
-    // }
-
-    // Seems to be the most efficient
-    for (int row = 0; row < rect.h; row++) {
-        memcpy(dest + row * rect.w, back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, sizeof(uint8_t) * rect.w);
-    }
-}
+// void getBufferData(Rect rect, uint8_t* dest) {
+//     // Seems to be the most efficient
+//     for (int row = 0; row < rect.h; row++) {
+//         memcpy(dest + row * rect.w, back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, sizeof(uint8_t) * rect.w);
+//     }
+// }
 
 /**
  * Fill screen with given color
@@ -217,8 +210,6 @@ void fillScreen(int color) {
  * NOTE: Consider to recalculate screenBuffer pointer since __djgpp_conventional_base may vary over time
  */
 void dumpBuffer() {
-    // memcpy(screen, backBuffer, SCREEN_MEM_SIZE);
-
     screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
 
     // I think memcpy with -O3 does the same

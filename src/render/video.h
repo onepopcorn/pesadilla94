@@ -33,11 +33,12 @@ void drawText(int x, int y, Sprite *font, char *text, int max_length);
 
 void drawSprite(int x, int y, Sprite *sprite, int frame, bool flip);
 
-void drawMap(int offset_x, int offset_y, Sprite *tileset, int map_num);
-
 void drawRect(Rect rect, uint8_t *data);
 
-void getBufferData(Rect rect, uint8_t *dest);
+void drawRectColor(Rect rect, int color);
+
+// TODO: Deprecated, consider removing
+// void getBufferData(Rect rect, uint8_t *dest);
 
 void fillScreen(int color);
 

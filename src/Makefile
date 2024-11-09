@@ -2,7 +2,6 @@
 SRC_DIR  := ./
 BIN_DIR  := ../out
 OBJ_DIR  := ../obj
-
 BIN := ../out/game.exe
 
 
@@ -13,6 +12,12 @@ LDFLAGS := -s
 
 SRCS	:= $(shell find $(SRC_DIR) -name '*.c')
 OBJS	:= $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
+
+DEBUG ?= 
+ifneq ($(DEBUG),)
+    CFLAGS += -DDEBUG
+endif
+
 
 all: $(BIN)
 	cp ../vendor/CWSDPMI.exe ../out/CWSDPMI.exe
