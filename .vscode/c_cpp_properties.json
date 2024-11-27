@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "DJGPP",
+            "includePath": ["${workspaceFolder}/**"],
+            "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "gnu99",
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "c:/djgpp/bin/i586-pc-msdosdjgpp-gcc.exe"
+        }
+    ],
+    "version": 4
+}
