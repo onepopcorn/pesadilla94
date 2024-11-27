@@ -3,10 +3,9 @@
 #include <stdio.h>
 
 #include "geom.h"
-#include "io/resources.h"
-#include "io/keyboard.h"
 #include "render/video.h"
 #include "map.h"
+#include "animations.h"
 
 #include "entities.h"
 
@@ -15,86 +14,87 @@
 struct Entity entities[MAX_ENTITIES] = {0};
 int lastEntity = 0;
 
-struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr) {
+struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player)) {
     // Check if there's not enough space for more entities
     if (&entities[lastEntity] == &entities[MAX_ENTITIES]) return NULL;
 
+    // Initialize entity
     entities[lastEntity].x = x;
     entities[lastEntity].y = y;
     entities[lastEntity].sprite = spr;
     entities[lastEntity].flags = (type << 4) | ENTITY_ALIVE;  // Type is stored in high nibble, flags in low nibble
+    entities[lastEntity].update = update;
 
     struct Entity* entity = &entities[lastEntity];
     lastEntity++;
     return entity;
 }
 
-void renderEntities() {
-    struct Entity* entity = entities;
-
-    // TODO: Clean background in an efficient way
-    while (entity->flags & ENTITY_ALIVE) {
-        // restore background
-        if (entity->prev_x != entity->x || entity->prev_y != entity->y) {
-            restoreBackground((Rect){entity->prev_x, entity->prev_y, entity->sprite->width, entity->sprite->height});
-        }
-
-#ifdef DEBUG
-        restoreBackgroundDebug((Rect){entity->x, entity->y, entity->sprite->width, entity->sprite->height});
-#endif
-
-        drawSprite(entity->x, entity->y, entity->sprite, entity->frame, entity->flags & ENTITY_FLIP);
-
-        // Use counter interrupts for frame animation
-        // entity->frame++;
-        // if (entity->frame == entity->sprite->frames) entity->frame = 0;
-
-        entity++;
-    }
-}
-
-void updateEntities() {
+/**
+ * Update all entities
+ *
+ * Should:
+ * - Check input for player entity
+ * - Update other entities based on behavior/state/logic
+ * - Check physics and boundaries
+ * - Check collisions
+ * - Render entities to avoid looping through all entities twice??? Not sure about this one
+ *   - having a separete render loop allows to render them backwards
+ *   - render them here avoids looping through all entities twice
+ *
+ */
+// static uint32_t accumulated_time = 0;
+void updateEntities(uint32_t delta) {
     // Player is always entity 0
-    struct Entity* entity = entities;
+    struct Entity* entity = &entities[lastEntity - 1];
 
-    /**
-     * The game is single player so no need to read input for each entity
-     * Also, first entity is ALWAYS the player
-     */
-    if ((entity->flags >> 4) == TYPE_PLAYER) {
-        if (keys[KEY_RIGHT]) {
-            entity->vx = 1;
-            entity->flags = entity->flags & (0xFF ^ ENTITY_FLIP);
-        } else if (keys[KEY_LEFT]) {
-            entity->vx = -1;
-            entity->flags = entity->flags | ENTITY_FLIP;
-        } else {
-            entity->vx = 0;
-        }
+    static uint32_t accumulated_time = 0;
 
-        if (keys[KEY_UP]) {
-            entity->vy = -1;
-        } else if (keys[KEY_DOWN]) {
-            entity->vy = 1;
-        } else {
-            entity->vy = 0;
-        }
+    // Update player logic
+
+    // Handle animations with a global counter
+    accumulated_time += delta;
+    char frameNeedsUpdate = false;
+
+    if (accumulated_time >= 150) {
+        accumulated_time -= 150;  // Reset accumulator
+        frameNeedsUpdate = true;
     }
 
-    /**
-     * Update other entities logic here
-     *
-     */
-
     while (entity->flags & ENTITY_ALIVE) {
+        // update each entity logic
+        entity->update(entity, &entities[0]);
+
+        // Move this logic inside the update function (?)
         entity->prev_x = entity->x;
         entity->prev_y = entity->y;
 
-        entity->x = entity->x + entity->vx;
-        entity->y = entity->y + entity->vy;
+        // Move entity using delta time for smooth animations
+        entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 10 pixels/second
+        entity->y = entity->y + entity->vy * 70 * delta / 1000;  // Move 10 pixels/second
 
-        entity++;
+        markTouchedTiles((Rect){entity->prev_x, entity->prev_y, entity->sprite->width, entity->sprite->height});
+
+        int idx = getAnimationFrame(frameNeedsUpdate, entity);
+        drawSprite(entity->x, entity->y, entity->sprite, idx, entity->flags & ENTITY_FLIP);
+
+        entity--;
     }
+}
+
+int getAnimationFrame(char nextFrame, struct Entity* entity) {
+    int animationFrame = Animations[entity->frame];
+    if (!nextFrame) return animationFrame;
+
+    entity->frame++;
+    animationFrame = Animations[entity->frame];
+
+    if (animationFrame < 0) {
+        entity->frame = entity->animation;
+        animationFrame = Animations[entity->frame];
+    }
+
+    return animationFrame;
 }
 
 void destroyEntity(uint8_t index) {

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/nearptr.h>
 
+#include "settings/settings.h"
 #include "video.h"
 
 static uint8_t* screen_buffer;
@@ -25,21 +26,21 @@ void setVideoMode(uint8_t mode) {
 /**
  * Initialize both screen and back buffers.
  *
- * NOTE: this function disables protected mode to have access to screen buffer
+ * NOTE: this function disables protected mode to have access to screen buffer. This seems not to be necessary
  *
  * @returns Success (1) or failure (0)
  *
  */
 uint8_t openScreenBuffer(void) {
-    if (__djgpp_nearptr_enable() == 0) {
-        return EXIT_FAILURE;
-    }
+    // TODO: Investigate if we really need to disable protected mode. It seems to work fine without disabling it
+    // Disable protected mode
+    // if (__djgpp_nearptr_enable() == 0) {
+    //     return EXIT_FAILURE;
+    // }
 
-    // TODO: __djgpp_conventional_base may change every once in a while. Consider recalculate the pointer on dumpBuffer
-    screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
     back_buffer = (uint8_t*)malloc(SCREEN_MEM_SIZE);
 
-    if (!screen_buffer || !back_buffer) {
+    if (!back_buffer) {
         fprintf(stderr, "ERROR: failed to open frame buffer\n");
         return EXIT_FAILURE;
     }
@@ -52,7 +53,8 @@ uint8_t openScreenBuffer(void) {
  *
  */
 void closeScreenBuffer(void) {
-    __djgpp_nearptr_disable();
+    // re-enable protected mode
+    // __djgpp_nearptr_disable();
     free(back_buffer);
 }
 
@@ -80,6 +82,8 @@ void waitFrames(int frames) {
 /**
  * Draw text on screen at given position
  *
+ * TODO: Refactor this routine to use nested loops instead of divisions and modulo which is way less efficient
+ *
  * @param x Horizontal position where to start drawing text
  * @param y Vertical position where to start drawing text
  * @param font Pointer to font spritesheet
@@ -106,8 +110,6 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
 
 /**
  * Draw given sprite data into back buffer
- * TODO: Consider using inlined assembly for this
- * TODO: Test perf using nested loops and memcpy instead of division and modulo operators
  *
  * @param x Starting x position
  * @param y Starting y position
@@ -115,19 +117,29 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
  * @param frame Sprite frame number to be printed
  * @param flip flip sprite horizontally
  *
+ * TODO: Consider using inlined assembly if performance is not good enough
  */
 void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip) {
-    const int offset = frame * sprite->width * sprite->height;
+    int width = sprite->width;
+    int height = sprite->height;
 
-    for (int i = 0; i < sprite->height; i++) {
-        for (int j = 0; j < sprite->width; j++) {
+    const int offset = frame * width * height;
+    uint8_t* src = &sprite->data[offset];
+    uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
+
+    for (int i = 0; i < height; i++) {
+        uint8_t* src_row = src + i * width;
+        uint8_t* dst_row = dst + i * SCREEN_WIDTH;
+
+        for (int j = 0; j < width; j++) {
             /**
              * To flip the sprite we want to substract the column number to the position of the last byte of each row.
              * So, basically we are reading each row backwards
              */
-            uint8_t idx = !flip ? sprite->data[offset + i * sprite->width + j] : sprite->data[offset + (i * sprite->width + sprite->width - 1 - j)];  // sprite->data
+            // TODO: Consider optimiznig this branching
+            uint8_t idx = !flip ? src_row[j] : src_row[width - 1 - j];  // sprite->data
             if (idx == TRANSPARENT_IDX) continue;
-            back_buffer[(i + y) * SCREEN_WIDTH + j + x] = idx;
+            dst_row[j] = idx;
         }
     }
 
@@ -161,12 +173,34 @@ void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip) {
 }
 
 /**
+ * Draw a single tile.
+ *
+ * Tiles have fixed size and no transparency so they can be drawn
+ * copying blocks of data which is way faster than a nested loop
+ *
+ */
+void drawTile(int x, int y, Sprite* tileset, int id) {
+    int width = TILE_SIZE;
+    int height = TILE_SIZE;
+
+    const int offset = id * width * height;
+    uint8_t* src = &tileset->data[offset];
+    uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
+
+    for (int i = 0; i < height; i++) {
+        uint8_t* src_row = src + i * width;
+        uint8_t* dst_row = dst + i * SCREEN_WIDTH;
+        memcpy(dst_row, src_row, width);
+    }
+}
+
+/**
  * Draw given rectangle with given data pointer
  *
  * @param rect Rectangle {x, y, width, height} of the are to be drawn
  * @param data Pointer to where that do be drawn is stored
  *
- * TODO Consider using assembly for this
+ * TODO Consider using assembly for this although it seems to be quite fast already
  */
 void drawRect(Rect rect, uint8_t* data) {
     for (int row = 0; row < rect.h; row++) {
@@ -207,9 +241,9 @@ void fillScreen(int color) {
 /**
  * Copy backbuffer to screenbuffer
  *
- * NOTE: Consider to recalculate screenBuffer pointer since __djgpp_conventional_base may vary over time
  */
 void dumpBuffer() {
+    // Video memory address can't be accessed directly, we need to use DJGPP offset
     screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
 
     // I think memcpy with -O3 does the same

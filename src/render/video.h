@@ -8,7 +8,7 @@
 
 #define VIDEO_VGA_MODE 0x13
 #define VIDEO_TEXT_MODE 0x03
-#define VIDEO_MEM_START 0xa0000
+#define VIDEO_MEM_START 0xA0000
 
 #define VGA_STATUS_REG 0x3DA
 #define VSYNC_BITMASK 0x08
@@ -32,6 +32,8 @@ void waitFrames(int frames);
 void drawText(int x, int y, Sprite *font, char *text, int max_length);
 
 void drawSprite(int x, int y, Sprite *sprite, int frame, bool flip);
+
+void drawTile(int x, int y, Sprite *tileset, int id);
 
 void drawRect(Rect rect, uint8_t *data);
 

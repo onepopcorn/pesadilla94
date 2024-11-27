@@ -1,13 +1,27 @@
+#include <stdlib.h>
 #include <stdint.h>
+
+#include "settings/settings.h"
 #include "io/resources.h"
 #include "render/video.h"
 
 #include "map.h"
 
-Map *currentMap;
-Sprite *tileset;
-int mapXOffset = 0;
-int mapYOffset = 0;
+#define MAP_Y_OFFSET 40
+
+Map* currentMap;
+Sprite* tileset;
+
+// Approximate list of tiles to be redrawn using max entities number and max number of tiles a single entity can "touch"
+// TODO: Find a safer way of handling this
+#define MAX_DIRTY_TILES MAX_ENTITIES* MAX_TILE_PER_ENTITY
+
+typedef struct DirtyTile {
+    int x, y;
+} DirtyTile;
+
+DirtyTile dirtyTiles[MAX_DIRTY_TILES] = {0};
+int dirtyTilesCount = 0;
 
 /**
  * Load map resources and set initial level
@@ -21,11 +35,6 @@ void mapInit() {
 
     // load initial map data
     currentMap = loadMap("level1.map");
-
-    // Set all tiles to dirty
-    for (int i = 0; i < currentMap->width * currentMap->height; i++) {
-        currentMap->data[i].flags |= TILE_STATE_DIRTY;
-    }
 }
 
 /**
@@ -35,33 +44,58 @@ void mapInit() {
  * @param offset_y Y coordinate to start drawing the tilemap
  * @param tileset Pointer to spritesheet for the tileset
  *
- * TODO: Test performance with nested loops vs divison and modulo operations
- * TODO: Try to use memcpy to copy blocks if finally using nested blocks
  */
-void drawMap(int offset_x, int offset_y) {
-    mapXOffset = offset_x;
-    mapYOffset = offset_y;
+void drawMap() {
+    Tile* data = currentMap->data;
+    uint8_t mapWidth = currentMap->width;
+    uint8_t mapHeight = currentMap->height;
+    uint8_t tileWidth = currentMap->tileWidth;
+    uint8_t tileHeight = currentMap->tileHeight;
 
-    for (int i = 0; i < currentMap->height; i++) {
-        for (int j = 0; j < currentMap->width; j++) {
-            Tile tile = currentMap->data[j + i * currentMap->width];
-            drawSprite(j * currentMap->tileWidth + mapXOffset, i * currentMap->tileHeight + mapYOffset, tileset, tile.id - 1, tile.flags & TILE_STATE_FLIP);
+    for (int i = 0; i < mapHeight; i++) {
+        for (int j = 0; j < mapWidth; j++) {
+            Tile tile = data[j + i * mapWidth];
+            drawTile(j * tileWidth, i * tileHeight + MAP_Y_OFFSET, tileset, tile.id - 1);
         }
     }
 }
 
 /**
- * Find tiles overlapping with given rectangle and restore them
+ * Repaint touched background tiles
  *
  */
-void restoreBackground(Rect rect) {
+void restoreMapTiles() {
+    uint8_t mapWidth = currentMap->width;
+    uint8_t tileWidth = currentMap->tileWidth;
+    uint8_t tileHeight = currentMap->tileHeight;
+    Tile* data = currentMap->data;
+
+    for (int i = 0; i < dirtyTilesCount; i++) {
+        int x = dirtyTiles[i].x;
+        int y = dirtyTiles[i].y;
+
+        Tile tile = data[x + y * mapWidth];
+        drawTile(x * tileWidth, y * tileHeight + MAP_Y_OFFSET, tileset, tile.id - 1);
+    }
+
+    dirtyTilesCount = 0;
+}
+
+/**
+ * Find tiles overlapping with given rectangle and restore them
+ * TODO: Add tiles to dirty tiles array instead of rendering this here
+ */
+void markTouchedTiles(Rect rect) {
+    uint8_t tileWidth = currentMap->tileWidth;
+    uint8_t tileHeight = currentMap->tileHeight;
+
     // get tile from coordinate
-    int minTileXIndex = rect.x / currentMap->tileWidth;
-    int minTileYIndex = (rect.y - mapYOffset) / currentMap->tileHeight;
+    int minTileXIndex = rect.x / tileWidth;
+    int minTileYIndex = (rect.y - MAP_Y_OFFSET) / tileHeight;
 
     // Round up to nearest tile
-    int maxTileXIndex = (rect.x + rect.w) / currentMap->tileWidth + 0.9;
-    int maxTileYIndex = ((rect.y - mapYOffset) + rect.h) / currentMap->tileHeight + 0.9;
+    int maxTileXIndex = (rect.x + rect.w) / tileWidth + 0.9;
+    int maxTileYIndex = ((rect.y - MAP_Y_OFFSET) + rect.h) / tileHeight + 0.9;
 
     int wTiles = maxTileXIndex - minTileXIndex + 1;
     int hTiles = maxTileYIndex - minTileYIndex + 1;
@@ -71,36 +105,26 @@ void restoreBackground(Rect rect) {
             int tileXIndex = minTileXIndex + j;
             int tileYIndex = minTileYIndex + i;
             // TODO: Limits should be handled by update entities function
-            if (tileXIndex < 0 || tileXIndex >= currentMap->width || tileYIndex < 0 || tileYIndex >= currentMap->height) continue;
+            // if (tileXIndex < 0 || tileXIndex >= currentMap->width || tileYIndex < 0 || tileYIndex >= currentMap->height) continue;
 
-            Tile tile = currentMap->data[tileXIndex + tileYIndex * currentMap->width];
-            drawSprite(tileXIndex * currentMap->tileWidth, tileYIndex * currentMap->tileHeight + mapYOffset, tileset, tile.id - 1, tile.flags & TILE_STATE_FLIP);
-        }
-    }
-}
-
+            // Mark tile to be redrawn
+            // TODO: prevent duplicate tiles
+            if (dirtyTilesCount < MAX_DIRTY_TILES) {
+                dirtyTiles[dirtyTilesCount++] = (DirtyTile){tileXIndex, tileYIndex};
+            }
 #ifdef DEBUG
-void restoreBackgroundDebug(Rect rect) {
-    int minTileXIndex = rect.x / currentMap->tileWidth;
-    int minTileYIndex = (rect.y - mapYOffset) / currentMap->tileHeight;
-
-    // Round up to nearest tile
-    int maxTileXIndex = (rect.x + rect.w) / currentMap->tileWidth + 0.9;
-    int maxTileYIndex = ((rect.y - mapYOffset) + rect.h) / currentMap->tileHeight + 0.9;
-
-    int numXTiles = maxTileXIndex - minTileXIndex + 1;
-    int numYTiles = maxTileYIndex - minTileYIndex + 1;
-
-    for (int i = 0; i < numYTiles; i++) {
-        for (int j = 0; j < numXTiles; j++) {
-            int tileXIndex = minTileXIndex + j;
-            int tileYIndex = minTileYIndex + i;
-            // TODO: Limits shoudl be handled by update entities function
-            if (tileXIndex < 0 || tileXIndex >= currentMap->width || tileYIndex < 0 || tileYIndex >= currentMap->height) continue;
-
-            Rect rect = {tileXIndex * currentMap->tileWidth, tileYIndex * currentMap->tileHeight + mapYOffset, currentMap->tileWidth, currentMap->tileHeight};
-            drawRectColor(rect, 34);
+            // NOTE This has a performance hit
+            drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + MAP_Y_OFFSET, tileWidth, tileHeight}, 34);
+#endif
         }
     }
 }
-#endif
+
+/**
+ * Free loaded map resources
+ *
+ */
+void mapFree() {
+    free(currentMap);
+    free(tileset);
+}

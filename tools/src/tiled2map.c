@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../shared/files/map.h"
+#include "../../shared/files/level.h"
 #include "../../vendor/c-simple-json-parser/json.h"
 
 const char *read_file(const char *path) {

@@ -6,17 +6,14 @@
 #define TILE_TYPE_DOOR 2
 #define TILE_TYPE_STAIRS 3
 
-#define TILE_STATE_DIRTY 0x01
-#define TILE_STATE_FLIP 0x02
-
 void mapInit();
 
-void drawMap(int offset_x, int offset_y);
+void mapFree();
 
-void restoreBackground(Rect rect);
+void drawMap();
 
-#ifdef DEBUG
-void restoreBackgroundDebug(Rect rect);
-#endif
+void markTouchedTiles(Rect rect);
+
+void restoreMapTiles();
 
 #endif

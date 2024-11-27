@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "../shared/files/spritesheet.h"
-#include "../shared/files/map.h"
+#include "../shared/files/level.h"
 
 #define RES_TYPE_SPRITE 1
 #define RES_TYPE_MAP 2

@@ -1,89 +1,65 @@
-// #include <stdlib.h>
-// #include <stdbool.h>
+#include <stdlib.h>
 
-// #include "geom.h"
-// #include "render/video.h"
-// #include "io/keyboard.h"
-// #include "player.h"
+#include "io/resources.h"
+#include "io/keyboard.h"
+#include "entities.h"
+#include "player.h"
+#include "animations.h"
 
-// Player* player;
-// uint8_t* clearRect;
+#define PLAYER_SPEED 1.5
 
-// void playerInit(int x, int y, Sprite* sprite) {
-//     // TODO: Use entities and allocate all of them at the same time instead of this ugly shit
-//     clearRect = (uint8_t*)malloc(sizeof(uint8_t) * sprite->height * sprite->width);
-//     player = malloc(sizeof(Player));
+struct Entity *player;
 
-//     player->x = x;
-//     player->y = y;
-//     player->vx = 0;
-//     player->vy = 0;
-//     player->prev_x = x;
-//     player->prev_y = y;
-//     player->counter = 0;
-//     player->frame = 0;
-//     player->flip = false;
-//     player->sprite = sprite;
+struct Entity *playerInit(int x, int y) {
+    // should load the player sprites
+    Sprite *resource = loadSprite("fede.spr");
 
-//     getBufferData((Rect){player->x, player->y, player->sprite->width, player->sprite->height}, clearRect);
-// }
-
-// void playerUpdate() {
-//     if (keys[KEY_RIGHT]) {
-//         player->vx = 1;
-//         player->flip = false;
-//     } else if (keys[KEY_LEFT]) {
-//         player->vx = -1;
-//         player->flip = true;
-//     } else {
-//         player->vx = 0;
-//     }
-
-//     if (keys[KEY_UP]) {
-//         player->vy = -1;
-//     } else if (keys[KEY_DOWN]) {
-//         player->vy = 1;
-//     } else {
-//         player->vy = 0;
-//     }
-
-//     player->prev_x = player->x;
-//     player->prev_y = player->y;
-
-//     player->x = player->x + player->vx;
-//     player->y = player->y + player->vy;
-
-//     if (player->x >= SCREEN_WIDTH - player->sprite->width) player->x = SCREEN_WIDTH - player->sprite->width;
-//     if (player->x <= 0) player->x = 0;
-//     if (player->y >= SCREEN_HEIGHT - player->sprite->height) player->y = SCREEN_HEIGHT - player->sprite->height;
-//     if (player->y <= 0) player->y = 0;
-
-//     //
-//     if (++player->counter >= 12) {
-//         player->frame = player->frame < 1 ? player->frame + 1 : 0;
-//         player->counter = 0;
-//     };
-// }
-
-// void playerRender() {
-//     // Clean previous position
-//     drawRect((Rect){player->prev_x, player->prev_y, player->sprite->width, player->sprite->height}, clearRect);
-
-//     // Store current data
-//     getBufferData((Rect){player->x, player->y, player->sprite->width, player->sprite->height}, clearRect);
-//     drawSprite(player->x, player->y, player->sprite, player->frame, player->flip);
-// }
-
-// void playerFree() {
-//     free(player);
-//     player = NULL;
-
-//     free(clearRect);
-//     clearRect = NULL;
-// }
-
-void playerInit() {
-    // shold load the player sprites
     // should create the player entity
+    player = createEntity(x, y, TYPE_PLAYER, resource, updatePlayer);
     // should set the player initial stats (position, lives, score...)
+    player->animation = PLAYER_ANIM_IDLE;
+    player->frame = PLAYER_ANIM_IDLE;
+    return player;
+}
+
+void updatePlayer(struct Entity *entity, struct Entity *player) {
+    //  TODO: Use screen & map limits
+
+    // Update position basde on input
+    if (keys[KEY_RIGHT]) {
+        entity->vx = PLAYER_SPEED;
+        entity->flags = entity->flags & (0xFF ^ ENTITY_FLIP);
+    } else if (keys[KEY_LEFT]) {
+        entity->vx = -PLAYER_SPEED;
+        entity->flags = entity->flags | ENTITY_FLIP;
+    } else {
+        entity->vx = 0;
+    }
+
+    if (keys[KEY_UP]) {
+        entity->vy = -PLAYER_SPEED;
+    } else if (keys[KEY_DOWN]) {
+        entity->vy = PLAYER_SPEED;
+    } else {
+        entity->vy = 0;
+    }
+
+    // Update animation
+    const int currentAnimation = entity->animation;
+
+    if (entity->vx == 0 && entity->vy == 0) {
+        entity->animation = PLAYER_ANIM_IDLE;
+    } else {
+        entity->animation = PLAYER_ANIM_WALK;
+    }
+
+    // Reset current frame on animation change
+    if (currentAnimation != entity->animation) {
+        entity->frame = entity->animation;
+    }
+}
+
+void playerFree() {
+    free(player->sprite);
+    player = NULL;
 }

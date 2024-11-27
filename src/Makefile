@@ -7,7 +7,7 @@ BIN := ../out/game.exe
 
 CC := c:/djgpp/bin/i586-pc-msdosdjgpp-gcc.exe
 DC := objdump
-CFLAGS	:= -I. -c -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
+CFLAGS	:= -I. -c -std=gnu99 -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
 LDFLAGS := -s
 
 SRCS	:= $(shell find $(SRC_DIR) -name '*.c')

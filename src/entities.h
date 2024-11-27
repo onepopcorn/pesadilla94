@@ -32,16 +32,22 @@
 #define ENTITY_LOCKED 0x08  // bit 3  00001000
 
 typedef struct Entity {
-    int x, y;
-    int vx, vy;
-    int prev_x, prev_y;
+    float x, y;
+    float vx, vy;
+    float prev_x, prev_y;
+    // uint32_t counter;
+    int animation;
     int frame;
     uint8_t flags;
+    void (*update)(struct Entity* entity, struct Entity* player);
     Sprite* sprite;
 } Entitiy;
 
-struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr);
+struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player));
+
 void destroyEntity(uint8_t index);
-void updateEntities();
-void renderEntities();
+
+void updateEntities(uint32_t delta);
+
+int getAnimationFrame(char nextFrame, struct Entity* entity);
 #endif

@@ -2,15 +2,17 @@
 #include <stdint.h>
 #include <go32.h>
 #include <dpmi.h>
+#include <pc.h>
 
 #include "timer.h"
 
-volatile static uint32_t ticks = 0;
+volatile static uint32_t milliseconds = 0;
 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
 static void timerHandler() {
-    ticks++;
+    milliseconds += 55;    // ~55 ms per tick at 18.2 Hz
+    outportb(0x20, 0x20);  // End-of-interrupt (EOI) signal to PIC
 }
 
 void timerInit() {
@@ -23,4 +25,8 @@ void timerInit() {
 void timerFree() {
     if (_go32_dpmi_set_protected_mode_interrupt_vector(IRS_TIMER, &old_handler) == -1)
         fprintf(stderr, "Failed to free the timer :(\n");
+}
+
+uint32_t getMilliseconds() {
+    return milliseconds;
 }

@@ -11,6 +11,8 @@
 #include "entities.h"
 #include "timer.h"
 #include "map.h"
+#include "player.h"
+#include "enemy.h"
 
 #include <crt0.h>
 
@@ -43,7 +45,6 @@ int main(int argc, char *argv[]) {
     // Entities & game logic
     Sprite *res = loadSprite("player.spr");
     Sprite *font = loadSprite("font.fnt");
-    // Sprite *tileset = loadSprite("tileset.spr");
 
     if (!res) {
         perror("Error opening sprite files");
@@ -54,43 +55,48 @@ int main(int argc, char *argv[]) {
     fillScreen(0);
 
     // draw map
-    drawMap(0, 40);
+    drawMap();
 
-    // static const char MESSAGE[] = "MANOLO! NO HAS ESTUDIADO PARA  LOS EXAMENES FINALES!";
-    // static const int MESSAGE_LENGTH = sizeof(MESSAGE);
+    playerInit(110, 120);
+    enemyInit(100, 120);
+    enemyInit(120, 160);
 
-    // int current_charnum = 0;
-    // char *text = malloc(sizeof(char) * MESSAGE_LENGTH);
-    // text[0] = '\0';
-    // int counter = 0;
+    static const char MESSAGE[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
+    static const int MESSAGE_LENGTH = sizeof(MESSAGE);
+    int current_charnum = 0;
+    char *text = malloc(sizeof(char) * MESSAGE_LENGTH);
+    text[0] = '\0';
+    int counter = 0;
 
-    createEntity(110, 150, TYPE_PLAYER, res);
-    createEntity(160, 150, TYPE_ENEMY_B, res);
-    createEntity(160, 100, TYPE_ENEMY_A, res);
+    uint32_t previousTime = getMilliseconds();
 
     while (!keys[KEY_ESC]) {
-        // Render previous frames
+        // Manage timers
+        uint32_t now = getMilliseconds();
+        uint32_t delta = now - previousTime;
+        previousTime = now;
+
         waitVSync();
+
+        // This dumps from back buffer to screen buffer at all once
         dumpBuffer();
 
-        updateEntities();
+        // Re-paint tiles that has been overwritten by sprites
+        restoreMapTiles();
 
-        // Draw sprite
-        // drawText(35,7, font, text, 31);
-        renderEntities();
+        // Update entity logic & render in the same loop
+        updateEntities(delta);
 
         // Typewriter effect
-        // if(current_charnum <= MESSAGE_LENGTH && ++counter & 1) {
-        //     for(int i = 0; i < current_charnum - 1; i++) {
-        //         text[i] = MESSAGE[i];
-        //         text[i+1] = '\0';
-        //     }
-        //     current_charnum++;
-        // }
+        if (current_charnum <= MESSAGE_LENGTH && ++counter & 1) {
+            for (int i = 0; i < current_charnum - 1; i++) {
+                text[i] = MESSAGE[i];
+                text[i + 1] = '\0';
+            }
+            current_charnum++;
+            drawText(35, 7, font, text, 31);
+        }
     }
-
-    // Return to text mode
-    setVideoMode(VIDEO_TEXT_MODE);
 
     // Restore timer interrupt
     timerFree();
@@ -99,12 +105,18 @@ int main(int argc, char *argv[]) {
     // Free memory
     closeScreenBuffer();
 
-    free(res);
-    res = NULL;
+    playerFree();
+
     free(font);
     font = NULL;
-    // free(text);
-    // text = NULL;
+
+    mapFree();
+
+    free(text);
+    text = NULL;
+
+    // Return to text mode
+    setVideoMode(VIDEO_TEXT_MODE);
 
     return EXIT_SUCCESS;
 }

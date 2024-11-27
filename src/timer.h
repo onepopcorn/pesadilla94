@@ -7,5 +7,6 @@
 volatile static uint32_t ticks;
 void timerInit(void);
 void timerFree(void);
+uint32_t getMilliseconds();
 
 #endif

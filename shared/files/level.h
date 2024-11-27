@@ -9,19 +9,12 @@
 /**
  * Custom Tilemap format
  *
- * Tile flags are:
- *  - high nibble: type
- *  - low nibble: flags
- *    - bit 0: dirty
- *    - bit 1: flip
- *    - bit 2: unused
- *    - bit 3: unused
- *    - bit 4: unused
- * 
+ * @param type Tile flags
+ * @param id Tile ID
  */
 typedef struct Tile
 {
-    uint8_t flags;
+    uint8_t type;
     uint8_t id;
 } Tile;
 
