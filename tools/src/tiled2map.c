@@ -226,7 +226,8 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     for (int i = 0; i < mapSize; i++) {
         int tileId =
             (int)dataIds.value.as_array->elements[i].value.as_number.value.as_long;
-        Tile tile = {tileTypes[tileId] << 4, tileId};
+        // Tiled uses 1-based indexing and tilemap uses 0-based indexing
+        Tile tile = {tileTypes[tileId - 1], tileId};
         map->data[i] = tile;
     }
 
