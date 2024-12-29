@@ -3,7 +3,7 @@
 
 struct Entity *enemyInit(int x, int y);
 
-void enemyUpdate(struct Entity *e, struct Entity *player);
+void enemyUpdate(struct Entity *e, struct Entity *player, uint8_t tileCollisions);
 
 void enemyFree();
 

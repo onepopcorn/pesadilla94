@@ -1,7 +1,8 @@
 #ifndef RES_H
 #define RES_H
 
-#include <stdint.h>
+typedef unsigned char uint8_t;
+
 #include "../shared/files/spritesheet.h"
 #include "../shared/files/level.h"
 

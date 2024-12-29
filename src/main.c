@@ -43,11 +43,10 @@ int main(int argc, char *argv[]) {
     mapInit();
 
     // Entities & game logic
-    Sprite *res = loadSprite("player.spr");
     Sprite *font = loadSprite("font.fnt");
 
-    if (!res) {
-        perror("Error opening sprite files");
+    if (!font) {
+        perror("Error opening font files");
         return EXIT_FAILURE;
     }
 
@@ -57,9 +56,13 @@ int main(int argc, char *argv[]) {
     // draw map
     drawMap();
 
-    playerInit(110, 120);
-    enemyInit(100, 120);
-    enemyInit(120, 160);
+    playerInit(160, 153);
+    enemyInit(100, 105);
+    enemyInit(160, 56);
+    // enemyInit(130, 165);
+    // enemyInit(200, 94);
+    // enemyInit(10, 100);
+    // enemyInit(10, 60);
 
     static const char MESSAGE[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
     static const int MESSAGE_LENGTH = sizeof(MESSAGE);
@@ -94,7 +97,7 @@ int main(int argc, char *argv[]) {
                 text[i + 1] = '\0';
             }
             current_charnum++;
-            drawText(35, 7, font, text, 31);
+            drawText(35, 10, font, text, 31);
         }
     }
 

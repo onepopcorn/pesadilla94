@@ -5,6 +5,8 @@
 #include <string.h>
 #include <sys/nearptr.h>
 
+#include "physics/geom.h"
+#include "io/resources.h"
 #include "settings/settings.h"
 #include "video.h"
 
@@ -104,7 +106,7 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
             continue;  // whitespaces don't need to be drawn, skip them after calculations
         }
 
-        drawSprite(x_pos + x_offset, y_pos, font, text[i] - 32, 0);
+        drawSprite(x_pos + x_offset, y_pos, font, text[i] - 32, false, 0);
     }
 }
 
@@ -113,13 +115,14 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
  *
  * @param x Starting x position
  * @param y Starting y position
- * @param sprite Pinter to sprite struct
+ * @param sprite Pointer to sprite struct
  * @param frame Sprite frame number to be printed
  * @param flip flip sprite horizontally
+ * @param colorOverride Color for non transparent pixels if COLOR_TRANSPARENT is passed, the override takes no effect
  *
  * TODO: Consider using inlined assembly if performance is not good enough
  */
-void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip) {
+void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip, int colorOverride) {
     int width = sprite->width;
     int height = sprite->height;
 
@@ -138,8 +141,8 @@ void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip) {
              */
             // TODO: Consider optimiznig this branching
             uint8_t idx = !flip ? src_row[j] : src_row[width - 1 - j];  // sprite->data
-            if (idx == TRANSPARENT_IDX) continue;
-            dst_row[j] = idx;
+            if (idx == COLOR_TRANSPARENT) continue;
+            dst_row[j] = colorOverride > COLOR_TRANSPARENT ? colorOverride : idx;
         }
     }
 
@@ -195,26 +198,6 @@ void drawTile(int x, int y, Sprite* tileset, int id) {
 }
 
 /**
- * Draw given rectangle with given data pointer
- *
- * @param rect Rectangle {x, y, width, height} of the are to be drawn
- * @param data Pointer to where that do be drawn is stored
- *
- * TODO Consider using assembly for this although it seems to be quite fast already
- */
-void drawRect(Rect rect, uint8_t* data) {
-    for (int row = 0; row < rect.h; row++) {
-        memcpy(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, data + row * rect.w, sizeof(uint8_t) * rect.w);
-    }
-}
-
-void drawRectColor(Rect rect, int color) {
-    for (int row = 0; row < rect.h; row++) {
-        memset(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, color, rect.w);
-    }
-}
-
-/**
  * Fills given pointer with the given rect portion of the data in the screen buffer
  *
  * @param rect Rectangle {x, y, width, height} of the area to get the data from
@@ -256,3 +239,40 @@ void dumpBuffer() {
           "c"(SCREEN_MEM_SIZE / 4)  // ECX = Number of DWORDs to copy (320*200/4)
         : "memory");
 }
+
+#ifdef DEBUG
+/**
+ * Draw given rectangle with given color
+ *
+ * Debug utility function. Needs to be compiled with DEBUG flag
+ *
+ * @param rect Rectangle {x, y, width, height} of the are to be drawn
+ * @param color Color palette index to fill the rectangle with
+ *
+ * TODO Consider using assembly for this although it seems to be quite fast already
+ */
+void drawRectColor(Rect rect, int color) {
+    for (int row = 0; row < rect.h; row++) {
+        memset(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, color, rect.w);
+    }
+}
+
+/**
+ * Draw outlines for given recangle with given color
+ *
+ * Debug utility function. Needs to be compiled with DEBUG flag
+ *
+ * @param rect Rectangle {x, y, width, height} of the are to be drawn
+ * @param color Color palette index to fill the rectangle with
+ *
+ */
+void drawBBoxColor(Rect rect, int color) {
+    for (int row = 0; row < rect.h; row++) {
+        for (int col = 0; col < rect.w; col++) {
+            if (row == 0 || row == rect.h - 1 || col == 0 || col == rect.w - 1) {
+                back_buffer[rect.x + col + (rect.y + row) * SCREEN_WIDTH] = color;
+            }
+        }
+    }
+}
+#endif

@@ -7,7 +7,7 @@ typedef struct Player {
 
 struct Entity* playerInit(int x, int y);
 
-void updatePlayer(struct Entity* entity, struct Entity* player);
+void updatePlayer(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
 
 void playerFree();
 

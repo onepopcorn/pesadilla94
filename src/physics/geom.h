@@ -6,12 +6,4 @@ typedef struct Rect {
     int w, h;
 } Rect;
 
-// struct {
-
-// } Sprite;
-
-// struct {
-
-// } Tile;
-
 #endif
