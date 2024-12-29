@@ -10,12 +10,12 @@
 
 /**
  *
- *
+ * TODO: Take a pointer to a function for when a collision happens
  */
-void checkCollisionsBetweenEntities(struct Entity *entities, struct Entity *entity, int lastEntityIdx) {
+void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEntityIdx) {
     entity->flags &= ~ENTITY_CHECK_COLLISION;
     for (int i = lastEntityIdx; i > 0; i--) {
-        struct Entity *other = &entities[i];
+        Entity *other = &entities[i];
 
         if (entity->type == other->type ||
             (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
@@ -41,16 +41,14 @@ void checkCollisionsBetweenEntities(struct Entity *entities, struct Entity *enti
  * TODO: Set sprite collision boxes
  *
  */
-#define MARGIN_TOP 2
-#define MARGIN_RIGHT 2
-#define MARGIN_LEFT 2
-#define MARGIN_BOTTOM 3
 
-bool checkAABBCollision(struct Entity *e1, struct Entity *e2) {
-    if (e1->x + e1->sprite->width - MARGIN_RIGHT <= e2->x + MARGIN_LEFT ||
-        e2->x + e2->sprite->width - MARGIN_RIGHT <= e1->x + MARGIN_LEFT ||
-        e1->y + e1->sprite->height - MARGIN_BOTTOM <= e2->y + MARGIN_TOP ||
-        e2->y + e2->sprite->height - MARGIN_BOTTOM <= e1->y + MARGIN_TOP) {
+bool checkAABBCollision(Entity *e1, Entity *e2) {
+    // Apply hitbox to entity position
+    Rect e1Rect = {e1->x + e1->hitbox.x, e1->y + e1->hitbox.y, e1->hitbox.w, e1->hitbox.h};
+    Rect e2Rect = {e2->x + e2->hitbox.x, e2->y + e2->hitbox.y, e2->hitbox.w, e2->hitbox.h};
+
+    // e1 is left of e2 || e1 is right of e2 || e1 is above e2 || e1 is below e2
+    if (e1Rect.x + e1Rect.w < e2Rect.x || e1Rect.x > e2Rect.x + e2Rect.w || e1Rect.y + e1Rect.h < e2Rect.y || e1Rect.y > e2Rect.y + e2Rect.h) {
         return false;
     }
 
@@ -68,9 +66,9 @@ bool checkAABBCollision(struct Entity *e1, struct Entity *e2) {
  * Returns a collision bitmask to represent the tiles that are colliding with the entity
  * that can happen a the same time (e.g. floor, left wall, door, stairs...)
  */
-uint8_t checkTilesCollision(struct Entity *entities, uint8_t entityIdx) {
+uint8_t checkTilesCollision(Entity *entities, uint8_t entityIdx) {
     // Get current entity
-    struct Entity *entity = &entities[entityIdx];
+    Entity *entity = &entities[entityIdx];
     Rect spriteRect = {entity->x, entity->y, entity->sprite->width, entity->sprite->height};
 
     Rect tilesRect = getTilesRect(spriteRect);

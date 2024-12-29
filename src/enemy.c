@@ -12,7 +12,8 @@ struct Entity *enemyInit(int x, int y) {
     struct Entity *enemy = createEntity(x, y, TYPE_ENEMY_A, resource, enemyUpdate);
     enemy->animation = PLAYER_ANIM_WALK;
     enemy->frame = PLAYER_ANIM_WALK;
-    enemy->vx = 1;
+    enemy->vx = 1 * ENEMY_SPEED;
+    enemy->hitbox = (Rect){resource->width / 4, 0, resource->width / 2, resource->height};
     return enemy;
 }
 

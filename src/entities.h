@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "settings/settings.h"
+#include "physics/geom.h"
 
 /**
  * Entity types
@@ -26,13 +27,14 @@
 typedef struct Entity {
     float x, y;
     float vx, vy;
+    Rect hitbox;
     uint8_t animation;
     uint8_t frame;
     uint8_t type;
     uint8_t flags;
     void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
     Sprite* sprite;
-} Entitiy;
+} Entity;
 
 struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions));
 

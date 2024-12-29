@@ -8,7 +8,7 @@
 
 #include "map.h"
 
-#define MAP_Y_OFFSET 40
+#define SCREEN_Y_OFFSET 40
 
 Map* currentMap;
 Sprite* tileset;
@@ -57,7 +57,7 @@ void drawMap() {
         for (int j = 0; j < mapWidth; j++) {
             Tile tile = data[j + i * mapWidth];
             // Tiled uses 1-based indexes for maps
-            drawTile(j * tileWidth, i * tileHeight + MAP_Y_OFFSET, tileset, tile.id - 1);
+            drawTile(j * tileWidth, i * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
         }
     }
 }
@@ -77,7 +77,7 @@ void restoreMapTiles() {
         int y = dirtyTiles[i].y;
 
         Tile tile = data[x + y * mapWidth];
-        drawTile(x * tileWidth, y * tileHeight + MAP_Y_OFFSET, tileset, tile.id - 1);
+        drawTile(x * tileWidth, y * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
     }
 
     dirtyTilesCount = 0;
@@ -87,17 +87,17 @@ void restoreMapTiles() {
  *
  * Get the tiles rectangle that a sprite is touching
  *
- * Using integes makes coordinates to round to nearest tile
+ * Using integers makes coordinates to round to nearest tile
  */
 Rect getTilesRect(Rect spriteRect) {
     uint8_t tileWidth = currentMap->tileWidth;
     uint8_t tileHeight = currentMap->tileHeight;
 
     int minTileXIndex = spriteRect.x / tileWidth;
-    int minTileYIndex = (spriteRect.y - MAP_Y_OFFSET) / tileHeight;
+    int minTileYIndex = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
 
     int maxTileXIndex = (spriteRect.x + spriteRect.w) / tileWidth;
-    int maxTileYIndex = ((spriteRect.y - MAP_Y_OFFSET) + spriteRect.h) / tileHeight;
+    int maxTileYIndex = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
 
     int wTiles = maxTileXIndex - minTileXIndex + 1;
     int hTiles = maxTileYIndex - minTileYIndex + 1;
@@ -121,9 +121,9 @@ int markDirtyTile(int entityIdx, int tileXIndex, int tileYIndex) {
 
 #ifdef DEBUG
     // NOTE This has a performance hit
-    int tileWidth = currentMap->tileWidth;
-    int tileHeight = currentMap->tileHeight;
-    drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + MAP_Y_OFFSET, tileWidth, tileHeight}, 34);
+    // int tileWidth = currentMap->tileWidth;
+    // int tileHeight = currentMap->tileHeight;
+    // drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
 #endif
 
     for (int k = 0; k < dirtyTilesCount; k++) {

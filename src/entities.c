@@ -24,6 +24,7 @@ struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*upda
     // Initialize entity
     entities[lastEntityIdx].x = x;
     entities[lastEntityIdx].y = y;
+    entities[lastEntityIdx].hitbox = (Rect){x, y, spr->width, spr->height};
     entities[lastEntityIdx].sprite = spr;
     entities[lastEntityIdx].type = type;
     entities[lastEntityIdx].flags |= ENTITY_ALIVE;  // Type is stored in high nibble, flags in low nibble
@@ -72,8 +73,8 @@ void updateEntities(uint32_t delta) {
         // TODO: Check collision with grid tiles (e.g. background, walls, doors, stairs...)
 
         // FIRST APPROACH CHECKS COLLISIONS WITH OTHER ENTITIES NO MATTER THE TYPE
-        // TODO: Extract this to collisions module and check if it's actually working. For some reason entity is always the player
 
+        // TODO: Extract this to collisions module (checkCollisionsBetweenEntities) and check if it's actually working. For some reason entity is always the player
         if (entity->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) {
             entity->flags &= ~ENTITY_CHECK_COLLISION;
             // iterate through all entities to check collisions
@@ -114,6 +115,10 @@ void updateEntities(uint32_t delta) {
         int color = entity->flags & ENTITY_FLASHING ? COLOR_WHITE : COLOR_TRANSPARENT;
         drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
+#ifdef DEBUG
+        drawBBoxColor((Rect){entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h}, 48);
+#endif
+
         // Reset flashing flag
         entity->flags &= ~ENTITY_FLASHING;
 
@@ -145,7 +150,7 @@ void destroyEntity(uint8_t index) {
     struct Entity entity = entities[index];
 
     entities[index] = entities[lastEntityIdx];
-    memset(&entity, 0, sizeof(Entitiy));
+    memset(&entity, 0, sizeof(Entity));
     entities[lastEntityIdx] = entity;
 
     // Update last entity inde

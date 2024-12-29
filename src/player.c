@@ -17,6 +17,11 @@ struct Entity *playerInit(int x, int y) {
 
     // should create the player entity
     player = createEntity(x, y, TYPE_PLAYER, resource, updatePlayer);
+
+    // set hitbox
+    // player->hitbox = (Rect){0, 0, resource->width, resource->height};
+    player->hitbox = (Rect){resource->width / 4, 0, resource->width / 2, resource->height};
+
     // should set the player initial stats (position, lives, score...)
     player->animation = PLAYER_ANIM_IDLE;
     player->frame = PLAYER_ANIM_IDLE;
@@ -45,13 +50,13 @@ void updatePlayer(struct Entity *entity, struct Entity *player, uint8_t tileColl
         entity->vx = 0;
     }
 
-    // if (keys[KEY_UP]) {
-    //     entity->vy = -PLAYER_SPEED;
-    // } else if (keys[KEY_DOWN]) {
-    //     entity->vy = PLAYER_SPEED;
-    // } else {
-    //     entity->vy = 0;
-    // }
+    if (keys[KEY_UP]) {
+        entity->vy = -PLAYER_SPEED;
+    } else if (keys[KEY_DOWN]) {
+        entity->vy = PLAYER_SPEED;
+    } else {
+        entity->vy = 0;
+    }
 
     // Update animation
     const int currentAnimation = entity->animation;
