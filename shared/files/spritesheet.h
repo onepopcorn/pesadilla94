@@ -3,7 +3,7 @@
 
 /**
  * Custom Spritesheet file format
- * 
+ *
  */
 
 typedef struct Sprite {
