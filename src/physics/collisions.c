@@ -20,7 +20,7 @@ void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEn
         if (entity->type == other->type ||
             (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
 
-        if (!checkAABBCollision(entity, other)) continue;
+        if (!checkAABBCollision(m_getEntityRect(entity), m_getEntityRect(other))) continue;
 
         // reset collision check flags
         // TODO: This shouldn't be done here.
@@ -38,17 +38,11 @@ void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEn
 /**
  * Simple AABB colllision checking
  *
- * TODO: Set sprite collision boxes
- *
  */
 
-bool checkAABBCollision(Entity *e1, Entity *e2) {
-    // Apply hitbox to entity position
-    Rect e1Rect = {e1->x + e1->hitbox.x, e1->y + e1->hitbox.y, e1->hitbox.w, e1->hitbox.h};
-    Rect e2Rect = {e2->x + e2->hitbox.x, e2->y + e2->hitbox.y, e2->hitbox.w, e2->hitbox.h};
-
-    // e1 is left of e2 || e1 is right of e2 || e1 is above e2 || e1 is below e2
-    if (e1Rect.x + e1Rect.w < e2Rect.x || e1Rect.x > e2Rect.x + e2Rect.w || e1Rect.y + e1Rect.h < e2Rect.y || e1Rect.y > e2Rect.y + e2Rect.h) {
+bool checkAABBCollision(Rect rect1, Rect rect2) {
+    // rect1 is left of rect2 || rect1 is right of rect2 || rect1 is above rect2 || rect1 is below rect2
+    if (rect1.x + rect1.w < rect2.x || rect1.x > rect2.x + rect2.w || rect1.y + rect1.h < rect2.y || rect1.y > rect2.y + rect2.h) {
         return false;
     }
 
@@ -71,6 +65,7 @@ uint8_t checkTilesCollision(Entity *entities, uint8_t entityIdx) {
     Entity *entity = &entities[entityIdx];
     Rect spriteRect = {entity->x, entity->y, entity->sprite->width, entity->sprite->height};
 
+    // TODO: get the tiles for the entity hitbox and apply tile collision limits
     Rect tilesRect = getTilesRect(spriteRect);
     int hTiles = tilesRect.h;
     int wTiles = tilesRect.w;

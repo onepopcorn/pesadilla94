@@ -24,6 +24,9 @@
 #define ENTITY_CHECK_COLLISION 0x04  // bit 2  00000100
 #define ENTITY_FLASHING 0x08         // bit 3  00001000
 
+#define m_getEntityRect(entity) \
+    (Rect) { entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h }
+
 typedef struct Entity {
     float x, y;
     float vx, vy;

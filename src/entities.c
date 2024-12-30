@@ -11,10 +11,10 @@
 #include "entities.h"
 #include "physics/collisions.h"
 
-struct Entity entities[MAX_ENTITIES] = {0};
+Entity entities[MAX_ENTITIES] = {0};
 int lastEntityIdx = -1;
 
-struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions)) {
+Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, Entity* player, uint8_t tileCollisions)) {
     // Check if there's not enough space for more entities
     // if (&entities[lastEntityIdx] == &entities[MAX_ENTITIES]) return NULL;
     if (lastEntityIdx + 1 == MAX_ENTITIES) return NULL;
@@ -30,7 +30,7 @@ struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*upda
     entities[lastEntityIdx].flags |= ENTITY_ALIVE;  // Type is stored in high nibble, flags in low nibble
     entities[lastEntityIdx].update = update;
 
-    struct Entity* entity = &entities[lastEntityIdx];
+    Entity* entity = &entities[lastEntityIdx];
     return entity;
 }
 
@@ -50,7 +50,7 @@ struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*upda
 // static uint32_t accumulated_time = 0;
 void updateEntities(uint32_t delta) {
     // Player is always entity 0
-    struct Entity* entity = &entities[lastEntityIdx];
+    Entity* entity = &entities[lastEntityIdx];
 
     static uint32_t accumulatedTime = 0;
 
@@ -79,13 +79,13 @@ void updateEntities(uint32_t delta) {
             entity->flags &= ~ENTITY_CHECK_COLLISION;
             // iterate through all entities to check collisions
             for (int i = lastEntityIdx; i > 0; i--) {
-                struct Entity* other = &entities[i];
+                Entity* other = &entities[i];
 
                 // prevent checks between entities of the same type, dead entities or entities without collision check flag
                 if (entity->type == other->type ||
                     (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
 
-                if (checkAABBCollision(entity, other)) {
+                if (checkAABBCollision(m_getEntityRect(entity), m_getEntityRect(other))) {
                     // reset collision check flags
                     // entity->flags &= ~ENTITY_CHECK_COLLISION;
                     // other->flags &= ~ENTITY_CHECK_COLLISION;
@@ -130,7 +130,7 @@ void updateEntities(uint32_t delta) {
     }
 }
 
-int getAnimationFrame(char nextFrame, struct Entity* entity) {
+int getAnimationFrame(char nextFrame, Entity* entity) {
     int animationFrame = Animations[entity->frame];
     if (!nextFrame) return animationFrame;
 
@@ -147,7 +147,7 @@ int getAnimationFrame(char nextFrame, struct Entity* entity) {
 
 void destroyEntity(uint8_t index) {
     // Move destroyed entity to the last position
-    struct Entity entity = entities[index];
+    Entity entity = entities[index];
 
     entities[index] = entities[lastEntityIdx];
     memset(&entity, 0, sizeof(Entity));

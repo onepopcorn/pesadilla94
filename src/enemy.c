@@ -13,7 +13,7 @@ struct Entity *enemyInit(int x, int y) {
     enemy->animation = PLAYER_ANIM_WALK;
     enemy->frame = PLAYER_ANIM_WALK;
     enemy->vx = 1 * ENEMY_SPEED;
-    enemy->hitbox = (Rect){resource->width / 4, 0, resource->width / 2, resource->height};
+    enemy->hitbox = (Rect){resource->width / 4, 6, resource->width / 2, resource->height - 4};
     return enemy;
 }
 

@@ -121,9 +121,9 @@ int markDirtyTile(int entityIdx, int tileXIndex, int tileYIndex) {
 
 #ifdef DEBUG
     // NOTE This has a performance hit
-    // int tileWidth = currentMap->tileWidth;
-    // int tileHeight = currentMap->tileHeight;
-    // drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
+    int tileWidth = currentMap->tileWidth;
+    int tileHeight = currentMap->tileHeight;
+    drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
 #endif
 
     for (int k = 0; k < dirtyTilesCount; k++) {

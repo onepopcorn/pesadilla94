@@ -19,8 +19,7 @@ struct Entity *playerInit(int x, int y) {
     player = createEntity(x, y, TYPE_PLAYER, resource, updatePlayer);
 
     // set hitbox
-    // player->hitbox = (Rect){0, 0, resource->width, resource->height};
-    player->hitbox = (Rect){resource->width / 4, 0, resource->width / 2, resource->height};
+    player->hitbox = (Rect){resource->width / 4, 6, resource->width / 2, resource->height - 4};
 
     // should set the player initial stats (position, lives, score...)
     player->animation = PLAYER_ANIM_IDLE;
