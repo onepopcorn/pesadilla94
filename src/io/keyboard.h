@@ -38,4 +38,4 @@ void keyboardFree(void);
 // #define KEY_F11   0x57
 // #define KEY_F12   0x58
 
-#endif
+#endif  // _KEYB_H

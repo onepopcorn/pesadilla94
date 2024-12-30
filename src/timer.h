@@ -9,4 +9,4 @@ void timerInit(void);
 void timerFree(void);
 uint32_t getMilliseconds();
 
-#endif
+#endif  // _TIMER_H

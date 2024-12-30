@@ -11,4 +11,4 @@ void updatePlayer(struct Entity* entity, struct Entity* player, uint8_t tileColl
 
 void playerFree();
 
-#endif
+#endif  // _PLAYER_H

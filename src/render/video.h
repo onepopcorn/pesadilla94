@@ -1,5 +1,5 @@
-#ifndef VGA_H
-#define VGA_H
+#ifndef _VGA_H
+#define _VGA_H
 
 #include "stdbool.h"
 
@@ -47,4 +47,4 @@ void drawRectColor(Rect rect, int color);
 void drawBBoxColor(Rect rect, int color);
 #endif
 
-#endif
+#endif  // _VGA_H

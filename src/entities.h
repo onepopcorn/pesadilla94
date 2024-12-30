@@ -48,4 +48,4 @@ void updateEntities(uint32_t delta);
 extern struct Entity entities[MAX_ENTITIES];
 
 int getAnimationFrame(char nextFrame, struct Entity* entity);
-#endif
+#endif  // _ENTITIES_H

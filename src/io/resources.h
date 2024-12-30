@@ -1,5 +1,5 @@
-#ifndef RES_H
-#define RES_H
+#ifndef _RES_H
+#define _RES_H
 
 typedef unsigned char uint8_t;
 
@@ -12,4 +12,4 @@ typedef unsigned char uint8_t;
 Sprite *loadSprite(const char *filePath);
 Map *loadMap(const char *filePath);
 
-#endif
+#endif  // _RES_H

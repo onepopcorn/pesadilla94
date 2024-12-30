@@ -24,4 +24,4 @@ int getTileType(int x, int y);
 
 void restoreMapTiles();
 
-#endif
+#endif  // _MAP_H

@@ -24,4 +24,4 @@
 #define MAX_LIVES 4
 #define EXTRA_LIFE_SCORE 10000
 
-#endif
+#endif  // _SETTINGS_H_

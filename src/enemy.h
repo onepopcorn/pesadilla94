@@ -7,4 +7,4 @@ void enemyUpdate(struct Entity *e, struct Entity *player, uint8_t tileCollisions
 
 void enemyFree();
 
-#endif
+#endif  // _ENEMY_H_
