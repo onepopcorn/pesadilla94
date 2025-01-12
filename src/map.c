@@ -8,8 +8,6 @@
 
 #include "map.h"
 
-#define SCREEN_Y_OFFSET 40
-
 Map* currentMap;
 Sprite* tileset;
 

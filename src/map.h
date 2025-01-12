@@ -3,13 +3,6 @@
 
 #include "physics/geom.h"
 
-#define TILE_NONE 0
-#define TILE_WALL_L 1
-#define TILE_WALL_R 2
-#define TILE_DOOR 3
-#define TILE_STAIRS 4
-#define TILE_FLOOR 5
-
 void mapInit();
 
 void mapFree();
