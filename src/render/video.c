@@ -240,7 +240,6 @@ void dumpBuffer() {
         : "memory");
 }
 
-#ifdef DEBUG
 /**
  * Draw given rectangle with given color
  *
@@ -257,6 +256,7 @@ void drawRectColor(Rect rect, int color) {
     }
 }
 
+#ifdef DEBUG
 /**
  * Draw outlines for given recangle with given color
  *

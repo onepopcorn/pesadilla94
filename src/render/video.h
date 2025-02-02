@@ -41,8 +41,9 @@ void fillScreen(int color);
 
 void dumpBuffer();
 
-#ifdef DEBUG
 void drawRectColor(Rect rect, int color);
+
+#ifdef DEBUG
 
 void drawBBoxColor(Rect rect, int color);
 #endif
