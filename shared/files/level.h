@@ -43,6 +43,7 @@ typedef struct Map {
  */
 typedef struct StairsData {
     uint8_t id;
+    uint8_t tileIdx;
     uint8_t up;
     uint8_t down;
 } StairsData;

@@ -45,14 +45,24 @@ const char *read_file(const char *path) {
  * @param count The number of stairs data
  * @return StairsData The stairs data
  */
-StairsData findStairData(StairsData *stairsData, int id, int count) {
+StairsData findStairData(StairsData *data, int tileIdx, int count) {
     for (int i = 0; i < count; i++) {
-        if (stairsData[i].id == id) {
-            return stairsData[i];
+        if (data[i].tileIdx == tileIdx) {
+            return data[i];
         }
     }
 
     return (StairsData){-1, -1, -1};
+}
+
+int findStairIdxByStairId(StairsData *data, int id, int count) {
+    for (int i = 0; i < count; i++) {
+        if (data[i].id == id) {
+            return data[i].tileIdx;
+        }
+    }
+
+    return 0;
 }
 
 /**
@@ -71,12 +81,21 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
     for (int i = 0; i < stairsData.value.as_array->count; i++) {
         typed(json_element) stair = stairsData.value.as_array->elements[i];
 
+        // Get ID
+        result(json_element) idNode = json_object_find(stair.value.as_object, "id");
+        if (result_is_err(json_element)(&idNode)) {
+            typed(json_error) error = result_unwrap_err(json_element)(&idNode);
+            fprintf(stderr, "Error getting element \"id\": %s\n", json_error_to_string(error));
+            return NULL;
+        }
+
+        typed(json_element) id = result_unwrap(json_element)(&idNode);
+
         // Get X value
         result(json_element) xNode = json_object_find(stair.value.as_object, "x");
         if (result_is_err(json_element)(&xNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&xNode);
-            fprintf(stderr, "Error getting element \"x\": %s\n",
-                    json_error_to_string(error));
+            fprintf(stderr, "Error getting element \"x\": %s\n", json_error_to_string(error));
             return NULL;
         }
 
@@ -86,30 +105,31 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
         result(json_element) yNode = json_object_find(stair.value.as_object, "y");
         if (result_is_err(json_element)(&yNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&yNode);
-            fprintf(stderr, "Error getting element \"y\": %s\n",
-                    json_error_to_string(error));
+            fprintf(stderr, "Error getting element \"y\": %s\n", json_error_to_string(error));
             return NULL;
         }
 
         typed(json_element) y = result_unwrap(json_element)(&yNode);
 
+        // Get coordinates
         int xCoord = (int)x.value.as_number.value.as_long / tileWidth;
         int yCoord = (int)y.value.as_number.value.as_long / tileHeight;
 
         // Get tile index from X and Y values
         int tileIndex = (yCoord * mapWidth) + xCoord;
-        data[i].id = tileIndex;
+        data[i].id = id.value.as_number.value.as_long;
+        data[i].tileIdx = tileIndex;
     }
 
     // Update Up/Down values based on the tilemap tile index
-    for (int i = 0; i < stairsData.value.as_array->count; i++) {
+    int totalStairs = stairsData.value.as_array->count;
+    for (int i = 0; i < totalStairs; i++) {
         typed(json_element) stair = stairsData.value.as_array->elements[i];
         result(json_element) propertiesNode = json_object_find(stair.value.as_object, "properties");
 
         if (result_is_err(json_element)(&propertiesNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&propertiesNode);
-            fprintf(stderr, "Error getting element \"properties\": %s\n",
-                    json_error_to_string(error));
+            fprintf(stderr, "Error getting element \"properties\": %s\n", json_error_to_string(error));
             return NULL;
         }
 
@@ -122,8 +142,7 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
             result(json_element) propertyNameNode = json_object_find(property.value.as_object, "name");
             if (result_is_err(json_element)(&propertyNameNode)) {
                 typed(json_error) error = result_unwrap_err(json_element)(&propertyNameNode);
-                fprintf(stderr, "Error getting element \"name\": %s\n",
-                        json_error_to_string(error));
+                fprintf(stderr, "Error getting element \"name\": %s\n", json_error_to_string(error));
                 return NULL;
             }
 
@@ -140,16 +159,20 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
 
             // Get Up value
             if (strcmp(propertyName.value.as_string, "up") == 0) {
-                data[i].up = propertyValue.value.as_number.value.as_long;
+                int value = propertyValue.value.as_number.value.as_long;
+                if (value > 0) {
+                    int idx = findStairIdxByStairId(data, value, totalStairs);
+                    data[i].up = idx;
+                }
             }
 
             // Get Down value
             if (strcmp(propertyName.value.as_string, "down") == 0) {
-                data[i].down = propertyValue.value.as_number.value.as_long;
-            }
-
-            if (strcmp(propertyName.value.as_string, "id") == 0) {
-                data[i].id = propertyValue.value.as_number.value.as_long;
+                int value = propertyValue.value.as_number.value.as_long;
+                if (value > 0) {
+                    int idx = findStairIdxByStairId(data, (int)propertyValue.value.as_number.value.as_long, totalStairs);
+                    data[i].down = idx;
+                }
             }
         }
     }
@@ -249,16 +272,14 @@ DoorData *transformDoorsData(typed(json_element) doorsData, int mapWidth, int ti
             typed(json_element) propertyName = result_unwrap(json_element)(&propertyNameNode);
             typed(json_element) propertyValue = result_unwrap(json_element)(&propertyValueNode);
 
-            // Get Progress value
-            if (strcmp(propertyName.value.as_string, "progress") == 0) {
-                data[i].progress = propertyValue.value.as_number.value.as_long;
-            }
-
             // Get Item value
             if (strcmp(propertyName.value.as_string, "item") == 0) {
                 data[i].item = propertyValue.value.as_number.value.as_long;
             }
         }
+
+        // All doors defaults to 255 so we can countdown progress
+        data[i].progress = 255;
     }
 
     return data;
@@ -293,8 +314,7 @@ int *parseTileset(const char *tilesetFile) {
         json_object_find(root.value.as_object, "tilecount");
     if (result_is_err(json_element)(&tileCountNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tileCountNode);
-        fprintf(stderr, "Error getting element \"tilecount\": %s\n",
-                json_error_to_string(error));
+        fprintf(stderr, "Error getting element \"tilecount\": %s\n", json_error_to_string(error));
         free((void *)tileset);
         return NULL;
     }
@@ -302,12 +322,10 @@ int *parseTileset(const char *tilesetFile) {
     typed(json_element) tileCount = result_unwrap(json_element)(&tileCountNode);
 
     // Get tileset tiles data
-    result(json_element) tilesNode =
-        json_object_find(root.value.as_object, "tiles");
+    result(json_element) tilesNode = json_object_find(root.value.as_object, "tiles");
     if (result_is_err(json_element)(&tilesNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tilesNode);
-        fprintf(stderr, "Error getting element \"tiles\": %s\n",
-                json_error_to_string(error));
+        fprintf(stderr, "Error getting element \"tiles\": %s\n", json_error_to_string(error));
         free((void *)tileset);
         return NULL;
     }
@@ -328,8 +346,7 @@ int *parseTileset(const char *tilesetFile) {
             json_object_find(tileNode.value.as_object, "id");
         if (result_is_err(json_element)(&tileIdNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&tileIdNode);
-            fprintf(stderr, "Error getting element \"id\": %s\n",
-                    json_error_to_string(error));
+            fprintf(stderr, "Error getting element \"id\": %s\n", json_error_to_string(error));
             free((void *)tileset);
             return NULL;
         }
@@ -338,8 +355,7 @@ int *parseTileset(const char *tilesetFile) {
             json_object_find(tileNode.value.as_object, "type");
         if (result_is_err(json_element)(&tileTypeNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&tileTypeNode);
-            fprintf(stderr, "Error getting element \"type\": %s\n",
-                    json_error_to_string(error));
+            fprintf(stderr, "Error getting element \"type\": %s\n", json_error_to_string(error));
             free((void *)tileset);
             return NULL;
         }
@@ -497,10 +513,8 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     DoorData *doorsParsedData = transformDoorsData(doorsData, map->width, map->tileWidth, map->tileHeight);
 
     for (int i = 0; i < mapSize; i++) {
-        int tileId =
-            (int)dataIds.value.as_array->elements[i].value.as_number.value.as_long;
-        // Tiled uses 1-based indexing for tileset and 0-based indexing for tilemap
-        int tileType = tileTypes[tileId - 1];
+        int tileId = (int)dataIds.value.as_array->elements[i].value.as_number.value.as_long;
+        int tileType = tileTypes[tileId - 1];  // Tiled uses 1-based indexing for tileset and 0-based indexing for tilemap
 
         // Skip tiles that are not stairs or doors
         if (tileType != TILE_TYPE_STAIRS && tileType != TILE_TYPE_DOOR) {
@@ -509,16 +523,20 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
         }
 
         // Manage stair data
-        StairsData stair = findStairData(stairsParsedData, i, stairsData.value.as_array->count);
-        if (tileType == TILE_TYPE_STAIRS && stair.id != -1) {
-            map->data[i] = (Tile){tileType, tileId, {{stair.up, stair.down}}};
+        if (tileType == TILE_TYPE_STAIRS) {
+            StairsData stair = findStairData(stairsParsedData, i, stairsData.value.as_array->count);
+            if (stair.id != -1) {
+                map->data[i] = (Tile){tileType, tileId, {{stair.up, stair.down}}};
+            }
             continue;
         }
 
         // Manage door data
-        DoorData door = findDoorData(doorsParsedData, i, doorsData.value.as_array->count);
         if (tileType == TILE_TYPE_DOOR) {
-            map->data[i] = (Tile){tileType, tileId, {{door.progress, door.item}}};
+            DoorData door = findDoorData(doorsParsedData, i, doorsData.value.as_array->count);
+            if (door.id != -1) {
+                map->data[i] = (Tile){tileType, tileId, {{door.progress, door.item}}};
+            }
             continue;
         }
 
