@@ -11,11 +11,12 @@
  * Map system configuration
  */
 #define TILE_SIZE 16  // Size of a tile in pixels which makes calulations easier. Consider using a power of 2 to enable fast bitshifts
+#define SCREEN_Y_OFFSET 40
 
 /**
  * Entities system configuration
  */
-#define MAX_ENTITIES 10        // Limit how many entities we can have at once to not overflow memory
+#define MAX_ENTITIES 15        // Limit how many entities we can have at once to not overflow memory
 #define MAX_TILE_PER_ENTITY 6  // Approximate the max number of tiles a single entity can "touch"
 
 /**

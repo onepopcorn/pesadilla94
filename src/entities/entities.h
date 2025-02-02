@@ -19,10 +19,17 @@
  * Entity flags
  *
  */
+
+// Common
 #define ENTITY_FLIP 0x01             // bit 0  00000001
 #define ENTITY_ALIVE 0x02            // bit 1  00000010
 #define ENTITY_CHECK_COLLISION 0x04  // bit 2  00000100
 #define ENTITY_FLASHING 0x08         // bit 3  00001000
+#define ENTITY_BLOCKED 0x10          // bit 4  00010000
+
+// Player specific
+#define ENTITY_INVULNERABLE 0x20  // bit 5  00100000
+#define ENTITY_SEARCHING 0x40     // bit 6  01000000
 
 #define m_getEntityRect(entity) \
     (Rect) { entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h }

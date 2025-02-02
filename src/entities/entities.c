@@ -47,54 +47,50 @@ Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Ent
  *   - render them here avoids looping through all entities twice
  *
  */
-// static uint32_t accumulated_time = 0;
 void updateEntities(uint32_t delta) {
-    // Player is always entity 0
-    Entity* entity = &entities[lastEntityIdx];
-
     static uint32_t accumulatedTime = 0;
-
-    // Update player logic
 
     // Handle animations with a global counter
     accumulatedTime += delta;
     char frameNeedsUpdate = false;
 
-    if (accumulatedTime >= 150) {
-        accumulatedTime -= 150;  // Reset accumulator
+    if (accumulatedTime >= 160) {
+        accumulatedTime -= 160;  // Reset accumulator
         frameNeedsUpdate = true;
     }
 
     int entityIdx = lastEntityIdx;
 
-    while (entity >= &entities[0]) {
-        // TODO: Check collisions with player
+    while (entityIdx >= 0) {
         // TODO: Check collisions with player bullets
-        // TODO: Check collision with grid tiles (e.g. background, walls, doors, stairs...)
+        Entity* entity = &entities[entityIdx];
 
-        // FIRST APPROACH CHECKS COLLISIONS WITH OTHER ENTITIES NO MATTER THE TYPE
+        Rect entityRect = m_getEntityRect(entity);
 
         // TODO: Extract this to collisions module (checkCollisionsBetweenEntities) and check if it's actually working. For some reason entity is always the player
         if (entity->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) {
+            // reset check collision flag
             entity->flags &= ~ENTITY_CHECK_COLLISION;
             // iterate through all entities to check collisions
             for (int i = lastEntityIdx; i > 0; i--) {
                 Entity* other = &entities[i];
 
                 // prevent checks between entities of the same type, dead entities or entities without collision check flag
-                if (entity->type == other->type ||
+                if (entity->type == other->type || (entity->flags & ENTITY_INVULNERABLE) ||
                     (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
 
-                if (checkAABBCollision(m_getEntityRect(entity), m_getEntityRect(other))) {
-                    // reset collision check flags
-                    // entity->flags &= ~ENTITY_CHECK_COLLISION;
-                    // other->flags &= ~ENTITY_CHECK_COLLISION;
+                if ((entity->type == TYPE_PLAYER && other->type == TYPE_PLAYER_BULLET) || (entity->type == TYPE_PLAYER_BULLET && other->type == TYPE_PLAYER)) continue;
 
+                if (checkAABBCollision(entityRect, m_getEntityRect(other))) {
                     // what to do with the collision?
                     entity->flags |= ENTITY_FLASHING;
                     other->flags |= ENTITY_FLASHING;
                     // TODO check if that's actually what we want
-                    // other->flags &= (0xFF ^ ENTITY_ALIVE);
+                    // other->flags &= ~ENTITY_ALIVE;
+
+                    if (entity->type == TYPE_PLAYER_BULLET && (other->type == TYPE_ENEMY_A || other->type == TYPE_ENEMY_B)) {
+                        other->flags &= ~ENTITY_ALIVE;
+                    }
                 }
             }
         }
@@ -103,13 +99,23 @@ void updateEntities(uint32_t delta) {
         // We need to use the tile collision to filter out entities that are close enough to use AABB collision checks between them
         uint8_t tileCollisionsBitmask = checkTilesCollision(entities, entityIdx);
 
+        //
+        int currentAnimation = entity->animation;
+
         // update each entity logic
         entity->update(entity, &entities[0], tileCollisionsBitmask);
 
-        // TODO: Move this inside update function or each entity
+        // TODO: Move this inside update function for each entity (?)
         // Move entity using delta time for smooth animations
-        entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 70 pixels/second
-        entity->y = entity->y + entity->vy * 70 * delta / 1000;  // Move 70 pixels/second
+        if ((entity->flags & ENTITY_BLOCKED) == 0) {
+            entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 70 pixels/second
+            // entity->y = entity->y + entity->vy * 70 * delta / 1000;  // Move 70 pixels/second
+        }
+
+        // Reset frame number if animation changed during update
+        if (currentAnimation != entity->animation) {
+            entity->frame = 0;
+        }
 
         int frame = getAnimationFrame(frameNeedsUpdate, entity);
         int color = entity->flags & ENTITY_FLASHING ? COLOR_WHITE : COLOR_TRANSPARENT;
@@ -125,21 +131,36 @@ void updateEntities(uint32_t delta) {
         // Delete entity if dead
         if ((entity->flags & ENTITY_ALIVE) == 0) destroyEntity(entityIdx);
 
-        entity--;
         entityIdx--;
     }
 }
 
 int getAnimationFrame(char nextFrame, Entity* entity) {
-    int animationFrame = Animations[entity->frame];
-    if (!nextFrame) return animationFrame;
+    int currentAnimation = entity->animation;
 
-    entity->frame++;
-    animationFrame = Animations[entity->frame];
+    // No need to update the frame, just return current frame
+    if (!nextFrame) return Animations[currentAnimation + entity->frame];
 
-    if (animationFrame < 0) {
-        entity->frame = entity->animation;
-        animationFrame = Animations[entity->frame];
+    // Get next animation frame
+    int animationFrame = Animations[++entity->frame + currentAnimation];
+
+    // Reset frame when at the end of animation to loop back
+    if (animationFrame == ANIM_LOOP) {
+        entity->frame = 0;
+        animationFrame = Animations[currentAnimation];
+    }
+
+    // Substract 1 frame to hold to the last animation frame
+    if (animationFrame == ANIM_HOLD) {
+        animationFrame = Animations[--entity->frame + currentAnimation];
+    }
+
+    // Use frame +1 to get the next animation
+    if (animationFrame == ANIM_JMP) {
+        int nextAnimation = Animations[entity->frame + 2 + currentAnimation];
+        entity->frame = 0;
+        entity->animation = nextAnimation;
+        animationFrame = Animations[nextAnimation];
     }
 
     return animationFrame;

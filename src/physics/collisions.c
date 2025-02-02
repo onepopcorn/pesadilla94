@@ -3,8 +3,10 @@
 
 #include "io/resources.h"
 #include "physics/geom.h"
-#include "entities.h"
+#include "entities/entities.h"
 #include "map.h"
+
+#include "render/video.h"
 
 #include "collisions.h"
 
@@ -21,11 +23,6 @@ void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEn
             (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
 
         if (!checkAABBCollision(m_getEntityRect(entity), m_getEntityRect(other))) continue;
-
-        // reset collision check flags
-        // TODO: This shouldn't be done here.
-        // entity->flags &= ~ENTITY_CHECK_COLLISION;
-        // other->flags &= ~ENTITY_CHECK_COLLISION;
 
         // what to do with the collision?
         // entity->flags |= ENTITY_FLASHING;
@@ -64,45 +61,67 @@ uint8_t checkTilesCollision(Entity *entities, uint8_t entityIdx) {
     // Get current entity
     Entity *entity = &entities[entityIdx];
     Rect spriteRect = {entity->x, entity->y, entity->sprite->width, entity->sprite->height};
+    Rect hitboxRect = m_getEntityRect(entity);
 
-    // TODO: get the tiles for the entity hitbox and apply tile collision limits
     Rect tilesRect = getTilesRect(spriteRect);
     int hTiles = tilesRect.h;
     int wTiles = tilesRect.w;
-    int minTileXIndex = tilesRect.x;
-    int minTileYIndex = tilesRect.y;
+    int minTileColumn = tilesRect.x;
+    int minTileRow = tilesRect.y;
 
     // Use this byte to return the type of walls that the entity is touching
     uint8_t tileCollisions = 0;
 
     for (int i = 0; i < hTiles; i++) {
         for (int j = 0; j < wTiles; j++) {
-            int tileXIndex = minTileXIndex + j;
-            int tileYIndex = minTileYIndex + i;
+            int tileColumn = minTileColumn + j;
+            int tileRow = minTileRow + i;
 
-            int entityIdxInTile = markDirtyTile(entityIdx, tileXIndex, tileYIndex);
+            int entityIdxInTile = markDirtyTile(entityIdx, tileColumn, tileRow);
             if (entityIdxInTile < 0) {
                 // something wrong happend. dirtyTiles array is full
                 // TODO: Log error to stdout
                 break;
             }
 
-            int tileType = getTileType(tileXIndex, tileYIndex);
+            int tileType = getTile(tileColumn, tileRow)->type;
 
             // flip the bit that represents the tile type
-            // tileCollisions |= (1 << (tileType - 1));
-            // TODO: Apply tile collision limits
-            if (tileType == TILE_WALL_L) {
-                tileCollisions |= 0x01;
-            } else if (tileType == TILE_WALL_R) {
-                tileCollisions |= 0x02;
-            } else if (tileType == TILE_DOOR) {
-                tileCollisions |= 0x04;
-            } else if (tileType == TILE_STAIRS) {
-                tileCollisions |= 0x08;
-            } else if (tileType == TILE_FLOOR) {
-                tileCollisions |= 0x10;
+            // TODO: Apply tile collision limits. Refactor this to make it more clean
+            Rect tileHitbox = {0, 0, 0, 0};
+            int tileXPos = tileColumn * TILE_SIZE;
+            int tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
+
+            switch (tileType) {
+                case TILE_TYPE_WALL_LEFT:
+                    tileHitbox = (Rect){tileXPos, tileYPos, 10, TILE_SIZE};
+                    if (checkAABBCollision(hitboxRect, tileHitbox)) {
+                        tileCollisions |= COLLISION_WALL_L;
+                    }
+                    break;
+                case TILE_TYPE_WALL_RIGHT:
+                    tileHitbox = (Rect){tileXPos + 8, tileYPos, 8, TILE_SIZE};
+                    if (checkAABBCollision(hitboxRect, tileHitbox)) {
+                        tileCollisions |= COLLISION_WALL_R;
+                    }
+                    break;
+                case TILE_TYPE_DOOR:
+                    tileHitbox = (Rect){tileXPos + 6, tileYPos + 10, 2, 2};
+                    if (checkAABBCollision(hitboxRect, tileHitbox)) {
+                        tileCollisions |= COLLISION_DOOR;
+                    }
+                    break;
+                case TILE_TYPE_STAIRS:
+                    tileHitbox = (Rect){tileXPos + 6, tileYPos + 10, 2, 2};
+                    if (checkAABBCollision(hitboxRect, tileHitbox)) {
+                        tileCollisions |= COLLISION_STAIRS;
+                    }
+                    break;
             }
+
+#ifdef DEBUG
+            drawRectColor(tileHitbox, 3);
+#endif
 
             // Mark both entities for collision checks
             if (entityIdxInTile != entityIdx) {

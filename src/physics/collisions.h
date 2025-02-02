@@ -1,6 +1,13 @@
 #ifndef _H_COLLISIONS_
 #define _H_COLLISIONS_
 
+#include <stdbool.h>
+
+#define COLLISION_WALL_L 0x01
+#define COLLISION_WALL_R 0x02
+#define COLLISION_DOOR 0x04
+#define COLLISION_STAIRS 0x08
+
 void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEntityIdx);
 
 bool checkAABBCollision(Rect rect1, Rect rect2);

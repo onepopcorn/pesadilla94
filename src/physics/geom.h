@@ -6,4 +6,8 @@ typedef struct Rect {
     int w, h;
 } Rect;
 
+typedef struct Vec2 {
+    float x, y;
+} Vec2;
+
 #endif  // _GEOM_H

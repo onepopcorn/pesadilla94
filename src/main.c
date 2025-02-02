@@ -3,16 +3,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <conio.h>
 
 #include "render/video.h"
+#include "render/hud.h"
 #include "io/resources.h"
 #include "io/keyboard.h"
-#include "entities.h"
+#include "entities/entities.h"
+#include "entities/player.h"
+#include "entities/enemy.h"
+#include "entities/whip.h"
 #include "timer.h"
 #include "map.h"
-#include "player.h"
-#include "enemy.h"
 
 #include <crt0.h>
 
@@ -41,35 +42,32 @@ int main(int argc, char *argv[]) {
     timerInit();
     keyboardInit();
     mapInit();
+    hudInit();
 
     // Entities & game logic
-    Sprite *font = loadSprite("font.fnt");
-
-    if (!font) {
-        perror("Error opening font files");
-        return EXIT_FAILURE;
-    }
-
     waitFrames(3);
     fillScreen(0);
 
     // draw map
     drawMap();
 
-    playerInit(160, 153);
-    enemyInit(100, 105);
-    enemyInit(160, 56);
-    // enemyInit(130, 165);
-    // enemyInit(200, 94);
-    // enemyInit(10, 100);
-    // enemyInit(10, 60);
+    // TODO: Create a resources manager to load all sprites at the same time
+    playerInit();
+    enemyInit();
+    whipInit();
 
-    static const char MESSAGE[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
-    static const int MESSAGE_LENGTH = sizeof(MESSAGE);
-    int current_charnum = 0;
-    char *text = malloc(sizeof(char) * MESSAGE_LENGTH);
-    text[0] = '\0';
-    int counter = 0;
+    playerSpawn(165, 59);
+    enemySpawn(100, 111);
+    enemySpawn(160, 63);
+    enemySpawn(130, 158);
+    enemySpawn(200, 111);
+
+    // static const char MESSAGE[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
+    // static const int MESSAGE_LENGTH = sizeof(MESSAGE);
+    // int current_charnum = 0;
+    // char *text = malloc(sizeof(char) * MESSAGE_LENGTH);
+    // text[0] = '\0';
+    // int counter = 0;
 
     uint32_t previousTime = getMilliseconds();
 
@@ -81,7 +79,7 @@ int main(int argc, char *argv[]) {
 
         waitVSync();
 
-        // This dumps from back buffer to screen buffer at all once
+        // This dumps from back buffer to screen buffer all at once
         dumpBuffer();
 
         // Re-paint tiles that has been overwritten by sprites
@@ -91,14 +89,14 @@ int main(int argc, char *argv[]) {
         updateEntities(delta);
 
         // Typewriter effect
-        if (current_charnum <= MESSAGE_LENGTH && ++counter & 1) {
-            for (int i = 0; i < current_charnum - 1; i++) {
-                text[i] = MESSAGE[i];
-                text[i + 1] = '\0';
-            }
-            current_charnum++;
-            drawText(35, 10, font, text, 31);
-        }
+        // if (current_charnum <= MESSAGE_LENGTH && ++counter & 1) {
+        //     for (int i = 0; i < current_charnum - 1; i++) {
+        //         text[i] = MESSAGE[i];
+        //         text[i + 1] = '\0';
+        //     }
+        //     current_charnum++;
+        //     drawText(35, 10, font, text, 31);
+        // }
     }
 
     // Restore timer interrupt
@@ -110,13 +108,13 @@ int main(int argc, char *argv[]) {
 
     playerFree();
 
-    free(font);
-    font = NULL;
+    enemyFree();
+
+    whipFree();
+
+    hudFree();
 
     mapFree();
-
-    free(text);
-    text = NULL;
 
     // Return to text mode
     setVideoMode(VIDEO_TEXT_MODE);

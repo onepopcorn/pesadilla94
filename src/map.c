@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "settings/settings.h"
 #include "io/resources.h"
 #include "physics/geom.h"
 #include "render/video.h"
+#include "render/hud.h"
 
 #include "map.h"
 
@@ -91,27 +93,88 @@ Rect getTilesRect(Rect spriteRect) {
     uint8_t tileWidth = currentMap->tileWidth;
     uint8_t tileHeight = currentMap->tileHeight;
 
-    int minTileXIndex = spriteRect.x / tileWidth;
-    int minTileYIndex = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
+    int minTileColumn = spriteRect.x / tileWidth;
+    int minTileRow = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
 
-    int maxTileXIndex = (spriteRect.x + spriteRect.w) / tileWidth;
-    int maxTileYIndex = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
+    int maxTileColumn = (spriteRect.x + spriteRect.w) / tileWidth;
+    int maxTileRow = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
 
-    int wTiles = maxTileXIndex - minTileXIndex + 1;
-    int hTiles = maxTileYIndex - minTileYIndex + 1;
+    int wTiles = maxTileColumn - minTileColumn + 1;
+    int hTiles = maxTileRow - minTileRow + 1;
 
-    return (Rect){minTileXIndex, minTileYIndex, wTiles, hTiles};
+    return (Rect){minTileColumn, minTileRow, wTiles, hTiles};
 }
 
-int getTileType(int x, int y) {
-    return currentMap->data[x + y * currentMap->width].type;
+/**
+ * Get tile data at given coordinates
+ *
+ * @param col tile column
+ * @param row tile row
+ *
+ * @return Tile* pointer of the tile in given coordinates
+ *
+ */
+Tile* getTile(int col, int row) {
+    return &currentMap->data[col + row * currentMap->width];
+}
+
+/**
+ * Get x/y coordinates of the stair destination
+ *
+ * @param x sprite x coordinate
+ * @param y sprite y coordinate
+ *
+ * @return Vec2 tile coordinates destination to move the sprite to
+ */
+Vec2 getStairsDestination(float x, float y, bool up) {
+    Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
+    int destTileIdx = up ? tile->data.stairs.up : tile->data.stairs.down;
+    int dx = destTileIdx % currentMap->width * TILE_SIZE;
+    int dy = destTileIdx / currentMap->width * TILE_SIZE + SCREEN_Y_OFFSET;
+
+    return (Vec2){dx, dy};
+}
+
+/**
+ * Update the backgroud tiles to show the door open for given coordinates
+ *
+ * @param x sprite x coordinate
+ * @param y sprite y coordinate
+ *
+ * @return Tile* pointer to background tile on given coordinates
+ */
+Tile* openDoor(float x, float y) {
+    Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
+    Tile* above = tile - currentMap->width;
+    // TODO: Use defines for changing tiles
+    if (tile->data.door.progress > 0) {
+        above->id = TILE_DOOR_OPEN_TOP;
+        tile->id = TILE_DOOR_OPEN_BOTTOM;
+    }
+    return tile;
+}
+
+/**
+ * Update background tiles to show the door closed for given coordinates
+ *
+ * @param x sprite x coordinate
+ * @param y sprite y coordinate
+ */
+void closeDoor(float x, float y) {
+    Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
+    Tile* above = tile - currentMap->width;
+    // TODO: Use defines for changin tiles
+    if (tile->data.door.progress > 0) {
+        above->id = TILE_DOOR_CLOSED_TOP;
+        tile->id = TILE_DOOR_CLOSED_BOTTOM;
+    }
 }
 
 /**
  * Marks tile at given coordinates as dirty
  *
  */
-int markDirtyTile(int entityIdx, int tileXIndex, int tileYIndex) {
+int markDirtyTile(int entityIdx, int tileColumn, int tileRow) {
     // dirty tiles buffer is full
     if (dirtyTilesCount >= MAX_DIRTY_TILES) {
         return -1;
@@ -121,19 +184,19 @@ int markDirtyTile(int entityIdx, int tileXIndex, int tileYIndex) {
     // NOTE This has a performance hit
     int tileWidth = currentMap->tileWidth;
     int tileHeight = currentMap->tileHeight;
-    drawRectColor((Rect){tileXIndex * tileWidth, tileYIndex * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
+    drawRectColor((Rect){tileColumn * tileWidth, tileRow * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
 #endif
 
     for (int k = 0; k < dirtyTilesCount; k++) {
         const DirtyTile dirtyTile = dirtyTiles[k];
-        if (dirtyTile.x == tileXIndex && dirtyTile.y == tileYIndex) {
+        if (dirtyTile.x == tileColumn && dirtyTile.y == tileRow) {
             // A previous entity already marked this tile return that one
             return dirtyTile.entityIdx;
         }
     }
 
     // No previous entity on this tile, mark it and return the entity index
-    dirtyTiles[dirtyTilesCount++] = (DirtyTile){entityIdx, tileXIndex, tileYIndex};
+    dirtyTiles[dirtyTilesCount++] = (DirtyTile){entityIdx, tileColumn, tileRow};
 
     return entityIdx;
 }
