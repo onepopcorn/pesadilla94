@@ -9,9 +9,14 @@
 #define TILE_DOOR_CLOSED_TOP 16
 #define TILE_DOOR_CLOSED_BOTTOM 17
 
-void mapInit();
+#define NUM_LEVELS 3
 
-void mapFree();
+extern uint8_t currentLevel;
+extern const char* maps[NUM_LEVELS];
+
+uint8_t startLevel(uint8_t level);
+
+void endLevel();
 
 void drawMap();
 

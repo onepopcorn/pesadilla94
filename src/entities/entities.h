@@ -26,13 +26,13 @@
 #define ENTITY_CHECK_COLLISION 0x04  // bit 2  00000100
 #define ENTITY_FLASHING 0x08         // bit 3  00001000
 #define ENTITY_BLOCKED 0x10          // bit 4  00010000
-
-// Player specific
-#define ENTITY_INVULNERABLE 0x20  // bit 5  00100000
-#define ENTITY_SEARCHING 0x40     // bit 6  01000000
+#define ENTITY_INVULNERABLE 0x20     // bit 5  00100000
+#define ENTITY_STUNT 0x40            // bit 6  01000000
 
 #define m_getEntityRect(entity) \
     (Rect) { entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h }
+
+struct Sprite;
 
 typedef struct Entity {
     float x, y;
@@ -43,16 +43,17 @@ typedef struct Entity {
     uint8_t type;
     uint8_t flags;
     void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
-    Sprite* sprite;
+    struct Sprite* sprite;
 } Entity;
 
-struct Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions));
+struct Entity* createEntity(int x, int y, uint8_t type, struct Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions));
 
 void destroyEntity(uint8_t index);
+
+void destroyAllEntities();
 
 void updateEntities(uint32_t delta);
 
 extern struct Entity entities[MAX_ENTITIES];
 
-int getAnimationFrame(char nextFrame, struct Entity* entity);
 #endif  // _ENTITIES_H

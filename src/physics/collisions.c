@@ -2,11 +2,10 @@
 #include <stdio.h>
 
 #include "io/resources.h"
-#include "physics/geom.h"
-#include "entities/entities.h"
-#include "map.h"
-
 #include "render/video.h"
+#include "entities/entities.h"
+#include "physics/geom.h"
+#include "map.h"
 
 #include "collisions.h"
 

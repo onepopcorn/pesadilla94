@@ -1,22 +1,11 @@
 #include <string.h>
-#include <stdlib.h>
 
-#include "io/resources.h"
 #include "render/video.h"
+#include "assets.h"
 #include "hud.h"
 
 #define SEARCH_TEXT "HUSMEANDO"
 #define SEARCH_TEXT_LEN 9
-
-Sprite* font;
-
-void hudInit() {
-    font = loadSprite("font.fnt");
-    // TODO handle error
-    // if (font == NULL) {
-    // perror("Error opening font files");
-    // }
-}
 
 void writeMessage(char* message) {
     drawRectColor((Rect){5, 10, 16 * strlen(message), 16}, 16);
@@ -33,9 +22,4 @@ void showProgress(uint8_t progress) {
 
 void clearProgress() {
     drawRectColor((Rect){5, 19, 8 * SEARCH_TEXT_LEN + 255 / 5, 8}, COLOR_BLACK);
-}
-
-void hudFree() {
-    free(font);
-    font = NULL;
 }

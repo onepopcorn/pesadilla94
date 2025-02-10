@@ -10,14 +10,8 @@ typedef struct Player {
     uint8_t lives;
 } Player;
 
-void playerInit();
-
 Entity* playerSpawn(int x, int y);
 
-void updatePlayer(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
-
-void setAnimation();
-
-void playerFree();
+void playerUpdate(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
 
 #endif  // _PLAYER_H

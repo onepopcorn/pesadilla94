@@ -1,15 +1,13 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <string.h>
 
 #include "physics/geom.h"
 #include "render/video.h"
 #include "animations.h"
+#include "macros.h"
 
-#include "entities.h"
 #include "physics/collisions.h"
+#include "entities.h"
 
 Entity entities[MAX_ENTITIES] = {0};
 int lastEntityIdx = -1;
@@ -27,8 +25,9 @@ Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Ent
     entities[lastEntityIdx].hitbox = (Rect){x, y, spr->width, spr->height};
     entities[lastEntityIdx].sprite = spr;
     entities[lastEntityIdx].type = type;
-    entities[lastEntityIdx].flags |= ENTITY_ALIVE;  // Type is stored in high nibble, flags in low nibble
     entities[lastEntityIdx].update = update;
+
+    m_setFlag(entities[lastEntityIdx].flags, ENTITY_ALIVE);
 
     Entity* entity = &entities[lastEntityIdx];
     return entity;
@@ -59,37 +58,35 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    int entityIdx = lastEntityIdx;
+    int entityIdx = 0;
 
-    while (entityIdx >= 0) {
+    while (entityIdx <= lastEntityIdx) {
         // TODO: Check collisions with player bullets
         Entity* entity = &entities[entityIdx];
 
         Rect entityRect = m_getEntityRect(entity);
 
         // TODO: Extract this to collisions module (checkCollisionsBetweenEntities) and check if it's actually working. For some reason entity is always the player
-        if (entity->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) {
+        if (m_isFlagSet(entity->flags, ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) {
             // reset check collision flag
-            entity->flags &= ~ENTITY_CHECK_COLLISION;
+            m_unsetFlag(entity->flags, ENTITY_CHECK_COLLISION);
+
             // iterate through all entities to check collisions
             for (int i = lastEntityIdx; i > 0; i--) {
                 Entity* other = &entities[i];
 
                 // prevent checks between entities of the same type, dead entities or entities without collision check flag
-                if (entity->type == other->type || (entity->flags & ENTITY_INVULNERABLE) ||
-                    (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
+                if (entity->type == other->type || m_isFlagSet(entity->flags, ENTITY_INVULNERABLE) || m_isFlagSet(other->flags, ENTITY_STUNT) ||
+                    !m_isFlagSet(other->flags, ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) continue;
 
                 if ((entity->type == TYPE_PLAYER && other->type == TYPE_PLAYER_BULLET) || (entity->type == TYPE_PLAYER_BULLET && other->type == TYPE_PLAYER)) continue;
 
                 if (checkAABBCollision(entityRect, m_getEntityRect(other))) {
-                    // what to do with the collision?
-                    entity->flags |= ENTITY_FLASHING;
-                    other->flags |= ENTITY_FLASHING;
-                    // TODO check if that's actually what we want
-                    // other->flags &= ~ENTITY_ALIVE;
+                    if (entity->type == TYPE_PLAYER) m_setFlag(entity->flags, ENTITY_FLASHING);
 
                     if (entity->type == TYPE_PLAYER_BULLET && (other->type == TYPE_ENEMY_A || other->type == TYPE_ENEMY_B)) {
-                        other->flags &= ~ENTITY_ALIVE;
+                        m_setFlag(other->flags, ENTITY_STUNT);
+                        m_setFlag(entity->flags, ENTITY_FLASHING);
                     }
                 }
             }
@@ -107,7 +104,7 @@ void updateEntities(uint32_t delta) {
 
         // TODO: Move this inside update function for each entity (?)
         // Move entity using delta time for smooth animations
-        if ((entity->flags & ENTITY_BLOCKED) == 0) {
+        if (!m_isFlagSet(entity->flags, ENTITY_BLOCKED)) {
             entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 70 pixels/second
             // entity->y = entity->y + entity->vy * 70 * delta / 1000;  // Move 70 pixels/second
         }
@@ -125,59 +122,33 @@ void updateEntities(uint32_t delta) {
         drawBBoxColor((Rect){entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h}, 48);
 #endif
 
-        // Reset flashing flag
-        entity->flags &= ~ENTITY_FLASHING;
+        if (m_isFlagSet(entity->flags, ENTITY_FLASHING)) m_unsetFlag(entity->flags, ENTITY_FLASHING);
 
         // Delete entity if dead
-        if ((entity->flags & ENTITY_ALIVE) == 0) destroyEntity(entityIdx);
+        if (!m_isFlagSet(entity->flags, ENTITY_ALIVE)) destroyEntity(entityIdx);
 
-        entityIdx--;
+        entityIdx++;
     }
-}
-
-int getAnimationFrame(char nextFrame, Entity* entity) {
-    int currentAnimation = entity->animation;
-
-    // No need to update the frame, just return current frame
-    if (!nextFrame) return Animations[currentAnimation + entity->frame];
-
-    // Get next animation frame
-    int animationFrame = Animations[++entity->frame + currentAnimation];
-
-    // Reset frame when at the end of animation to loop back
-    if (animationFrame == ANIM_LOOP) {
-        entity->frame = 0;
-        animationFrame = Animations[currentAnimation];
-    }
-
-    // Substract 1 frame to hold to the last animation frame
-    if (animationFrame == ANIM_HOLD) {
-        animationFrame = Animations[--entity->frame + currentAnimation];
-    }
-
-    // Use frame +1 to get the next animation
-    if (animationFrame == ANIM_JMP) {
-        int nextAnimation = Animations[entity->frame + 2 + currentAnimation];
-        entity->frame = 0;
-        entity->animation = nextAnimation;
-        animationFrame = Animations[nextAnimation];
-    }
-
-    return animationFrame;
 }
 
 void destroyEntity(uint8_t index) {
+    if (index > lastEntityIdx) return;
+
     // Move destroyed entity to the last position
-    Entity entity = entities[index];
-
     entities[index] = entities[lastEntityIdx];
-    memset(&entity, 0, sizeof(Entity));
-    entities[lastEntityIdx] = entity;
 
-    // Update last entity inde
+    // Clear the last entity slot
+    memset(&entities[lastEntityIdx], 0, sizeof(Entity));
+
+    // Update last entity index
     lastEntityIdx--;
 }
 
+void destroyAllEntities() {
+    memset(entities, 0, sizeof(entities));
+    lastEntityIdx = -1;
+}
+
 void markEntityForCollisionCheck(uint8_t index) {
-    entities[index].flags |= ENTITY_CHECK_COLLISION;
+    m_setFlag(entities[index].flags, ENTITY_CHECK_COLLISION);
 }

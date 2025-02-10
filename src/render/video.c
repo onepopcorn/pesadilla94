@@ -43,7 +43,7 @@ uint8_t openScreenBuffer(void) {
     back_buffer = (uint8_t*)malloc(SCREEN_MEM_SIZE);
 
     if (!back_buffer) {
-        fprintf(stderr, "ERROR: failed to open frame buffer\n");
+        perror("ERROR: failed to open frame buffer\n");
         return EXIT_FAILURE;
     }
 
@@ -197,19 +197,10 @@ void drawTile(int x, int y, Sprite* tileset, int id) {
     }
 }
 
-/**
- * Fills given pointer with the given rect portion of the data in the screen buffer
- *
- * @param rect Rectangle {x, y, width, height} of the area to get the data from
- * @param dest Pointer to where the data is gonna be stored
- * TODO: Deprecated. Consider removing it
- */
-// void getBufferData(Rect rect, uint8_t* dest) {
-//     // Seems to be the most efficient
-//     for (int row = 0; row < rect.h; row++) {
-//         memcpy(dest + row * rect.w, back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, sizeof(uint8_t) * rect.w);
-//     }
-// }
+void clearScreen() {
+    fillScreen(0);
+    dumpBuffer();
+}
 
 /**
  * Fill screen with given color

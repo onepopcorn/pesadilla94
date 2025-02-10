@@ -37,6 +37,8 @@ void drawSprite(int x, int y, Sprite *sprite, int frame, bool flip, int colorOve
 
 void drawTile(int x, int y, Sprite *tileset, int id);
 
+void clearScreen();
+
 void fillScreen(int color);
 
 void dumpBuffer();

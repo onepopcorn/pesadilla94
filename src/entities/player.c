@@ -1,33 +1,28 @@
-#include <stdlib.h>
-#include <stdint.h>
 
 #include "io/resources.h"
 #include "io/keyboard.h"
 #include "entities/entities.h"
-#include "player.h"
-#include "animations.h"
 #include "physics/collisions.h"
-#include "map.h"
 #include "render/hud.h"
+#include "assets.h"
+#include "animations.h"
+#include "map.h"
 #include "whip.h"
 #include "macros.h"
 
-#define PLAYER_SPEED 0.8
+#include "player.h"
+
+#define PLAYER_SPEED 0.9
 
 Entity *player;
-Sprite *playerSprite;
 
 uint8_t playerActions = 0;
 uint8_t counter = 0;
 uint8_t shootTimer = 0;
 
-void playerInit() {
-    playerSprite = loadSprite("fede.spr");
-}
-
 Entity *playerSpawn(int x, int y) {
     // should create the player entity
-    player = createEntity(x, y, TYPE_PLAYER, playerSprite, updatePlayer);
+    player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
 
     // set hitbox
     player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
@@ -38,13 +33,25 @@ Entity *playerSpawn(int x, int y) {
     return player;
 }
 
-void updatePlayer(struct Entity *entity, struct Entity *player, uint8_t tileCollisions) {
+void setAnimation() {
+    if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
+        player->animation = ANIM_PLAYER_SEARCH;
+    } else if (m_isFlagSet(playerActions, PLAYER_ON_STAIRS)) {
+        player->animation = ANIM_PLAYER_STAIRS;
+    } else if (player->vx != 0) {
+        player->animation = PLAYER_WALK;
+    } else {
+        player->animation = ANIM_PLAYER_IDLE;
+    }
+}
+
+void playerUpdate(struct Entity *entity, struct Entity *player, uint8_t tileCollisions) {
     // MOVEMENT
     bool canMove = !m_isFlagSet(playerActions, (PLAYER_DYING | PLAYER_ON_STAIRS | PLAYER_SHOOTING | PLAYER_SEARCHING));
-    if (keys[KEY_RIGHT] && !keys[KEY_LEFT] && canMove) {
+    if (keys[KEY_RIGHT] && !keys[KEY_LEFT] && !keys[KEY_UP] && canMove) {
         entity->vx = PLAYER_SPEED;
         m_unsetFlag(entity->flags, ENTITY_FLIP);
-    } else if (keys[KEY_LEFT] && !keys[KEY_RIGHT] && canMove) {
+    } else if (keys[KEY_LEFT] && !keys[KEY_RIGHT] && !keys[KEY_UP] && canMove) {
         entity->vx = -PLAYER_SPEED;
         m_setFlag(entity->flags, ENTITY_FLIP);
     } else {
@@ -124,21 +131,4 @@ void updatePlayer(struct Entity *entity, struct Entity *player, uint8_t tileColl
     }
 
     setAnimation();
-}
-
-void setAnimation() {
-    if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
-        player->animation = ANIM_PLAYER_SEARCH;
-    } else if (m_isFlagSet(playerActions, PLAYER_ON_STAIRS)) {
-        player->animation = ANIM_ANIM_STAIRS;
-    } else if (player->vx != 0) {
-        player->animation = PLAYER_WALK;
-    } else {
-        player->animation = ANIM_PLAYER_IDLE;
-    }
-}
-
-void playerFree() {
-    free(playerSprite);
-    playerSprite = NULL;
 }

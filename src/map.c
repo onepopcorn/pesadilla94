@@ -4,6 +4,7 @@
 
 #include "settings/settings.h"
 #include "io/resources.h"
+#include "assets.h"
 #include "physics/geom.h"
 #include "render/video.h"
 #include "render/hud.h"
@@ -11,7 +12,12 @@
 #include "map.h"
 
 Map* currentMap;
-Sprite* tileset;
+uint8_t currentLevel = 0;
+const char* maps[NUM_LEVELS] = {
+    "school1.map",
+    "school2.map",
+    "schoole3.map",
+};
 
 // Approximate list of tiles to be redrawn using max entities number and max number of tiles a single entity can "touch"
 #define MAX_DIRTY_TILES (MAX_ENTITIES * MAX_TILE_PER_ENTITY)
@@ -25,26 +31,34 @@ DirtyTile dirtyTiles[MAX_DIRTY_TILES] = {0};
 int dirtyTilesCount = 0;
 
 /**
- * Load map resources and set initial level
+ * Load map resources and set level
  *
  * @param level Level number to load the map from
  *
  */
-void mapInit() {
-    // load map sprite. Use a single tileset for all levels?
-    tileset = loadSprite("tiles.spr");
+uint8_t startLevel(uint8_t level) {
+    if (level > NUM_LEVELS - 1) {
+        perror("Trying to load a non existing level");
+        return EXIT_FAILURE;
+    }
 
-    // load initial map data
-    currentMap = loadMap("school1.map");
+    currentMap = loadMap(maps[level]);
+    if (!currentMap) {
+        perror("Error failed to open map data file");
+        return EXIT_FAILURE;
+    }
+
+    currentLevel = level;
+    return EXIT_SUCCESS;
+}
+
+void endLevel() {
+    free(currentMap);
+    currentMap = NULL;
 }
 
 /**
- * Draw given map with offset coordinates with given tileset
- *
- * @param offset_x X coordinate to start drawing the tilemap
- * @param offset_y Y coordinate to start drawing the tilemap
- * @param tileset Pointer to spritesheet for the tileset
- *
+ * Draw current map
  */
 void drawMap() {
     Tile* data = currentMap->data;
@@ -199,13 +213,4 @@ int markDirtyTile(int entityIdx, int tileColumn, int tileRow) {
     dirtyTiles[dirtyTilesCount++] = (DirtyTile){entityIdx, tileColumn, tileRow};
 
     return entityIdx;
-}
-
-/**
- * Free loaded map resources
- *
- */
-void mapFree() {
-    free(currentMap);
-    free(tileset);
 }
