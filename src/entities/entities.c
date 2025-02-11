@@ -10,7 +10,7 @@
 #include "entities.h"
 
 Entity entities[MAX_ENTITIES] = {0};
-int lastEntityIdx = -1;
+uint8_t lastEntityIdx = -1;
 
 Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, Entity* player, uint8_t tileCollisions)) {
     // Check if there's not enough space for more entities
@@ -58,7 +58,7 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    int entityIdx = 0;
+    uint8_t entityIdx = 0;
 
     while (entityIdx <= lastEntityIdx) {
         // TODO: Check collisions with player bullets
@@ -72,7 +72,7 @@ void updateEntities(uint32_t delta) {
             m_unsetFlag(entity->flags, ENTITY_CHECK_COLLISION);
 
             // iterate through all entities to check collisions
-            for (int i = lastEntityIdx; i > 0; i--) {
+            for (uint8_t i = lastEntityIdx; i > 0; i--) {
                 Entity* other = &entities[i];
 
                 // prevent checks between entities of the same type, dead entities or entities without collision check flag
@@ -96,7 +96,7 @@ void updateEntities(uint32_t delta) {
         // We need to use the tile collision to filter out entities that are close enough to use AABB collision checks between them
         uint8_t tileCollisionsBitmask = checkTilesCollision(entities, entityIdx);
 
-        //
+        // Keep a reference to the current animation
         int currentAnimation = entity->animation;
 
         // update each entity logic
@@ -118,10 +118,11 @@ void updateEntities(uint32_t delta) {
         int color = entity->flags & ENTITY_FLASHING ? COLOR_WHITE : COLOR_TRANSPARENT;
         drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
-#ifdef DEBUG
+#ifdef DEBUG_COLLISIONS
         drawBBoxColor((Rect){entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h}, 48);
 #endif
 
+        // TODO: Remove the flashing when collisions have consequences (kill player or enemy, etc)
         if (m_isFlagSet(entity->flags, ENTITY_FLASHING)) m_unsetFlag(entity->flags, ENTITY_FLASHING);
 
         // Delete entity if dead

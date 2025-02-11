@@ -13,9 +13,13 @@ LDFLAGS := -s
 SRCS	:= $(shell find $(SRC_DIR) -name '*.c')
 OBJS	:= $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-DEBUG ?= 
-ifneq ($(DEBUG),)
-    CFLAGS += -DDEBUG
+DEBUG ?=
+ifeq ($(DEBUG),collisions)
+    CFLAGS += -DDEBUG_COLLISIONS -DDEBUG
+else ifeq ($(DEBUG),tiles)
+    CFLAGS += -DDEBUG_TILES -DDEBUG
+else ifeq ($(DEBUG),all)
+    CFLAGS += -DDEBUG_COLLISIONS -DDEBUG_TILES -DDEBUG
 endif
 
 

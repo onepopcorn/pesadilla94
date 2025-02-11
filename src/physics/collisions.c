@@ -118,7 +118,7 @@ uint8_t checkTilesCollision(Entity *entities, uint8_t entityIdx) {
                     break;
             }
 
-#ifdef DEBUG
+#ifdef DEBUG_COLLISIONS
             drawRectColor(tileHitbox, 3);
 #endif
 

@@ -194,7 +194,7 @@ int markDirtyTile(int entityIdx, int tileColumn, int tileRow) {
         return -1;
     }
 
-#ifdef DEBUG
+#ifdef DEBUG_TILES
     // NOTE This has a performance hit
     int tileWidth = currentMap->tileWidth;
     int tileHeight = currentMap->tileHeight;

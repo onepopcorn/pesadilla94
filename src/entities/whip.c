@@ -30,7 +30,8 @@ Entity *whipSpawn(int x, int y, bool facingRight) {
 void whipUpdate(Entity *entity, Entity *player, uint8_t tileCollisions) {
     // Last frame makes hitbox bigger
     if (entity->frame == 2) {
-        entity->hitbox = (Rect){0, 4, whipSprite->width, whipSprite->height - 4};
+        int8_t dir = m_isFlagSet(entity->flags, ENTITY_FLIP) ? -1 : 1;
+        entity->hitbox = (Rect){2 * dir, 8, whipSprite->width, 8};
     }
 
     if (entity->frame == ANIM_WHIP_LEN - 2) {

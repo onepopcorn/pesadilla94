@@ -13,8 +13,6 @@
 #include "screens/gameScreen.h"
 #include "screens/gameoverScreen.h"
 
-// #include "sprites.h"
-
 /**
  *
  * Disable memory paging because we use C handler for interrupts
