@@ -30,7 +30,7 @@ Vec2 getStairsDestination(float x, float y, bool up);
 
 Tile* openDoor(float x, float y);
 
-void closeDoor(float x, float y);
+Tile* closeDoor(float x, float y);
 
 void restoreMapTiles();
 

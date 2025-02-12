@@ -38,6 +38,7 @@ int getAnimationFrame(char nextFrame, Entity* entity) {
         animationFrame = Animations[--entity->frame + currentAnimation];
     }
 
+    // TODO Fix this. It's not working
     // Use frame +1 to get the next animation
     if (animationFrame == ANIM_JMP) {
         int nextAnimation = Animations[entity->frame + 2 + currentAnimation];

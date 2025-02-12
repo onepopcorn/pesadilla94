@@ -3,8 +3,4 @@
 
 void writeMessage(char* message);
 
-void showProgress(uint8_t progress);
-
-void clearProgress();
-
 #endif  // _HUD_H

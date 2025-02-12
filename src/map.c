@@ -174,7 +174,7 @@ Tile* openDoor(float x, float y) {
  * @param x sprite x coordinate
  * @param y sprite y coordinate
  */
-void closeDoor(float x, float y) {
+Tile* closeDoor(float x, float y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     // TODO: Use defines for changin tiles
@@ -182,6 +182,8 @@ void closeDoor(float x, float y) {
         above->id = TILE_DOOR_CLOSED_TOP;
         tile->id = TILE_DOOR_CLOSED_BOTTOM;
     }
+
+    return tile;
 }
 
 /**

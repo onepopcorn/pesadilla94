@@ -3,7 +3,7 @@
 #include "io/keyboard.h"
 #include "entities/entities.h"
 #include "physics/collisions.h"
-#include "render/hud.h"
+#include "render/video.h"
 #include "assets.h"
 #include "animations.h"
 #include "map.h"
@@ -97,24 +97,25 @@ void playerUpdate(struct Entity *entity, struct Entity *player, uint8_t tileColl
     }
 
     // SEARCHING DOORS
-    if (m_isFlagSet(tileCollisions, COLLISION_DOOR)) {
+    if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && !m_isFlagSet(playerActions, PLAYER_SHOOTING)) {
         if (keys[KEY_UP]) {
             Tile *tile = openDoor(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height);
             uint8_t p = tile->data.door.progress;
             if (p > 0) {
                 p--;
-                showProgress(p);
+                // The map tile repainting takes care of removing leftovers of this. p % 16
+                drawRectColor((Rect){entity->x, entity->y, p >> 4, 2}, 10);
                 tile->data.door.progress = p;
                 m_setFlag(playerActions, PLAYER_SEARCHING);
             } else {
-                clearProgress();
                 m_unsetFlag(playerActions, PLAYER_SEARCHING);
             }
             // This works because sprite is same size as tile. If not, we need to adjust the x position to center the sprite with the tile
             entity->x = (int)(entity->x + entity->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
         } else if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
-            clearProgress();
-            closeDoor(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height);
+            Tile *tile = closeDoor(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height);
+            // Decide if cancelling serach resets the door timer
+            tile->data.door.progress = 255;
             m_unsetFlag(playerActions, PLAYER_SEARCHING);
         }
     }
