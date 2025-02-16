@@ -13,6 +13,7 @@
 
 Map* currentMap;
 uint8_t currentLevel = 0;
+uint8_t doorsCount = 0;
 const char* maps[NUM_LEVELS] = {
     "school1.map",
     "school2.map",
@@ -49,6 +50,7 @@ uint8_t startLevel(uint8_t level) {
     }
 
     currentLevel = level;
+    doorsCount = currentMap->doorsCount;
     return EXIT_SUCCESS;
 }
 

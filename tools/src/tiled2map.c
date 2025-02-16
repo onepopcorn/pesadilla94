@@ -504,6 +504,7 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     map->height = (int)mapHeight.value.as_number.value.as_long;
     map->tileWidth = (int)width.value.as_number.value.as_long;
     map->tileHeight = (int)tileHeight.value.as_number.value.as_long;
+    map->doorsCount = 0;
 
     // Parse stairs data
     typed(json_element) stairsData = result_unwrap(json_element)(&stairsDataNode);
@@ -536,6 +537,7 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
             DoorData door = findDoorData(doorsParsedData, i, doorsData.value.as_array->count);
             if (door.id != -1) {
                 map->data[i] = (Tile){tileType, tileId, {{door.progress, door.item}}};
+                map->doorsCount++;
             }
             continue;
         }
@@ -589,7 +591,7 @@ int main(int argc, char *argv[]) {
     FILE *outFile = fopen(output, "wb");
 
     // write map and tile dimensions
-    fwrite(map, sizeof(uint8_t), 4, outFile);
+    fwrite(map, sizeof(uint8_t), 5, outFile);
 
     // write map data
     fwrite(map->data, sizeof(Tile) * map->width * map->height, 1, outFile);

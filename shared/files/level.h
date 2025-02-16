@@ -34,6 +34,7 @@ typedef struct Map {
     uint8_t height;
     uint8_t tileWidth;
     uint8_t tileHeight;
+    uint8_t doorsCount;
     Tile data[];
 } Map;
 
