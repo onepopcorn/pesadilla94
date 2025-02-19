@@ -8,6 +8,7 @@ volatile static uint32_t ticks;
 void timerInit(void);
 void timerFree(void);
 uint32_t getMilliseconds();
-int setTimeout(void (*callback)(void), uint32_t seconds);
+uint8_t setTimeout(void (*callback)(void), uint32_t ms);
+void clearAllTimeouts();
 
 #endif  // _TIMER_H

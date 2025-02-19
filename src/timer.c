@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <go32.h>
 #include <dpmi.h>
 #include <pc.h>
@@ -50,17 +51,21 @@ uint32_t getMilliseconds() {
 }
 
 // Register a timeout callback
-int setTimeout(void (*callback)(void), uint32_t seconds) {
+uint8_t setTimeout(void (*callback)(void), uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
     // Find an empty slot
-    for (int i = 0; i < MAX_CALLBACKS; i++) {
+    for (uint8_t i = 0; i < MAX_CALLBACKS; i++) {
         if (timeouts[i].callback == NULL) {
             timeouts[i].callback = callback;
-            timeouts[i].endTime = milliseconds + (seconds * 1000);
+            timeouts[i].endTime = milliseconds + ms;
             return 0;  // Success
         }
     }
 
-    return -1;  // No available slot
+    return 1;  // No available slot
+}
+
+void clearAllTimeouts() {
+    memset(timeouts, 0, sizeof(timeouts));
 }
