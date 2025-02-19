@@ -4,6 +4,9 @@
 #define IRS_KEYBOARD 0x09
 
 extern volatile uint8_t keys[0xff];
+#define m_isKeyDown(k) keys[k]
+
+uint8_t isKeyJustPressed(uint8_t key);
 
 void keyboardInit(void);
 void keyboardFree(void);
