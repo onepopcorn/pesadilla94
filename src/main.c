@@ -8,10 +8,12 @@
 #include "timer.h"
 
 #include "screens/screens.h"
-#include "screens/menuScreen.h"
-#include "screens/introScreen.h"
-#include "screens/gameScreen.h"
-#include "screens/gameoverScreen.h"
+#include "screens/menu.h"
+#include "screens/intro.h"
+#include "screens/game.h"
+#include "screens/gameover.h"
+#include "settings/settings.h"
+#include "gameState.h"
 
 /**
  *
@@ -21,8 +23,6 @@
  *
  */
 int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
-
-enum Screen currentScreen;
 
 /**
  * Systems initializer
@@ -72,21 +72,23 @@ int main(int argc, char *argv[]) {
     waitFrames(3);
     fillScreen(0);
 
-    currentScreen = SCREEN_INTRO;
+    enum Screen currentScreen = SCREEN_INTRO;
+    gameState.lives = MAX_LIVES;
+    gameState.level = 1;
 
     while (currentScreen != SCREEN_EXIT) {
         switch (currentScreen) {
             case SCREEN_INTRO:
-                currentScreen = introScreen();
+                currentScreen = intro();
                 break;
             case SCREEN_MENU:
-                currentScreen = menuScreen();
+                currentScreen = menu();
                 break;
             case SCREEN_GAME:
-                currentScreen = gameScreen();
+                currentScreen = game();
                 break;
             case SCREEN_GAME_OVER:
-                currentScreen = gameOverScreen();
+                currentScreen = gameover();
                 break;
             default:
                 currentScreen = SCREEN_EXIT;

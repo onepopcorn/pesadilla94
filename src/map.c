@@ -12,12 +12,11 @@
 #include "map.h"
 
 Map* currentMap;
-uint8_t currentLevel = 0;
-uint8_t doorsCount = 0;
+uint8_t currentLevel;  // To check if needs to load the map or use the one already un memory
 const char* maps[NUM_LEVELS] = {
     "school1.map",
-    "school2.map",
-    "schoole3.map",
+    "school1.map",
+    "school1.map",
 };
 
 // Approximate list of tiles to be redrawn using max entities number and max number of tiles a single entity can "touch"
@@ -38,25 +37,35 @@ int dirtyTilesCount = 0;
  *
  */
 uint8_t startLevel(uint8_t level) {
-    if (level > NUM_LEVELS - 1) {
+    if (level > NUM_LEVELS) {
         perror("Trying to load a non existing level");
         return EXIT_FAILURE;
     }
 
-    currentMap = loadMap(maps[level]);
+    // Level is already loaded, don't load it again
+    // if (currentLevel == level) return currentMap->doorsCount;
+
+    currentLevel = level;
+    currentMap = loadMap(maps[level - 1]);
     if (!currentMap) {
         perror("Error failed to open map data file");
         return EXIT_FAILURE;
     }
 
-    currentLevel = level;
-    doorsCount = currentMap->doorsCount;
-    return EXIT_SUCCESS;
+    return currentMap->doorsCount;
 }
 
+/**
+ * Free up current level
+ *
+ */
 void endLevel() {
+    // unload current map
     free(currentMap);
     currentMap = NULL;
+
+    // reset dirty tiles
+    dirtyTilesCount = 0;
 }
 
 /**

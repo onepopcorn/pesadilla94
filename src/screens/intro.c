@@ -5,19 +5,19 @@
 #include "assets.h"
 #include "screens.h"
 
-#include "introScreen.h"
+#include "intro.h"
 
 static const char MESSAGE[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
 static const int MESSAGE_LENGTH = sizeof(MESSAGE);
 
-enum Screen introScreen() {
+enum Screen intro() {
     int current_charnum = 0;
     char *text = malloc(sizeof(char) * MESSAGE_LENGTH);
     text[0] = '\0';
     int counter = 0;
 
-    while (!keys[KEY_ENTER]) {
-        if (keys[KEY_ESC]) {
+    while (!isKeyJustPressed(KEY_ENTER)) {
+        if (isKeyJustPressed(KEY_ESC)) {
             return SCREEN_EXIT;
         }
 

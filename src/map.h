@@ -11,8 +11,8 @@
 
 #define NUM_LEVELS 3
 
-extern uint8_t currentLevel;
 extern const char* maps[NUM_LEVELS];
+extern uint8_t currentLevel;
 
 uint8_t startLevel(uint8_t level);
 

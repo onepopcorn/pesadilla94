@@ -3,9 +3,9 @@
 #include "io/keyboard.h"
 #include "../assets.h"
 #include "screens.h"
-#include "menuScreen.h"
+#include "menu.h"
 
-enum Screen menuScreen() {
+enum Screen menu() {
     // On screen enter
     clearScreen();
     waitFrames(15);
@@ -17,11 +17,11 @@ enum Screen menuScreen() {
     dumpBuffer();
 
     while (1) {
-        if (keys[KEY_ENTER]) {
+        if (isKeyJustPressed(KEY_ENTER)) {
             return SCREEN_GAME;
         }
 
-        if (keys[KEY_ESC]) {
+        if (isKeyJustPressed(KEY_ESC)) {
             return SCREEN_EXIT;
         }
     }
