@@ -9,28 +9,73 @@
 #include "map.h"
 #include "whip.h"
 #include "macros.h"
+#include "timer.h"
+#include "gameState.h"
 
 #include "player.h"
 
 #define PLAYER_SPEED 0.9
+#define PLAYER_SHOOT_DELAY 700
+#define PLAYER_STAIRS_TRANSITION 950
 
 Entity *player;
+uint8_t playerActions = 0x00;
 
-uint8_t playerActions = 0;
-uint8_t counter = 0;
-uint8_t shootTimer = 0;
+// PRIVATE METHODS
 
-Entity *playerSpawn(int x, int y) {
-    // should create the player entity
-    player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
+void resetShoot() {
+    m_unsetFlag(playerActions, PLAYER_SHOOTING);
+}
 
-    // set hitbox
-    player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
-
-    // should set the player initial stats (position, lives, score...)
-    player->animation = ANIM_PLAYER_IDLE;
+void endStairsTransitions() {
+    m_unsetFlag(playerActions, PLAYER_ON_STAIRS);
+    m_unsetFlag(player->flags, ENTITY_INVULNERABLE);
     player->frame = 0;
-    return player;
+}
+
+void useStairs(bool up) {
+    Vec2 pos = getStairsDestination(player->x + player->sprite->width * 0.5, player->y + player->sprite->height, up);
+    if (pos.x <= 0 || pos.y <= 0) return;
+
+    player->y = pos.y - player->sprite->height / 2 + 1;  // +1 because all characters are "closer" to camera to force perspective a bit
+    player->x = pos.x;
+    m_setFlag(player->flags, (ENTITY_INVULNERABLE));
+    m_unsetFlag(player->flags, ENTITY_FLIP);
+    m_setFlag(playerActions, PLAYER_ON_STAIRS);
+    setTimeout(&endStairsTransitions, PLAYER_STAIRS_TRANSITION);
+}
+
+void shoot() {
+    bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
+    int x = facingRight ? player->x + player->sprite->width * 0.5 : player->x - player->sprite->width;
+    whipSpawn(x, player->y - 5, facingRight);
+    m_setFlag(playerActions, PLAYER_SHOOTING);
+    setTimeout(&resetShoot, PLAYER_SHOOT_DELAY);
+}
+
+// TODO: Implement a justReleasedKey feature to simplify this code here
+void searchDoor() {
+    if (m_isKeyDown(KEY_UP)) {
+        Tile *tile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+        uint8_t p = tile->data.door.progress;
+        if (p > 0) {
+            p--;
+            // The map tile repainting takes care of removing leftovers of this. p % 16
+            drawRectColor((Rect){player->x, player->y, p >> 4, 2}, 10);
+            tile->data.door.progress = p;
+            m_setFlag(playerActions, PLAYER_SEARCHING);
+        } else {
+            if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) gameState.doorsLeft--;
+            m_unsetFlag(playerActions, PLAYER_SEARCHING);
+        }
+        // This works because sprite is same size as tile. If not, we need to adjust the x position to center the sprite with the tile
+        player->x = (int)(player->x + player->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
+    } else if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
+        Tile *tile = closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+        // TODO Decide if cancelling search resets the door timer
+        tile->data.door.progress = 255;
+        m_unsetFlag(playerActions, PLAYER_SEARCHING);
+    }
 }
 
 void setAnimation() {
@@ -45,13 +90,28 @@ void setAnimation() {
     }
 }
 
+// PUBLIC METHODS
+
+Entity *playerSpawn(int x, int y) {
+    // should create the player entity
+    player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
+
+    // set hitbox
+    player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
+
+    // should set the player initial stats (position, lives, score...)
+    player->animation = ANIM_PLAYER_IDLE;
+    player->frame = 0;
+    return player;
+}
+
 void playerUpdate(struct Entity *entity, struct Entity *player, uint8_t tileCollisions) {
     // MOVEMENT
-    bool canMove = !m_isFlagSet(playerActions, (PLAYER_DYING | PLAYER_ON_STAIRS | PLAYER_SHOOTING | PLAYER_SEARCHING));
-    if (keys[KEY_RIGHT] && !keys[KEY_LEFT] && !keys[KEY_UP] && canMove) {
+    bool canMove = !m_isFlagSet(playerActions, NO_MOVE) && !m_isKeyDown(KEY_UP);
+    if (m_isKeyDown(KEY_RIGHT) && !m_isKeyDown(KEY_LEFT) && canMove) {
         entity->vx = PLAYER_SPEED;
         m_unsetFlag(entity->flags, ENTITY_FLIP);
-    } else if (keys[KEY_LEFT] && !keys[KEY_RIGHT] && !keys[KEY_UP] && canMove) {
+    } else if (m_isKeyDown(KEY_LEFT) && !m_isKeyDown(KEY_RIGHT) && canMove) {
         entity->vx = -PLAYER_SPEED;
         m_setFlag(entity->flags, ENTITY_FLIP);
     } else {
@@ -66,69 +126,18 @@ void playerUpdate(struct Entity *entity, struct Entity *player, uint8_t tileColl
     }
 
     // USE STAIRS
-    if (m_isFlagSet(tileCollisions, COLLISION_STAIRS) && !m_isFlagSet(playerActions, PLAYER_ON_STAIRS)) {
-        if (keys[KEY_UP] || keys[KEY_DOWN]) {
-            Vec2 pos = getStairsDestination(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height, keys[KEY_UP]);
-            if (pos.x > 0 && pos.y > 0) {
-                entity->y = pos.y - entity->sprite->height / 2 + 1;  // +1 because all characters are "closer" to camera to force perspective a bit
-                entity->x = pos.x;
-                m_setFlag(entity->flags, (ENTITY_BLOCKED | ENTITY_INVULNERABLE));
-                m_unsetFlag(entity->flags, ENTITY_FLIP);
-                m_setFlag(playerActions, PLAYER_ON_STAIRS);
-            }
-        }
+    if (m_isFlagSet(tileCollisions, COLLISION_STAIRS) && !m_isFlagSet(playerActions, PLAYER_ON_STAIRS) && (isKeyJustPressed(KEY_UP) || isKeyJustPressed(KEY_DOWN))) {
+        useStairs(m_isKeyDown(KEY_UP));
     }
 
     // SHOOTING
-    if (keys[KEY_SPACE] && !keys[KEY_UP] && !m_isFlagSet(playerActions, PLAYER_SHOOTING) && shootTimer == 0) {
-        shootTimer = 50;
-        bool facingRight = !m_isFlagSet(entity->flags, ENTITY_FLIP);
-        int x = facingRight ? entity->x + entity->sprite->width * 0.5 : entity->x - entity->sprite->width;
-        whipSpawn(x, entity->y - 5, facingRight);
-        m_setFlag(playerActions, PLAYER_SHOOTING);
-        m_setFlag(entity->flags, ENTITY_BLOCKED);
-    }
-
-    if (m_isFlagSet(playerActions, PLAYER_SHOOTING)) {
-        if (--shootTimer == 0) {
-            m_unsetFlag(entity->flags, ENTITY_BLOCKED);
-            m_unsetFlag(playerActions, PLAYER_SHOOTING);
-        };
+    if (isKeyJustPressed(KEY_SPACE) && !m_isFlagSet(playerActions, NO_SHOOT)) {
+        shoot();
     }
 
     // SEARCHING DOORS
     if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && !m_isFlagSet(playerActions, PLAYER_SHOOTING)) {
-        if (keys[KEY_UP]) {
-            Tile *tile = openDoor(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height);
-            uint8_t p = tile->data.door.progress;
-            if (p > 0) {
-                p--;
-                // The map tile repainting takes care of removing leftovers of this. p % 16
-                drawRectColor((Rect){entity->x, entity->y, p >> 4, 2}, 10);
-                tile->data.door.progress = p;
-                m_setFlag(playerActions, PLAYER_SEARCHING);
-            } else {
-                m_unsetFlag(playerActions, PLAYER_SEARCHING);
-            }
-            // This works because sprite is same size as tile. If not, we need to adjust the x position to center the sprite with the tile
-            entity->x = (int)(entity->x + entity->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
-        } else if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
-            Tile *tile = closeDoor(entity->x + entity->sprite->width * 0.5, entity->y + entity->sprite->height);
-            // Decide if cancelling serach resets the door timer
-            tile->data.door.progress = 255;
-            m_unsetFlag(playerActions, PLAYER_SEARCHING);
-        }
-    }
-
-    // TODO: Dot this better. This is done to prevent "key bouncing" (player moving too fast between stairs)
-    // TODO: This should be based on the walk up/down stairs animation.
-    if (m_isFlagSet(playerActions, PLAYER_ON_STAIRS)) {
-        counter++;
-        if (counter >= 36) {
-            m_unsetFlag(playerActions, PLAYER_ON_STAIRS);
-            m_unsetFlag(entity->flags, (ENTITY_BLOCKED | ENTITY_INVULNERABLE));
-            counter = 0;
-        }
+        searchDoor();
     }
 
     setAnimation();
