@@ -93,6 +93,9 @@ void setAnimation() {
 // PUBLIC METHODS
 
 Entity *playerSpawn(int x, int y) {
+    // Only a single player instance is allowed
+    if (player) return player;
+
     // should create the player entity
     player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
 
