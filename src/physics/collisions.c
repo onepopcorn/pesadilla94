@@ -6,6 +6,12 @@
 #include "entities/entities.h"
 #include "physics/geom.h"
 #include "map.h"
+#include "macros.h"
+#include "entities/enemy.h"
+
+#ifdef DEBUG
+#include "debug/logger.h"
+#endif
 
 #include "collisions.h"
 
@@ -13,21 +19,34 @@
  *
  * TODO: Take a pointer to a function for when a collision happens
  */
-void checkCollisionsBetweenEntities(Entity *entities, Entity *entity, int lastEntityIdx) {
-    entity->flags &= ~ENTITY_CHECK_COLLISION;
-    for (int i = lastEntityIdx; i > 0; i--) {
+void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
+    Entity *entity = &entities[idx];
+    if (!m_isFlagSet(entity->flags, ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) return;
+
+    Rect entityRect = m_getEntityRect(entity);
+    m_unsetFlag(entity->flags, ENTITY_CHECK_COLLISION);
+
+    for (uint8_t i = lastEntityIdx; i > 0; i--) {
         Entity *other = &entities[i];
 
-        if (entity->type == other->type ||
-            (other->flags & (ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) == 0) continue;
+        if (!(entity->collisionMask & other->type) || !(entity->type & other->collisionMask)) continue;
 
-        if (!checkAABBCollision(m_getEntityRect(entity), m_getEntityRect(other))) continue;
+        // Check if they are colliding
+        if (!checkAABBCollision(entityRect, m_getEntityRect(other))) continue;
 
-        // what to do with the collision?
-        // entity->flags |= ENTITY_FLASHING;
-        other->flags |= ENTITY_FLASHING;
-        // TODO check if that's actually what we want
-        // other->flags &= (0xFF ^ ENTITY_ALIVE);
+        // Player collided with enemy
+        if (entity->type == TYPE_PLAYER) {
+            m_setFlag(entity->flags, ENTITY_FLASHING);
+            continue;
+        }
+
+        // Whip collided with enemy
+        if (other->type == TYPE_PLAYER_BULLET) {
+#ifdef DEBUG
+            logDebug("*? {idx:%d id:%d type:%d} Should Stunt enemy", idx, entity->id, entity->type);
+#endif
+            enemyStun(idx);
+        }
     }
 }
 
@@ -56,7 +75,7 @@ bool checkAABBCollision(Rect rect1, Rect rect2) {
  * Returns a collision bitmask to represent the tiles that are colliding with the entity
  * that can happen a the same time (e.g. floor, left wall, door, stairs...)
  */
-uint8_t checkTilesCollision(Entity *entities, uint8_t entityIdx) {
+uint8_t checkTilesCollision(uint8_t entityIdx) {
     // Get current entity
     Entity *entity = &entities[entityIdx];
     Rect spriteRect = {entity->x, entity->y, entity->sprite->width, entity->sprite->height};

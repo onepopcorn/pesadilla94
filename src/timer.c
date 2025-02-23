@@ -10,8 +10,9 @@
 #define MAX_CALLBACKS 5  // Maximum number of concurrent callbacks
 
 typedef struct {
-    void (*callback)(void);  // Function pointer for the callback
-    uint32_t endTime;        // When the callback should be called
+    void (*callback)(uint8_t);  // Function pointer for the callback
+    uint8_t param;
+    uint32_t endTime;  // When the callback should be called
 } Timeout;
 
 volatile static uint32_t milliseconds = 0;
@@ -26,7 +27,7 @@ static void timerHandler() {
     // Check each registered timeout
     for (int i = 0; i < MAX_CALLBACKS; i++) {
         if (timeouts[i].callback && milliseconds >= timeouts[i].endTime) {
-            timeouts[i].callback();
+            timeouts[i].callback(timeouts[i].param);
             timeouts[i].callback = NULL;  // Remove callback after calling
         }
     }
@@ -51,13 +52,14 @@ uint32_t getMilliseconds() {
 }
 
 // Register a timeout callback
-uint8_t setTimeout(void (*callback)(void), uint32_t ms) {
+uint8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
     // Find an empty slot
     for (uint8_t i = 0; i < MAX_CALLBACKS; i++) {
         if (timeouts[i].callback == NULL) {
             timeouts[i].callback = callback;
+            timeouts[i].param = param;
             timeouts[i].endTime = milliseconds + ms;
             return 0;  // Success
         }

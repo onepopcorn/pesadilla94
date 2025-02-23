@@ -4,17 +4,15 @@
 #include <stdbool.h>
 #include "geom.h"
 
-struct Entity;
-
 #define COLLISION_WALL_L 0x01
 #define COLLISION_WALL_R 0x02
 #define COLLISION_DOOR 0x04
 #define COLLISION_STAIRS 0x08
 
-void checkCollisionsBetweenEntities(struct Entity *entities, struct Entity *entity, int lastEntityIdx);
+void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx);
 
 bool checkAABBCollision(Rect rect1, Rect rect2);
 
-uint8_t checkTilesCollision(struct Entity *entities, uint8_t entityIdx);
+uint8_t checkTilesCollision(uint8_t entityIdx);
 
 #endif  // _H_COLLISIONS_

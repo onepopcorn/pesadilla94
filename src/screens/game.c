@@ -22,8 +22,30 @@ uint8_t loopState = 0x00;
 
 // PRIVATE METHODS
 
-void endTransition() {
+void endTransition(uint8_t id) {
     m_unsetFlag(loopState, GAME_RUNNING);
+}
+
+// TODO: Encode positions in map
+Vec2 enemyPositions[4] = {
+    {100, 111},
+    {160, 63},
+    {130, 158},
+    {210, 111}};
+
+void spawnEnemy(uint8_t i) {
+    uint8_t enemyCount = 0;
+    for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+        if (entities[i].type == TYPE_ENEMY_A) enemyCount++;
+    }
+
+    if (enemyCount < 4) {
+        Vec2 pos = enemyPositions[i];
+        enemySpawn(pos.x, pos.y);
+    }
+
+    uint8_t nextEnemy = i >= 3 ? 0 : i + 1;
+    setTimeout(spawnEnemy, nextEnemy, 1500);
 }
 
 // PUBLIC METHODS
@@ -37,10 +59,7 @@ enum Screen game() {
 
     // TODO: Make this correctly per map or during game play
     playerSpawn(20, 59);
-    enemySpawn(100, 111);
-    enemySpawn(160, 63);
-    enemySpawn(130, 158);
-    enemySpawn(200, 111);
+    spawnEnemy(0);
 
     uint32_t previousTime = getMilliseconds();
 
@@ -62,13 +81,13 @@ enum Screen game() {
         if (gameState.doorsLeft == 0 && !m_isFlagSet(loopState, GAME_TRANSITION)) {
             nextScreen = SCREEN_GAME;
             m_setFlag(loopState, GAME_TRANSITION);
-            setTimeout(endTransition, 1000);
+            setTimeout(endTransition, 0, 1000);
         }
 
         if (gameState.lives <= 0 && !m_isFlagSet(loopState, GAME_TRANSITION)) {
             nextScreen = SCREEN_INTRO;
             m_setFlag(loopState, GAME_TRANSITION);
-            setTimeout(endTransition, 3000);
+            setTimeout(endTransition, 0, 3000);
         }
 
         // Prevent game logic to run when paused

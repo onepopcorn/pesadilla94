@@ -8,12 +8,15 @@
 /**
  * Entity types
  *
+ * TODO: Make this a collision group/collision mask to simplify collision
+ *
  */
+#define TYPE_NONE 0x00  // TO BE USED IN COLLISION MASK FOR TEMPORARY INVULNERABILITY
 #define TYPE_PLAYER 0x01
 #define TYPE_ENEMY_A 0x02
-#define TYPE_ENEMY_B 0x03
-#define TYPE_PLAYER_BULLET 0x04
-#define TYPE_ENEMY_BULLET 0x05
+#define TYPE_ENEMY_B 0x04
+#define TYPE_PLAYER_BULLET 0x08
+#define TYPE_ENEMY_BULLET 0x10
 
 /**
  * Entity flags
@@ -34,25 +37,32 @@
 
 struct Sprite;
 
+// TODO Consider use fixed-point decimal instead of float for VX
 typedef struct Entity {
-    float x, y;
-    float vx, vy;
+    float vx;
+    uint16_t x, y;
     Rect hitbox;
     uint8_t animation;
     uint8_t frame;
     uint8_t type;
     uint8_t flags;
-    void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions);
+    uint8_t collisionMask;
+    uint8_t id;
+    void (*update)(struct Entity* entity, uint8_t tileCollisions);
     struct Sprite* sprite;
 } Entity;
 
-struct Entity* createEntity(int x, int y, uint8_t type, struct Sprite* spr, void (*update)(struct Entity* entity, struct Entity* player, uint8_t tileCollisions));
+Entity* createEntity(uint16_t x, uint16_t y, uint8_t type, struct Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions));
+
+Entity* findEntityById(uint8_t id);
 
 void destroyEntity(uint8_t index);
 
 void destroyAllEntities();
 
 void updateEntities(uint32_t delta);
+
+void renderEntity(uint8_t index, char frameNeedsUpdate);
 
 extern struct Entity entities[MAX_ENTITIES];
 
