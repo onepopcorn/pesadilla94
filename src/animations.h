@@ -1,11 +1,11 @@
 #ifndef _ANIMATIONS_H_
 #define _ANIMATIONS_H_
 
-extern int Animations[];
+extern int16_t Animations[];
 
 struct Entity;
 
-int getAnimationFrame(char nextFrame, struct Entity* entity);
+int16_t getAnimationFrame(char nextFrame, struct Entity* entity);
 
 #define ANIM_LOOP -1
 #define ANIM_HOLD -2
@@ -17,7 +17,7 @@ enum {
     ANIM_PLAYER_SEARCH_LEN = 8,
     ANIM_WHIP_LEN = 6,
     ANIM_ENEMY1_WALK_LEN = 6,
-    ANIM_PLAYER_STAIRS_LEN = 6,
+    ANIM_PLAYER_STAIRS_LEN = 7,
     ANIM_ENEMY1_STUNT_LEN = 4
 };
 
