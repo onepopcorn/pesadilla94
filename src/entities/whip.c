@@ -14,11 +14,11 @@ Entity *whipSpawn(int x, int y, bool facingRight) {
     Entity *entity = createEntity(x, y, TYPE_PLAYER_BULLET, whipSprite, whipUpdate);
     if (!entity) return NULL;
 
-    entity->collisionMask = TYPE_ENEMY_A | TYPE_ENEMY_B;
+    entity->collisionMask = TYPE_NONE;
 
     entity->animation = ANIM_WHIP;
     entity->frame = 0;
-    entity->hitbox = (Rect){1, 1, 1, 1};
+    entity->hitbox = (Rect){0, 0, 0, 0};
 
     m_setFlag(entity->flags, ENTITY_ALIVE);
 
@@ -32,8 +32,9 @@ Entity *whipSpawn(int x, int y, bool facingRight) {
 void whipUpdate(Entity *entity, uint8_t tileCollisions) {
     // Last frame makes hitbox bigger
     if (entity->frame == 2) {
+        entity->collisionMask = TYPE_ENEMY_A | TYPE_ENEMY_B;
         int8_t dir = m_isFlagSet(entity->flags, ENTITY_FLIP) ? -1 : 1;
-        entity->hitbox = (Rect){2 * dir, 8, whipSprite->width, 8};
+        entity->hitbox = (Rect){dir, 8, whipSprite->width - dir, 8};
     }
 
     if (entity->frame == ANIM_WHIP_LEN - 2) {

@@ -16,7 +16,7 @@
 
 #define PLAYER_SPEED 0.9
 #define PLAYER_SHOOT_DELAY 700
-#define PLAYER_STAIRS_TRANSITION 900
+#define PLAYER_STAIRS_TRANSITION 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
 Entity *player;
@@ -50,7 +50,7 @@ void useStairs(bool up) {
 void shoot() {
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
     uint16_t x = facingRight ? player->x + player->sprite->width * 0.5 : player->x - player->sprite->width;
-    whipSpawn(x, player->y - 5, facingRight);
+    whipSpawn(x, player->y - 2, facingRight);
     m_setFlag(playerActions, PLAYER_SHOOTING);
     setTimeout(&resetShoot, player->id, PLAYER_SHOOT_DELAY);
 }
