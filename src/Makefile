@@ -18,6 +18,8 @@ ifeq ($(DEBUG),collisions)
     CFLAGS += -DDEBUG_COLLISIONS -DDEBUG
 else ifeq ($(DEBUG),tiles)
     CFLAGS += -DDEBUG_TILES -DDEBUG
+else ifeq ($(DEBUG), entities)
+	CFLAGS += -DDEBUG_ENTITIES -DDEBUG
 else ifeq ($(DEBUG),all)
     CFLAGS += -DDEBUG_COLLISIONS -DDEBUG_TILES -DDEBUG
 endif
