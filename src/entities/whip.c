@@ -18,7 +18,7 @@ Entity *whipSpawn(int x, int y, bool facingRight) {
 
     entity->animation = ANIM_WHIP;
     entity->frame = 0;
-    entity->hitbox = (Rect){0, 0, 0, 0};
+    entity->hitbox = (Rect){4, 8, whipSprite->width / 2, 8};
 
     m_setFlag(entity->flags, ENTITY_ALIVE);
 
@@ -37,7 +37,7 @@ void whipUpdate(Entity *entity, uint8_t tileCollisions) {
         entity->hitbox = (Rect){dir, 8, whipSprite->width - dir, 8};
     }
 
-    if (entity->frame == ANIM_WHIP_LEN - 2) {
+    if (entity->frame == ANIM_WHIP_LEN - 2 || m_isFlagSet(tileCollisions, TILE_TYPE_WALL_LEFT | TILE_TYPE_WALL_RIGHT)) {
         m_unsetFlag(entity->flags, ENTITY_ALIVE);
     }
 }

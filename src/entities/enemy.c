@@ -21,10 +21,8 @@ struct Entity *enemySpawn(short x, short y) {
     struct Entity *entity = createEntity(x, y, TYPE_ENEMY_A, enemySprite, enemyUpdate);
     if (!entity) return NULL;
 
+    m_setAnimation(entity, ANIM_ENEMY1_WALK);
     entity->collisionMask = ENEMY_COLLISION_MASK;
-
-    entity->animation = ANIM_ENEMY1_WALK;
-    entity->frame = 0;
     entity->vx = 1 * ENEMY_SPEED;
     entity->hitbox = (Rect){enemySprite->width / 4, 2, enemySprite->width / 2, enemySprite->height - 2};
 
@@ -40,10 +38,7 @@ void enemyStun(uint8_t idx) {
 #endif
 
     m_setFlag(enemy->flags, ENTITY_STUNT);
-    enemy->animation = ANIM_ENEMY1_STUNT;
-    // ALWAYS reset animation frame when updating animation or it could land out of boundaries
-    // This caused a bug that took me 1 day to figure out...
-    enemy->frame = 0;
+    m_setAnimation(enemy, ANIM_ENEMY1_STUNT);
     enemy->collisionMask = TYPE_NONE;
     enemy->vx = 0;
 
@@ -61,8 +56,7 @@ void enemyWakeup(uint8_t id) {
     }
 
     m_unsetFlag(enemy->flags, ENTITY_STUNT);
-    enemy->animation = ANIM_ENEMY1_WALK;
-    enemy->frame = 0;
+    m_setAnimation(enemy, ANIM_ENEMY1_WALK);
     enemy->vx = m_isFlagSet(enemy->flags, ENTITY_FLIP) ? ENEMY_SPEED * -1 : ENEMY_SPEED;
     enemy->collisionMask = ENEMY_COLLISION_MASK;
 

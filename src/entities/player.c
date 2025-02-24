@@ -15,80 +15,77 @@
 #include "player.h"
 
 #define PLAYER_SPEED 0.9
-#define PLAYER_SHOOT_DELAY 700
-#define PLAYER_STAIRS_TRANSITION 800
+#define PLAYER_SHOOT_RECHARGE_TIME 5000
+#define PLAYER_INVULNERABILITY_TIME 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
 Entity *player;
-uint8_t playerActions = 0x00;  // All flags to 0
+uint8_t playerCanShoot = true;
+PlayerState playerState = STATE_IDLE;
 
 // PRIVATE METHODS
-
-void resetShoot(uint8_t id) {
-    m_unsetFlag(playerActions, PLAYER_SHOOTING);
+void enableWhip(uint8_t id) {
+    playerCanShoot = true;
 }
 
-void endStairsTransitions(uint8_t id) {
-    m_unsetFlag(playerActions, PLAYER_ON_STAIRS);
+void invulnerabilityEnd(uint8_t id) {
     player->collisionMask = PLAYER_COLLISION_MASK;
-    player->frame = 0;
 }
 
 void useStairs(bool up) {
+    // Get player jump position
     Vec2 pos = getStairsDestination(player->x + player->sprite->width * 0.5, player->y + player->sprite->height, up);
     if (pos.x <= 0 || pos.y <= 0) return;
+
+    m_setAnimation(player, ANIM_PLAYER_STAIRS);
 
     player->vx = 0;
     player->y = pos.y - player->sprite->height / 2 + 1;  // +1 because all characters are "closer" to camera to force perspective a bit
     player->x = pos.x;
-    player->collisionMask = TYPE_NONE;
-    m_unsetFlag(player->flags, ENTITY_FLIP);
-    m_setFlag(playerActions, PLAYER_ON_STAIRS);
-    setTimeout(&endStairsTransitions, player->id, PLAYER_STAIRS_TRANSITION);
+
+    // Give player some invulnerability time after using stairs
+    player->collisionMask = TYPE_NONE;  // Disable collisions during stairs transition
+    setTimeout(&invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
 }
 
 void shoot() {
+    // Get position where whip should be shown
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
     uint16_t x = facingRight ? player->x + player->sprite->width * 0.5 : player->x - player->sprite->width;
+
     whipSpawn(x, player->y - 2, facingRight);
-    m_setFlag(playerActions, PLAYER_SHOOTING);
-    setTimeout(&resetShoot, player->id, PLAYER_SHOOT_DELAY);
+
+    playerCanShoot = false;
+    setTimeout(&enableWhip, player->id, PLAYER_SHOOT_RECHARGE_TIME);
 }
 
 void searchDoor() {
-    if (m_isKeyDown(KEY_UP)) {
-        Tile *tile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
-        uint8_t p = tile->data.door.progress;
-        if (p > 0) {
-            p--;
-            // The map tile repainting takes care of removing leftovers of this. p % 16
-            drawRectColor((Rect){player->x, player->y, p >> 4, 2}, 10);
-            tile->data.door.progress = p;
-            m_setFlag(playerActions, PLAYER_SEARCHING);
-        } else {
-            if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) gameState.doorsLeft--;
-            m_unsetFlag(playerActions, PLAYER_SEARCHING);
-        }
-        // This works because sprite is same size as tile. If not, we need to adjust the x position to center the sprite with the tile
-        player->x = (uint16_t)(player->x + player->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
-    } else if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
-        Tile *tile = closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+    if (!m_isKeyDown(KEY_UP)) {
         // TODO Decide if cancelling search resets the door timer
+        Tile *tile = closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
         tile->data.door.progress = 255;
-        m_unsetFlag(playerActions, PLAYER_SEARCHING);
-    }
-}
 
-void setAnimation() {
-    if (m_isFlagSet(playerActions, PLAYER_SEARCHING)) {
-        player->animation = ANIM_PLAYER_SEARCH;
-    } else if (m_isFlagSet(playerActions, PLAYER_ON_STAIRS)) {
-        player->animation = ANIM_PLAYER_STAIRS;
-    } else if (player->vx != 0) {
-        player->animation = PLAYER_WALK;
-    } else {
-        player->animation = ANIM_PLAYER_IDLE;
+        playerState = STATE_IDLE;
+        return;
     }
+
+    Tile *tile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+    uint8_t p = tile->data.door.progress;
+
+    if (p == 0) {
+        gameState.doorsLeft--;
+        playerState = STATE_IDLE;
+        return;
+    }
+
+    // Snap player to door position
+    // This works because sprite is same size as tile. If not, we need to adjust the x position to center the sprite with the tile
+    player->x = (uint16_t)(player->x + player->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
+
+    // The map tile repainting takes care of removing leftovers of this. p % 16
+    drawRectColor((Rect){player->x, player->y, p >> 4, 2}, 10);
+    tile->data.door.progress--;
+    m_setAnimation(player, ANIM_PLAYER_SEARCH);
 }
 
 // PUBLIC METHODS
@@ -98,51 +95,84 @@ Entity *playerSpawn(uint16_t x, uint16_t y) {
     player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
 
     // set collision mask
-    player->collisionMask = TYPE_ENEMY_A | TYPE_ENEMY_B;
+    player->collisionMask = PLAYER_COLLISION_MASK;
 
     // set hitbox
     player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
 
     // should set the player initial stats (position, lives, score...)
-    player->animation = ANIM_PLAYER_IDLE;
-    player->frame = 0;
+    m_setAnimation(player, ANIM_PLAYER_IDLE);
     return player;
 }
 
 void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
-    // MOVEMENT
-    bool canWalk = !m_isFlagSet(playerActions, NO_MOVE) && !m_isKeyDown(KEY_UP);
-    if (m_isKeyDown(KEY_RIGHT) && !m_isKeyDown(KEY_LEFT) && canWalk) {
-        entity->vx = PLAYER_SPEED;
-        m_unsetFlag(entity->flags, ENTITY_FLIP);
-    } else if (m_isKeyDown(KEY_LEFT) && !m_isKeyDown(KEY_RIGHT) && canWalk) {
-        entity->vx = -PLAYER_SPEED;
-        m_setFlag(entity->flags, ENTITY_FLIP);
-    } else {
-        entity->vx = 0;
-    }
+    switch (playerState) {
+        case STATE_WALKING:
+            m_setAnimation(player, ANIM_PLAYER_WALK);
 
-    // STOP ON WALLS
-    if (entity->vx > 0 && m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
-        entity->vx = 0;
-    } else if (entity->vx < 0 && m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
-        entity->vx = 0;
-    }
+            // Shoot
+            if (isKeyJustPressed(KEY_SPACE) && playerCanShoot) {
+                playerState = STATE_SHOOTING;
+                shoot();
+            }
 
-    // USE STAIRS
-    if (m_isFlagSet(tileCollisions, COLLISION_STAIRS) && !m_isFlagSet(playerActions, NO_MOVE) && (isKeyJustPressed(KEY_UP) || isKeyJustPressed(KEY_DOWN))) {
-        useStairs(m_isKeyDown(KEY_UP));
-    }
+            // Move right
+            if (m_isKeyDown(KEY_RIGHT) && !m_isKeyDown(KEY_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
+                entity->vx = PLAYER_SPEED;
+                m_unsetFlag(entity->flags, ENTITY_FLIP);
+                return;
+            }
 
-    // SHOOTING
-    if (isKeyJustPressed(KEY_SPACE) && !m_isFlagSet(playerActions, NO_SHOOT)) {
-        shoot();
-    }
+            // Move left
+            if (m_isKeyDown(KEY_LEFT) && !m_isKeyDown(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
+                entity->vx = -PLAYER_SPEED;
+                m_setFlag(entity->flags, ENTITY_FLIP);
+                return;
+            }
+            playerState = STATE_IDLE;
+            break;
+        case STATE_SEARCHING:
+            searchDoor();
+            break;
 
-    // SEARCHING DOORS
-    if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && !m_isFlagSet(playerActions, PLAYER_SHOOTING)) {
-        searchDoor();
-    }
+        case STATE_SHOOTING:
+            m_setAnimation(player, ANIM_PLAYER_SHOOT);
+            player->vx = 0;
+            if (player->frame == ANIM_PLAYER_SHOOT_LEN - 2) playerState = STATE_IDLE;
+            break;
 
-    setAnimation();
+        case STATE_STAIRS:
+            if (player->frame == ANIM_PLAYER_STAIRS_LEN - 2) playerState = STATE_IDLE;
+            break;
+
+        case STATE_DYING:
+            break;
+
+        case STATE_IDLE:
+            // Stop player & set animation
+            player->vx = 0;
+            m_setAnimation(player, ANIM_PLAYER_IDLE);
+
+            // Shoot
+            if (isKeyJustPressed(KEY_SPACE) && playerCanShoot) {
+                playerState = STATE_SHOOTING;
+                shoot();
+            }
+
+            // Use stairs
+            if (m_isFlagSet(tileCollisions, COLLISION_STAIRS) && (isKeyJustPressed(KEY_UP) || isKeyJustPressed(KEY_DOWN))) {
+                playerState = STATE_STAIRS;
+                useStairs(m_isKeyDown(KEY_UP));
+            }
+
+            // Search doors
+            if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && isKeyJustPressed(KEY_UP)) {
+                playerState = STATE_SEARCHING;
+            }
+
+            // Walk
+            if (m_isKeyDown(KEY_LEFT) || m_isKeyDown(KEY_RIGHT)) {
+                playerState = STATE_WALKING;
+            }
+    }
 }
