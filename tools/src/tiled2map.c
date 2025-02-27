@@ -591,7 +591,7 @@ int main(int argc, char *argv[]) {
     FILE *outFile = fopen(output, "wb");
 
     // write map and tile dimensions
-    fwrite(map, sizeof(uint8_t), 5, outFile);
+    fwrite(map, sizeof(char), 5, outFile);
 
     // write map data
     fwrite(map->data, sizeof(Tile) * map->width * map->height, 1, outFile);
