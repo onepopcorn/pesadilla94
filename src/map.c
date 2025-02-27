@@ -7,7 +7,6 @@
 #include "assets.h"
 #include "physics/geom.h"
 #include "render/video.h"
-#include "render/hud.h"
 
 #include "map.h"
 

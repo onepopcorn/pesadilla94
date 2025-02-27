@@ -90,10 +90,11 @@ void waitFrames(uint8_t frames) {
  * @param y Vertical position where to start drawing text
  * @param font Pointer to font spritesheet
  * @param text Pointer to text string
+ * @param color Color index to be used
  * @param max_length Max number of characters to break to the next line. If 0, there's no line break
  *
  */
-void drawText(uint16_t x, uint16_t y, Sprite* font, char* text, uint8_t max_length) {
+void drawText(uint16_t x, uint16_t y, Sprite* font, char* text, uint8_t color, uint8_t max_length) {
     uint16_t x_offset = 0;  // accumulate offset for when we trim next line whitespace
     uint16_t limit = max_length ? max_length : (SCREEN_WIDTH - x) / font->width;
     for (uint8_t i = 0; text[i]; i++) {
@@ -106,7 +107,7 @@ void drawText(uint16_t x, uint16_t y, Sprite* font, char* text, uint8_t max_leng
             continue;  // whitespaces don't need to be drawn, skip them after calculations
         }
 
-        drawSprite(x_pos + x_offset, y_pos, font, text[i] - 32, false, 0);
+        drawSprite(x_pos + x_offset, y_pos, font, text[i] - 32, false, color);
     }
 }
 

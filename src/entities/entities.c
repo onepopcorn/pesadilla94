@@ -6,7 +6,6 @@
 #include "animations.h"
 #include "macros.h"
 #include "enemy.h"
-#include "render/hud.h"
 
 #include "physics/collisions.h"
 #include "entities.h"

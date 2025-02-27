@@ -10,8 +10,8 @@ enum Screen menu() {
     clearScreen();
     waitFrames(15);
 
-    char start[] = "PRESS ENTER TO START";
-    drawText(35, 80, font, start, 31);
+    char start[] = "PRESS ENTER TO START\0";
+    drawText(80, 96, font, start, COLOR_ORANGE, 31);
 
     waitVSync();
     dumpBuffer();

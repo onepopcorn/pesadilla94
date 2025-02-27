@@ -15,13 +15,13 @@
 
 void writeMessage(char* message) {
     drawRectColor((Rect){5, 10, 16 * strlen(message), 16}, 16);
-    drawText(5, 10, font, message, 31);
+    drawText(5, 10, font, message, COLOR_ORANGE, 31);
 }
 
 #ifdef DEBUG
 void writeNumber(short x, short y, uint8_t num) {
     char buffer[4];
     sprintf(buffer, "%i", num);
-    drawText(x, y, font, buffer, 2);
+    drawText(x, y, font, buffer, COLOR_WHITE, 2);
 }
 #endif

@@ -3,7 +3,6 @@
 #include "io/resources.h"
 #include "io/keyboard.h"
 #include "assets.h"
-#include "render/hud.h"
 #include "entities/entities.h"
 #include "entities/player.h"
 #include "entities/enemy.h"
