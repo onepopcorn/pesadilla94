@@ -11,9 +11,9 @@
 int16_t animations[] = {
     2, 3, 4, 5, 6, 7, ANIM_LOOP,              // Player walking (7 frames)
     0, 0, 0, 0, 0, 1, 1, 1, 1, 1, ANIM_LOOP,  // Player Idle (11 frames)
-    0, 0, 0, 0, ANIM_HOLD,                    // Player Shooting (5)
+    14, 14, 15, 15, 15, 15, ANIM_HOLD,        // Player Shooting (7)
     8, 8, 8, 9, 9, 9, 9, ANIM_LOOP,           // Player Searching (8 frames)
-    1, 2, 5, 5, ANIM_HOLD,                    // Manoloca (5 frames)
+    0, 0, 0, ANIM_HOLD,                       // Manoloca (4 frames)
     0, 1, 2, 3, 4, ANIM_LOOP,                 // Joystick walking (6 frames)
     10, 11, 12, 13, 0, ANIM_HOLD,             // Player Stairs (6 frames)
     5, 5, 6, 6, ANIM_LOOP,                    // Joystick stunt (4 frames)

@@ -5,7 +5,7 @@ typedef struct GameState {
     uint8_t lives;
     uint8_t doorsLeft;
     uint8_t level;
-    int score;
+    uint32_t score;
 } GameState;
 
 extern GameState gameState;

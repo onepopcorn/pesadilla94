@@ -11,7 +11,7 @@
  * TODO: Make this a collision group/collision mask to simplify collision
  *
  */
-#define TYPE_NONE 0x00  // TO BE USED IN COLLISION MASK FOR TEMPORARY INVULNERABILITY
+#define TYPE_NONE 0x00  // TO BE USED IN COLLISION MASK TO DISABLE COLLISIONS FOR ENTITY
 #define TYPE_PLAYER 0x01
 #define TYPE_ENEMY_A 0x02
 #define TYPE_ENEMY_B 0x04
@@ -29,8 +29,7 @@
 #define ENTITY_CHECK_COLLISION 0x04  // bit 2  00000100
 #define ENTITY_FLASHING 0x08         // bit 3  00001000
 #define ENTITY_BLOCKED 0x10          // bit 4  00010000
-#define ENTITY_INVULNERABLE 0x20     // bit 5  00100000
-#define ENTITY_STUNT 0x40            // bit 6  01000000
+#define ENTITY_STUNT 0x20            // bit 5  00100000
 
 #define m_getEntityRect(entity) \
     (Rect) { entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h }

@@ -29,25 +29,25 @@ void closeScreenBuffer(void);
 
 void waitVSync();
 
-void waitFrames(int frames);
+void waitFrames(uint8_t frames);
 
-void drawText(int x, int y, Sprite *font, char *text, int max_length);
+void drawText(uint16_t x, uint16_t y, Sprite *font, char *text, uint8_t max_length);
 
-void drawSprite(int x, int y, Sprite *sprite, int frame, bool flip, int colorOverride);
+void drawSprite(uint16_t x, uint16_t y, Sprite *sprite, uint16_t frame, bool flip, uint8_t colorOverride);
 
-void drawTile(int x, int y, Sprite *tileset, int id);
+void drawTile(uint16_t x, uint16_t y, Sprite *tileset, uint8_t id);
 
 void clearScreen();
 
-void fillScreen(int color);
+void fillScreen(uint8_t color);
 
 void dumpBuffer();
 
-void drawRectColor(Rect rect, int color);
+void drawRectColor(Rect rect, uint8_t color);
 
 #ifdef DEBUG
 
-void drawBBoxColor(Rect rect, int color);
+void drawBBoxColor(Rect rect, uint8_t color);
 #endif
 
 #endif  // _VGA_H

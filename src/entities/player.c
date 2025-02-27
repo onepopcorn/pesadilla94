@@ -15,7 +15,7 @@
 #include "player.h"
 
 #define PLAYER_SPEED 0.9
-#define PLAYER_SHOOT_RECHARGE_TIME 5000
+#define PLAYER_SHOOT_RECHARGE_TIME 2000
 #define PLAYER_INVULNERABILITY_TIME 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
@@ -24,12 +24,17 @@ uint8_t playerCanShoot = true;
 PlayerState playerState = STATE_IDLE;
 
 // PRIVATE METHODS
+
+void reSpawn() {
+}
+
 void enableWhip(uint8_t id) {
     playerCanShoot = true;
 }
 
 void invulnerabilityEnd(uint8_t id) {
     player->collisionMask = PLAYER_COLLISION_MASK;
+    m_unsetFlag(player->flags, ENTITY_FLASHING);
 }
 
 void useStairs(bool up) {
@@ -45,15 +50,22 @@ void useStairs(bool up) {
 
     // Give player some invulnerability time after using stairs
     player->collisionMask = TYPE_NONE;  // Disable collisions during stairs transition
+    m_setFlag(player->flags, ENTITY_FLASHING);
     setTimeout(&invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
 }
 
 void shoot() {
+    // Can't shoot if too close to the wall player is facing
+    if ((player->x < 10 && m_isFlagSet(player->flags, ENTITY_FLIP)) || (player->x > 280 && !m_isFlagSet(player->flags, ENTITY_FLIP))) {
+        playerState = STATE_IDLE;
+        return;
+    }
+
     // Get position where whip should be shown
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
-    uint16_t x = facingRight ? player->x + player->sprite->width * 0.5 : player->x - player->sprite->width;
+    uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
-    whipSpawn(x, player->y - 2, facingRight);
+    whipSpawn(player->x + offset, player->y + 3, facingRight);
 
     playerCanShoot = false;
     setTimeout(&enableWhip, player->id, PLAYER_SHOOT_RECHARGE_TIME);
@@ -61,9 +73,10 @@ void shoot() {
 
 void searchDoor() {
     if (!m_isKeyDown(KEY_UP)) {
+        closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
         // TODO Decide if cancelling search resets the door timer
-        Tile *tile = closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
-        tile->data.door.progress = 255;
+        // Tile *tile = closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+        // tile->data.door.progress = 255;
 
         playerState = STATE_IDLE;
         return;
@@ -113,7 +126,13 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             // Shoot
             if (isKeyJustPressed(KEY_SPACE) && playerCanShoot) {
                 playerState = STATE_SHOOTING;
-                shoot();
+            }
+
+            // Move left
+            if (m_isKeyDown(KEY_LEFT) && !m_isKeyDown(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
+                entity->vx = -PLAYER_SPEED;
+                m_setFlag(entity->flags, ENTITY_FLIP);
+                return;
             }
 
             // Move right
@@ -123,12 +142,6 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                 return;
             }
 
-            // Move left
-            if (m_isKeyDown(KEY_LEFT) && !m_isKeyDown(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
-                entity->vx = -PLAYER_SPEED;
-                m_setFlag(entity->flags, ENTITY_FLIP);
-                return;
-            }
             playerState = STATE_IDLE;
             break;
         case STATE_SEARCHING:
@@ -138,6 +151,8 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
         case STATE_SHOOTING:
             m_setAnimation(player, ANIM_PLAYER_SHOOT);
             player->vx = 0;
+
+            if (player->frame == 2) shoot();
             if (player->frame == ANIM_PLAYER_SHOOT_LEN - 2) playerState = STATE_IDLE;
             break;
 
@@ -146,6 +161,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             break;
 
         case STATE_DYING:
+
             break;
 
         case STATE_IDLE:
@@ -156,7 +172,6 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             // Shoot
             if (isKeyJustPressed(KEY_SPACE) && playerCanShoot) {
                 playerState = STATE_SHOOTING;
-                shoot();
             }
 
             // Use stairs
@@ -171,8 +186,12 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             }
 
             // Walk
-            if (m_isKeyDown(KEY_LEFT) || m_isKeyDown(KEY_RIGHT)) {
+            if ((m_isKeyDown(KEY_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) || (m_isKeyDown(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R))) {
                 playerState = STATE_WALKING;
             }
     }
+}
+
+void playerDie() {
+    playerState = STATE_DYING;
 }

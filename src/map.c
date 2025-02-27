@@ -24,11 +24,11 @@ const char* maps[NUM_LEVELS] = {
 
 typedef struct DirtyTile {
     uint8_t entityIdx;
-    int x, y;
+    uint8_t x, y;
 } DirtyTile;
 
 DirtyTile dirtyTiles[MAX_DIRTY_TILES] = {0};
-int dirtyTilesCount = 0;
+uint8_t dirtyTilesCount = 0;
 
 /**
  * Load map resources and set level
@@ -78,8 +78,8 @@ void drawMap() {
     uint8_t tileWidth = currentMap->tileWidth;
     uint8_t tileHeight = currentMap->tileHeight;
 
-    for (int i = 0; i < mapHeight; i++) {
-        for (int j = 0; j < mapWidth; j++) {
+    for (uint8_t i = 0; i < mapHeight; i++) {
+        for (uint8_t j = 0; j < mapWidth; j++) {
             Tile tile = data[j + i * mapWidth];
             // Tiled uses 1-based indexes for maps
             drawTile(j * tileWidth, i * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
@@ -97,9 +97,9 @@ void restoreMapTiles() {
     uint8_t tileHeight = currentMap->tileHeight;
     Tile* data = currentMap->data;
 
-    for (int i = 0; i < dirtyTilesCount; i++) {
-        int x = dirtyTiles[i].x;
-        int y = dirtyTiles[i].y;
+    for (uint8_t i = 0; i < dirtyTilesCount; i++) {
+        uint8_t x = dirtyTiles[i].x;
+        uint8_t y = dirtyTiles[i].y;
 
         Tile tile = data[x + y * mapWidth];
         drawTile(x * tileWidth, y * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
@@ -118,14 +118,14 @@ Rect getTilesRect(Rect spriteRect) {
     uint8_t tileWidth = currentMap->tileWidth;
     uint8_t tileHeight = currentMap->tileHeight;
 
-    int minTileColumn = spriteRect.x / tileWidth;
-    int minTileRow = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
+    uint8_t minTileColumn = spriteRect.x / tileWidth;
+    uint8_t minTileRow = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
 
-    int maxTileColumn = (spriteRect.x + spriteRect.w) / tileWidth;
-    int maxTileRow = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
+    uint8_t maxTileColumn = (spriteRect.x + spriteRect.w) / tileWidth;
+    uint8_t maxTileRow = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
 
-    int wTiles = maxTileColumn - minTileColumn + 1;
-    int hTiles = maxTileRow - minTileRow + 1;
+    uint8_t wTiles = maxTileColumn - minTileColumn + 1;
+    uint8_t hTiles = maxTileRow - minTileRow + 1;
 
     return (Rect){minTileColumn, minTileRow, wTiles, hTiles};
 }
@@ -139,7 +139,7 @@ Rect getTilesRect(Rect spriteRect) {
  * @return Tile* pointer of the tile in given coordinates
  *
  */
-Tile* getTile(int col, int row) {
+Tile* getTile(uint8_t col, uint8_t row) {
     return &currentMap->data[col + row * currentMap->width];
 }
 
@@ -151,11 +151,11 @@ Tile* getTile(int col, int row) {
  *
  * @return Vec2 tile coordinates destination to move the sprite to
  */
-Vec2 getStairsDestination(float x, float y, bool up) {
+Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
-    int destTileIdx = up ? tile->data.stairs.up : tile->data.stairs.down;
-    int dx = destTileIdx % currentMap->width * TILE_SIZE;
-    int dy = destTileIdx / currentMap->width * TILE_SIZE + SCREEN_Y_OFFSET;
+    uint16_t destTileIdx = up ? tile->data.stairs.up : tile->data.stairs.down;
+    uint16_t dx = destTileIdx % currentMap->width * TILE_SIZE;
+    uint16_t dy = destTileIdx / currentMap->width * TILE_SIZE + SCREEN_Y_OFFSET;
 
     return (Vec2){dx, dy};
 }
@@ -168,7 +168,7 @@ Vec2 getStairsDestination(float x, float y, bool up) {
  *
  * @return Tile* pointer to background tile on given coordinates
  */
-Tile* openDoor(float x, float y) {
+Tile* openDoor(uint16_t x, uint16_t y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     // TODO: Use defines for changing tiles
@@ -185,7 +185,7 @@ Tile* openDoor(float x, float y) {
  * @param x sprite x coordinate
  * @param y sprite y coordinate
  */
-Tile* closeDoor(float x, float y) {
+Tile* closeDoor(uint16_t x, uint16_t y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     // TODO: Use defines for changin tiles
@@ -201,7 +201,7 @@ Tile* closeDoor(float x, float y) {
  * Marks tile at given coordinates as dirty
  *
  */
-int markDirtyTile(int entityIdx, int tileColumn, int tileRow) {
+uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileColumn, uint8_t tileRow) {
     // dirty tiles buffer is full
     if (dirtyTilesCount >= MAX_DIRTY_TILES) {
         return -1;
@@ -209,12 +209,12 @@ int markDirtyTile(int entityIdx, int tileColumn, int tileRow) {
 
 #ifdef DEBUG_TILES
     // NOTE This has a performance hit
-    int tileWidth = currentMap->tileWidth;
-    int tileHeight = currentMap->tileHeight;
+    uint8_t tileWidth = currentMap->tileWidth;
+    uint8_t tileHeight = currentMap->tileHeight;
     drawRectColor((Rect){tileColumn * tileWidth, tileRow * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
 #endif
 
-    for (int k = 0; k < dirtyTilesCount; k++) {
+    for (uint8_t k = 0; k < dirtyTilesCount; k++) {
         const DirtyTile dirtyTile = dirtyTiles[k];
         if (dirtyTile.x == tileColumn && dirtyTile.y == tileRow) {
             // A previous entity already marked this tile return that one

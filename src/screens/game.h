@@ -1,10 +1,13 @@
 #ifndef _GAME_SCREEN_H
 #define _GAME_SCREEN_H
 
-#define GAME_PAUSED 0x01
-#define GAME_RUNNING 0x02
-#define GAME_TRANSITION 0x04
+enum GameLoopState {
+    GAME_PAUSED,
+    GAME_RUNNING,
+    GAME_IN_TRANSITION,
+};
 
-enum Screen game();
+enum Screen
+game();
 
 #endif  // _GAME_SCREEN_H

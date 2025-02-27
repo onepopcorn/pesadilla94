@@ -16,8 +16,9 @@
 /**
  * Entities system configuration
  */
-#define MAX_ENTITIES 15        // Limit how many entities we can have at once to not overflow memory
+#define MAX_ENTITIES 10        // Limit how many entities we can have at once to not overflow memory
 #define MAX_TILE_PER_ENTITY 6  // Approximate the max number of tiles a single entity can "touch"
+#define MAX_TIMERS 10
 
 /**
  * Gameplay configuration

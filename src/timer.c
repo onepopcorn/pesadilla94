@@ -5,9 +5,8 @@
 #include <dpmi.h>
 #include <pc.h>
 
+#include "settings/settings.h"
 #include "timer.h"
-
-#define MAX_CALLBACKS 5  // Maximum number of concurrent callbacks
 
 typedef struct {
     void (*callback)(uint8_t);  // Function pointer for the callback
@@ -17,7 +16,7 @@ typedef struct {
 
 volatile static uint32_t milliseconds = 0;
 
-static Timeout timeouts[MAX_CALLBACKS] = {0};  // Array to track multiple timeouts
+static Timeout timeouts[MAX_TIMERS] = {0};  // Array to track multiple timeouts
 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
@@ -25,7 +24,7 @@ static void timerHandler() {
     milliseconds += 55;  // ~55 ms per tick at 18.2 Hz
 
     // Check each registered timeout
-    for (int i = 0; i < MAX_CALLBACKS; i++) {
+    for (uint8_t i = 0; i < MAX_TIMERS; i++) {
         if (timeouts[i].callback && milliseconds >= timeouts[i].endTime) {
             timeouts[i].callback(timeouts[i].param);
             timeouts[i].callback = NULL;  // Remove callback after calling
@@ -37,7 +36,7 @@ static void timerHandler() {
 
 void timerInit() {
     _go32_dpmi_get_protected_mode_interrupt_vector(IRS_TIMER, &old_handler);
-    new_handler.pm_offset = (unsigned long)timerHandler;
+    new_handler.pm_offset = (uint32_t)timerHandler;
     new_handler.pm_selector = _go32_my_cs();
     _go32_dpmi_chain_protected_mode_interrupt_vector(IRS_TIMER, &new_handler);
 }
@@ -56,7 +55,7 @@ uint8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
     // Find an empty slot
-    for (uint8_t i = 0; i < MAX_CALLBACKS; i++) {
+    for (uint8_t i = 0; i < MAX_TIMERS; i++) {
         if (timeouts[i].callback == NULL) {
             timeouts[i].callback = callback;
             timeouts[i].param = param;

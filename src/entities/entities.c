@@ -76,7 +76,8 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    uint8_t entityIdx = lastEntityIdx;
+    // uint8_t entityIdx = lastEntityIdx;
+    uint8_t entityIdx = 0;
 
     do {
         // TODO: Check collisions with player bullets
@@ -91,7 +92,7 @@ void updateEntities(uint32_t delta) {
         checkCollisionsBetweenEntities(entityIdx, lastEntityIdx);
 
         // Keep a reference to the current animation
-        int currentAnimation = entity->animation;
+        uint8_t currentAnimation = entity->animation;
 
         // update each entity logic
         entity->update(entity, tileCollisionsBitmask);
@@ -110,18 +111,19 @@ void updateEntities(uint32_t delta) {
         renderEntity(entityIdx, frameNeedsUpdate);
 
         // TODO: Remove the flashing when collisions have consequences (kill player or enemy, etc)
-        if (m_isFlagSet(entity->flags, ENTITY_FLASHING)) m_unsetFlag(entity->flags, ENTITY_FLASHING);
+        // if (m_isFlagSet(entity->flags, ENTITY_FLASHING)) m_unsetFlag(entity->flags, ENTITY_FLASHING);
 
         // Delete entity if dead
         if (!m_isFlagSet(entity->flags, ENTITY_ALIVE)) destroyEntity(entityIdx);
 
-    } while (entityIdx-- > 0);
+        // } while (entityIdx-- > 0);
+    } while (entityIdx++ < lastEntityIdx);
 }
 
 void renderEntity(uint8_t index, char frameNeedsUpdate) {
     Entity* entity = &entities[index];
-    int frame = getAnimationFrame(frameNeedsUpdate, entity);
-    int color = entity->flags & ENTITY_FLASHING ? COLOR_WHITE : COLOR_TRANSPARENT;
+    uint16_t frame = getAnimationFrame(frameNeedsUpdate, entity);
+    uint8_t color = m_isFlagSet(entity->flags, ENTITY_FLASHING) && (entity->frame & 0x01) ? COLOR_WHITE : COLOR_TRANSPARENT;
     drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
 #ifdef DEBUG_ENTITIES

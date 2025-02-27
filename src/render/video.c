@@ -75,7 +75,7 @@ void waitVSync() {
  * Wait given amount of frames
  *
  */
-void waitFrames(int frames) {
+void waitFrames(uint8_t frames) {
     while (frames--) {
         waitVSync();
     }
@@ -93,12 +93,12 @@ void waitFrames(int frames) {
  * @param max_length Max number of characters to break to the next line. If 0, there's no line break
  *
  */
-void drawText(int x, int y, Sprite* font, char* text, int max_length) {
-    int x_offset = 0;  // accumulate offset for when we trim next line whitespace
-    int limit = max_length ? max_length : (SCREEN_WIDTH - x) / font->width;
-    for (int i = 0; text[i]; i++) {
-        int y_pos = y + i / limit * (font->height + 2);  // 2 = space between lines
-        int x_pos = x + (i % limit) * font->width;
+void drawText(uint16_t x, uint16_t y, Sprite* font, char* text, uint8_t max_length) {
+    uint16_t x_offset = 0;  // accumulate offset for when we trim next line whitespace
+    uint16_t limit = max_length ? max_length : (SCREEN_WIDTH - x) / font->width;
+    for (uint8_t i = 0; text[i]; i++) {
+        uint16_t y_pos = y + i / limit * (font->height + 2);  // 2 = space between lines
+        uint16_t x_pos = x + (i % limit) * font->width;
 
         if (text[i] == 32) {
             // Trim whitespace at beginning of line. 32 is ASCII value for whitespace
@@ -122,19 +122,19 @@ void drawText(int x, int y, Sprite* font, char* text, int max_length) {
  *
  * TODO: Consider using inlined assembly if performance is not good enough
  */
-void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip, int colorOverride) {
-    int width = sprite->width;
-    int height = sprite->height;
+void drawSprite(uint16_t x, uint16_t y, Sprite* sprite, uint16_t frame, bool flip, uint8_t colorOverride) {
+    uint16_t width = sprite->width;
+    uint16_t height = sprite->height;
 
-    const int offset = frame * width * height;
+    const uint16_t offset = frame * width * height;
     uint8_t* src = &sprite->data[offset];
     uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
 
-    for (int i = 0; i < height; i++) {
+    for (uint16_t i = 0; i < height; i++) {
         uint8_t* src_row = src + i * width;
         uint8_t* dst_row = dst + i * SCREEN_WIDTH;
 
-        for (int j = 0; j < width; j++) {
+        for (uint16_t j = 0; j < width; j++) {
             /**
              * To flip the sprite we want to substract the column number to the position of the last byte of each row.
              * So, basically we are reading each row backwards
@@ -153,7 +153,7 @@ void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip, int colorOve
      *       idiv and modulo operations can be very slow on x86
      *
      */
-    // for (int i = 0; i < sprite->width * sprite->height; i++) {
+    // for (uint8_t i = 0; i < sprite->width * sprite->height; i++) {
     //     /**
     //      * To flip the sprite we want to substract the column number to the position of the last byte of each row.
     //      * So, basically we are reading each row backwards
@@ -182,15 +182,15 @@ void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip, int colorOve
  * copying blocks of data which is way faster than a nested loop
  *
  */
-void drawTile(int x, int y, Sprite* tileset, int id) {
-    int width = TILE_SIZE;
-    int height = TILE_SIZE;
+void drawTile(uint16_t x, uint16_t y, Sprite* tileset, uint8_t id) {
+    uint8_t width = TILE_SIZE;
+    uint8_t height = TILE_SIZE;
 
-    const int offset = id * width * height;
+    const uint16_t offset = id * width * height;
     uint8_t* src = &tileset->data[offset];
     uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
 
-    for (int i = 0; i < height; i++) {
+    for (uint8_t i = 0; i < height; i++) {
         uint8_t* src_row = src + i * width;
         uint8_t* dst_row = dst + i * SCREEN_WIDTH;
         memcpy(dst_row, src_row, width);
@@ -208,7 +208,7 @@ void clearScreen() {
  * @param color Color value to fill the screen with
  *
  */
-void fillScreen(int color) {
+void fillScreen(uint8_t color) {
     memset(back_buffer, color, SCREEN_MEM_SIZE);
 }
 
@@ -241,8 +241,8 @@ void dumpBuffer() {
  *
  * TODO Consider using assembly for this although it seems to be quite fast already
  */
-void drawRectColor(Rect rect, int color) {
-    for (int row = 0; row < rect.h; row++) {
+void drawRectColor(Rect rect, uint8_t color) {
+    for (uint8_t row = 0; row < rect.h; row++) {
         memset(back_buffer + rect.x + (rect.y + row) * SCREEN_WIDTH, color, rect.w);
     }
 }
@@ -257,9 +257,9 @@ void drawRectColor(Rect rect, int color) {
  * @param color Color palette index to fill the rectangle with
  *
  */
-void drawBBoxColor(Rect rect, int color) {
-    for (int row = 0; row < rect.h; row++) {
-        for (int col = 0; col < rect.w; col++) {
+void drawBBoxColor(Rect rect, uint8_t color) {
+    for (uint8_t row = 0; row < rect.h; row++) {
+        for (uint8_t col = 0; col < rect.w; col++) {
             if (row == 0 || row == rect.h - 1 || col == 0 || col == rect.w - 1) {
                 back_buffer[rect.x + col + (rect.y + row) * SCREEN_WIDTH] = color;
             }

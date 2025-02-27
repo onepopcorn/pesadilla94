@@ -17,13 +17,13 @@
 
 #include "game.h"
 
-enum Screen nextScreen = SCREEN_MENU;
-uint8_t loopState = 0x00;
+enum Screen nextScreen;
+bool running;
 
 // PRIVATE METHODS
 
 void endTransition(uint8_t id) {
-    m_unsetFlag(loopState, GAME_RUNNING);
+    running = false;
 }
 
 // TODO: Encode positions in map
@@ -39,83 +39,108 @@ void spawnEnemy(uint8_t i) {
         if (entities[i].type == TYPE_ENEMY_A) enemyCount++;
     }
 
-    if (enemyCount < 4) {
-        Vec2 pos = enemyPositions[i];
-        enemySpawn(pos.x, pos.y);
-    }
+    Vec2 pos = enemyPositions[i];
+    enemySpawn(pos.x, pos.y);
+
+    // stop spawning at max enemy limit
+    if (++enemyCount >= 4) return;
 
     uint8_t nextEnemy = i >= 3 ? 0 : i + 1;
-    setTimeout(spawnEnemy, nextEnemy, 1500);
+    setTimeout(spawnEnemy, nextEnemy, 3000);
 }
 
 // PUBLIC METHODS
 
 enum Screen game() {
-    // BOOSTRAP
+    // BOOSTRAP LEVEL
 
     // TODO: Add checks when failing loading the level
     gameState.doorsLeft = startLevel(gameState.level);
     drawMap();
 
     // TODO: Make this correctly per map or during game play
-    playerSpawn(20, 59);
-    spawnEnemy(0);
+    playerSpawn(20, 58);
+    // spawnEnemy(0);
+    for (uint8_t i = 0; i < 4; i++) {
+        Vec2 pos = enemyPositions[i];
+        enemySpawn(pos.x, pos.y);
+    }
 
     uint32_t previousTime = getMilliseconds();
 
-    m_setFlag(loopState, GAME_RUNNING);
+    running = true;
+    enum GameLoopState gameLoopState = GAME_RUNNING;
 
     // UPDATE
-    while (m_isFlagSet(loopState, GAME_RUNNING)) {
-        if (isKeyJustPressed(KEY_ESC)) {
-            nextScreen = SCREEN_MENU;
-            m_unsetFlag(loopState, GAME_RUNNING);
-            continue;
-        }
-
-        if (isKeyJustPressed(KEY_P)) {
-            m_toggleFlag(loopState, GAME_PAUSED);
-            previousTime = getMilliseconds();
-        }
-
-        if (gameState.doorsLeft == 0 && !m_isFlagSet(loopState, GAME_TRANSITION)) {
-            nextScreen = SCREEN_GAME;
-            m_setFlag(loopState, GAME_TRANSITION);
-            setTimeout(endTransition, 0, 1000);
-        }
-
-        if (gameState.lives <= 0 && !m_isFlagSet(loopState, GAME_TRANSITION)) {
-            nextScreen = SCREEN_INTRO;
-            m_setFlag(loopState, GAME_TRANSITION);
-            setTimeout(endTransition, 0, 3000);
-        }
-
-        // Prevent game logic to run when paused
-        if (m_isFlagSet(loopState, (GAME_PAUSED | GAME_TRANSITION))) continue;
-
+    while (running) {
         // Manage timers
         uint32_t now = getMilliseconds();
         uint32_t delta = now - previousTime;
         previousTime = now;
 
+        switch (gameLoopState) {
+            case GAME_IN_TRANSITION:
+                // Just wait until transition ends
+                continue;
+            case GAME_PAUSED:
+                // Quit
+                if (isKeyJustPressed(KEY_ESC)) {
+                    nextScreen = SCREEN_MENU;
+                    running = false;
+                }
+
+                // Resume
+                if (isKeyJustPressed(KEY_P)) {
+                    gameLoopState = GAME_RUNNING;
+                }
+                break;
+            case GAME_RUNNING:
+
+                // Quit
+                if (isKeyJustPressed(KEY_ESC)) {
+                    nextScreen = SCREEN_MENU;
+                    running = false;
+                }
+
+                // Pause
+                if (isKeyJustPressed(KEY_P)) gameLoopState = GAME_PAUSED;
+
+                // Re-paint tiles that has been overwritten by sprites
+                restoreMapTiles();
+
+                // Update entity logic & render in the same loop
+                updateEntities(delta);
+
+                // Transition to next level
+                if (gameState.doorsLeft == 0) {
+                    // TODO: Handle next screen load
+                    nextScreen = SCREEN_GAME;
+                    gameLoopState = GAME_IN_TRANSITION;
+                    setTimeout(&endTransition, 0, 1000);
+                }
+
+                // Transition to game over
+                if (gameState.lives == 0) {
+                    // TODO: Create a GAME OVER screen
+                    nextScreen = SCREEN_MENU;
+                    gameLoopState = GAME_IN_TRANSITION;
+                    setTimeout(&endTransition, 0, 1000);
+                }
+        }
+
         waitVSync();
-
-        // This dumps from back buffer to screen buffer all at once
-        dumpBuffer();
-
-        // Re-paint tiles that has been overwritten by sprites
-        restoreMapTiles();
-
-        // Update entity logic & render in the same loop
-        updateEntities(delta);
+        dumpBuffer();  // Dump backbuffer to video memory
     }
 
     // CLEANUP
-    loopState = 0x0;
+    running = 0x0;
     clearAllTimeouts();
     destroyAllEntities();
     clearScreen();
     endLevel();
+
+    waitVSync();
+    dumpBuffer();
 
     return nextScreen;
 }

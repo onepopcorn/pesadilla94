@@ -8,6 +8,7 @@
 #include "map.h"
 #include "macros.h"
 #include "entities/enemy.h"
+#include "entities/player.h"
 
 #ifdef DEBUG
 #include "debug/logger.h"
@@ -37,6 +38,7 @@ void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
         // Player collided with enemy
         if (entity->type == TYPE_PLAYER) {
             m_setFlag(entity->flags, ENTITY_FLASHING);
+            // playerDie();
             continue;
         }
 
@@ -69,8 +71,8 @@ bool checkAABBCollision(Rect rect1, Rect rect2) {
  *
  * This function does three things:
  * - Mark the tiles that the entity is touching as dirty to be redrawn in the next frame
- * - Mark the entity to check for collisions with other entities when two entities are touching the same tile
- * - Return a bitmask with the type of tiles that the entity is touching
+ * - Mark the entity to "check for collisions" with other entities when two entities are touching the same tile
+ * - Return a bitmask with the type of tiles that the entity is touching for walls, doors & stairs
  *
  * Returns a collision bitmask to represent the tiles that are colliding with the entity
  * that can happen a the same time (e.g. floor, left wall, door, stairs...)
@@ -82,33 +84,33 @@ uint8_t checkTilesCollision(uint8_t entityIdx) {
     Rect hitboxRect = m_getEntityRect(entity);
 
     Rect tilesRect = getTilesRect(spriteRect);
-    int hTiles = tilesRect.h;
-    int wTiles = tilesRect.w;
-    int minTileColumn = tilesRect.x;
-    int minTileRow = tilesRect.y;
+    uint8_t hTiles = tilesRect.h;
+    uint8_t wTiles = tilesRect.w;
+    uint8_t minTileColumn = tilesRect.x;
+    uint8_t minTileRow = tilesRect.y;
 
     // Use this byte to return the type of walls that the entity is touching
     uint8_t tileCollisions = 0;
 
-    for (int i = 0; i < hTiles; i++) {
-        for (int j = 0; j < wTiles; j++) {
-            int tileColumn = minTileColumn + j;
-            int tileRow = minTileRow + i;
+    for (uint8_t i = 0; i < hTiles; i++) {
+        for (uint8_t j = 0; j < wTiles; j++) {
+            uint8_t tileColumn = minTileColumn + j;
+            uint8_t tileRow = minTileRow + i;
 
-            int entityIdxInTile = markDirtyTile(entityIdx, tileColumn, tileRow);
+            uint8_t entityIdxInTile = markDirtyTile(entityIdx, tileColumn, tileRow);
             if (entityIdxInTile < 0) {
                 // something wrong happend. dirtyTiles array is full
                 // TODO: Log error to stdout
                 break;
             }
 
-            int tileType = getTile(tileColumn, tileRow)->type;
+            uint8_t tileType = getTile(tileColumn, tileRow)->type;
 
             // flip the bit that represents the tile type
             // TODO: Apply tile collision limits. Refactor this to make it more clean
             Rect tileHitbox = {0, 0, 0, 0};
-            int tileXPos = tileColumn * TILE_SIZE;
-            int tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
+            uint16_t tileXPos = tileColumn * TILE_SIZE;
+            uint16_t tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
 
             switch (tileType) {
                 case TILE_TYPE_WALL_LEFT:

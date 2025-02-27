@@ -13,9 +13,9 @@ int16_t getAnimationFrame(char nextFrame, struct Entity* entity);
 enum Animation {
     ANIM_PLAYER_WALK_LEN = 7,
     ANIM_PLAYER_IDLE_LEN = 11,
-    ANIM_PLAYER_SHOOT_LEN = 5,
+    ANIM_PLAYER_SHOOT_LEN = 7,
     ANIM_PLAYER_SEARCH_LEN = 8,
-    ANIM_WHIP_LEN = 5,
+    ANIM_WHIP_LEN = 4,
     ANIM_ENEMY1_WALK_LEN = 6,
     ANIM_PLAYER_STAIRS_LEN = 6,
     ANIM_ENEMY1_STUNT_LEN = 4

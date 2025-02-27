@@ -22,15 +22,15 @@ void drawMap();
 
 Rect getTilesRect(Rect spriteRect);
 
-int markDirtyTile(int entityIdx, int tileXIndex, int tileYIndex);
+uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileXIndex, uint8_t tileYIndex);
 
-Tile* getTile(int col, int row);
+Tile* getTile(uint8_t col, uint8_t row);
 
-Vec2 getStairsDestination(float x, float y, bool up);
+Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up);
 
-Tile* openDoor(float x, float y);
+Tile* openDoor(uint16_t x, uint16_t y);
 
-Tile* closeDoor(float x, float y);
+Tile* closeDoor(uint16_t x, uint16_t y);
 
 void restoreMapTiles();
 
