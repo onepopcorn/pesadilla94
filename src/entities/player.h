@@ -5,7 +5,8 @@ typedef enum PlayerState {
     STATE_IDLE,
     STATE_WALKING,
     STATE_SEARCHING,
-    STATE_STAIRS,
+    STATE_STAIRS_IN,
+    STATE_STAIRS_OUT,
     STATE_DYING,
     STATE_SHOOTING,
 } PlayerState;

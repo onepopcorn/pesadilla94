@@ -37,7 +37,7 @@ void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
 
         // Player collided with enemy
         if (entity->type == TYPE_PLAYER) {
-            m_setFlag(entity->flags, ENTITY_FLASHING);
+            // m_setFlag(entity->flags, ENTITY_FLASHING);
             // playerDie();
             continue;
         }

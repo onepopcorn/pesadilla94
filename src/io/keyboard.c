@@ -42,7 +42,7 @@ void keyboardInit() {
 
 void keyboardFree() {
     if (_go32_dpmi_set_protected_mode_interrupt_vector(IRS_KEYBOARD, &old_handler) == -1)
-        fprintf(stderr, "Failed to free the timer :(\n");
+        fprintf(stderr, "Failed to free the keyboard :(\n");
     else
         _go32_dpmi_free_iret_wrapper(&new_handler);
 }

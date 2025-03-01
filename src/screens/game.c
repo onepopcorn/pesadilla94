@@ -27,10 +27,10 @@ void endTransition(uint8_t id) {
 
 // TODO: Encode positions in map
 Vec2 enemyPositions[4] = {
-    {100, 111},
-    {160, 63},
+    {100, 110},
+    {160, 62},
     {130, 158},
-    {210, 111}};
+    {210, 110}};
 
 void spawnEnemy(uint8_t i) {
     uint8_t enemyCount = 0;
