@@ -5,10 +5,8 @@
  * Animations are a sequence of sprite frames (index) that are looped through on
  * each frame. The last frame is marked with -1 to indicate the end of the animation.
  *
- * TODO: Create an animation array per entity type
- * TODO: Use -2 as one time animation and go back to IDLE (first animation)
  */
-int16_t animations[] = {
+int8_t animations[] = {
     2, 3, 4, 5, 6, 7, ANIM_LOOP,                   // Player walking (7 frames)
     0, 0, 0, 0, 0, 1, 1, 1, 1, 1, ANIM_LOOP,       // Player Idle (11 frames)
     15, 15, 16, 16, 16, 16, ANIM_HOLD,             // Player Shooting (7)
@@ -19,14 +17,14 @@ int16_t animations[] = {
     5, 5, 6, 6, ANIM_LOOP,                         // Joystick stunt (4 frames)
 };
 
-int16_t getAnimationFrame(char nextFrame, Entity* entity) {
+int8_t getAnimationFrame(char nextFrame, Entity* entity) {
     int16_t currentAnimation = entity->animation;
 
     // No need to update the frame, just return current frame
     if (!nextFrame) return animations[currentAnimation + entity->frame];
 
     // Get next animation frame
-    int16_t animationFrame = animations[++entity->frame + currentAnimation];
+    int8_t animationFrame = animations[++entity->frame + currentAnimation];
 
     // Reset frame when at the end of animation to loop back
     if (animationFrame == ANIM_LOOP) {

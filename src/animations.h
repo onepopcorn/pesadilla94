@@ -1,11 +1,11 @@
 #ifndef _ANIMATIONS_H_
 #define _ANIMATIONS_H_
 
-extern int16_t animations[];
+extern int8_t animations[];
 
 struct Entity;
 
-int16_t getAnimationFrame(char nextFrame, struct Entity* entity);
+int8_t getAnimationFrame(char nextFrame, struct Entity* entity);
 
 #define ANIM_LOOP -1
 #define ANIM_HOLD -2

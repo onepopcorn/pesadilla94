@@ -15,7 +15,7 @@
 #include "player.h"
 
 #define PLAYER_SPEED 0.9
-#define PLAYER_SHOOT_RECHARGE_TIME 2000
+#define PLAYER_SHOOT_RECHARGE_TIME 500
 #define PLAYER_INVULNERABILITY_TIME 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
@@ -71,10 +71,10 @@ void spawnShot() {
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
     uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
-    whipSpawn(player->x + offset, player->y + 3, facingRight);
+    whipSpawn(player->x + offset, player->y + 8, facingRight);
 
-    // playerCanShoot = false;
-    // setTimeout(&enableWhip, player->id, PLAYER_SHOOT_RECHARGE_TIME);
+    playerCanShoot = false;
+    setTimeout(&enableWhip, player->id, PLAYER_SHOOT_RECHARGE_TIME);
 }
 
 void searchDoor() {
@@ -91,7 +91,8 @@ void searchDoor() {
     Tile *tile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
     uint8_t p = tile->data.door.progress;
 
-    if (p < 2) {
+    // 255 - 2 will never reach 0
+    if (p <= 1) {
         gameState.doorsLeft--;
         playerState = STATE_IDLE;
         return;
@@ -196,7 +197,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             }
 
             // Walk
-            if ((isKeyJustPressed(KEY_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) || (isKeyJustPressed(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R))) {
+            if ((m_isKeyDown(KEY_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) || (m_isKeyDown(KEY_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R))) {
                 playerState = STATE_WALKING;
             }
     }
