@@ -11,30 +11,48 @@
  * @param path The path to the file
  * @return const char* The file content
  */
-const char *read_file(const char *path) {
-    FILE *file = fopen(path, "r");
-
-    if (file == NULL) {
-        fprintf(stderr, "Expected file \"%s\" not found", path);
+char *read_file(const char *path) {
+    FILE *file = fopen(path, "rb");  // Open in binary mode
+    if (!file) {
+        fprintf(stderr, "Error: Cannot open file \"%s\"\n", path);
         return NULL;
     }
 
-    fseek(file, 0, SEEK_END);
-    long len = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    char *buffer = malloc(len + 1);
-
-    if (buffer == NULL) {
-        fprintf(stderr, "Unable to allocate memory for file");
+    // Get file size
+    if (fseek(file, 0, SEEK_END) != 0) {  // Handle seek error
         fclose(file);
         return NULL;
     }
 
-    fread(buffer, 1, len, file);
-    buffer[len] = '\0';
+    long len = ftell(file);
+    if (len == -1) {  // Handle error
+        fclose(file);
+        return NULL;
+    }
+
+    rewind(file);  // Move back to the beginning
+
+    // Allocate buffer
+    char *buffer = malloc(len + 1);
+    if (!buffer) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        fclose(file);
+        return NULL;
+    }
+
+    // Read file into buffer
+    size_t bytesRead = fread(buffer, 1, len, file);
     fclose(file);
 
-    return (const char *)buffer;
+    // Ensure read success
+    if (bytesRead != (size_t)len) {
+        fprintf(stderr, "Error: File read failed\n");
+        free(buffer);
+        return NULL;
+    }
+
+    buffer[len] = '\0';  // Null-terminate
+    return buffer;       // Caller must free this
 }
 
 /**
