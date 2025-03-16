@@ -1,8 +1,9 @@
+# DOSBOX := "D:/Program Files (x86)/DOSBoxOptionals/dosbox.exe"
 DOSBOX := "d:/Program Files (x86)/DOSBox-0.74/DOSBox.exe"
 
 all: assets
 	@ echo -----------------
-	@echo  - BUILDING GAME -
+	@echo  - BUILD GAME -
 	@ echo -----------------
 	@echo
 	@make --no-print-directory -j -C src all
@@ -20,7 +21,7 @@ run: all
 
 tools:
 	@echo ------------------
-	@echo - BUILDING TOOLS -
+	@echo - BUILD TOOLS -
 	@echo ------------------
 	@echo
 	@make --no-print-directory -j -C tools all
