@@ -1,18 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <mikmod.h>
 
 #include "render/video.h"
 #include "io/keyboard.h"
 #include "assets.h"
 #include "screens.h"
 #include "timer.h"
+#include "text.h"
+#include "io/sound/sound.h"
+#include "settings/controls.h"
 
 #include "intro.h"
-
-static const char CRAWL_TEXT[] = "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!";
-#define CRAWL_TEXT_LEN sizeof(CRAWL_TEXT)
-
-static char BRAND_TEXT[] = "ONEPOPCORN 2025\0";
 
 enum Sequence curentSequence;
 
@@ -33,19 +32,19 @@ enum Screen intro() {
     uint8_t running = true;
     uint8_t current_charnum = 0;
     uint8_t counter = 0;
-    char *text = malloc(sizeof(char) * CRAWL_TEXT_LEN);
+    char *text = malloc(sizeof(char) * sizeof(STR_INTRO_L1));
     text[0] = '\0';
 
     while (running) {
         switch (curentSequence) {
             case SEQ_DRAW_BRANDING:
-                drawText(100, 96, font, BRAND_TEXT, COLOR_ORANGE, 30);
+                drawText(100, 96, font, STR_BRAND, COLOR_ORANGE, 30);
                 setTimeout(&nextSequence, SEQ_DRAW_INTRO, 4000);
                 curentSequence = SEQ_BRANDING;
                 break;
 
             case SEQ_BRANDING:
-                if (isKeyJustPressed(KEY_ENTER)) {
+                if (isKeyJustPressed(m_SHOOT)) {
                     clearAllTimeouts();
                     curentSequence = SEQ_DRAW_INTRO;
                 }
@@ -59,15 +58,15 @@ enum Screen intro() {
 
             case SEQ_WAIT_INTRO:
                 setTimeout(&nextSequence, SEQ_INTRO, 3000);
-                if (isKeyJustPressed(KEY_ENTER)) {
+                if (isKeyJustPressed(m_SHOOT)) {
                     curentSequence = SEQ_INTRO;
                 }
                 break;
 
             case SEQ_INTRO:
-                if (current_charnum <= CRAWL_TEXT_LEN && ++counter) {
+                if (current_charnum <= sizeof(STR_INTRO_L1) && ++counter) {
                     for (uint8_t i = 0; i < current_charnum - 1; i++) {
-                        text[i] = CRAWL_TEXT[i];
+                        text[i] = STR_INTRO_L1[i];
                         text[i + 1] = '\0';
                     }
                     current_charnum++;
@@ -79,7 +78,7 @@ enum Screen intro() {
                 break;
 
             case SEQ_OUTRO:
-                if (isKeyJustPressed(KEY_ENTER)) {
+                if (isKeyJustPressed(m_SHOOT)) {
                     running = false;
                 }
                 break;
@@ -89,7 +88,7 @@ enum Screen intro() {
                 break;
         }
 
-        if (isKeyJustPressed(KEY_ESC)) {
+        if (isKeyJustPressed(m_QUIT)) {
             return SCREEN_EXIT;
         }
 

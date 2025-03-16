@@ -3,6 +3,9 @@
 #include "io/keyboard.h"
 #include "../assets.h"
 #include "screens.h"
+#include "text.h"
+#include "settings/controls.h"
+
 #include "menu.h"
 
 enum Screen menu() {
@@ -10,18 +13,17 @@ enum Screen menu() {
     clearScreen();
     waitFrames(15);
 
-    char start[] = "PRESS ENTER TO START\0";
-    drawText(80, 96, font, start, COLOR_ORANGE, 31);
+    drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 96, font, STR_MENU_L1, COLOR_ORANGE, 31);
 
     waitVSync();
     dumpBuffer();
 
     while (1) {
-        if (isKeyJustPressed(KEY_ENTER)) {
+        if (isKeyJustPressed(m_SHOOT)) {
             return SCREEN_GAME;
         }
 
-        if (isKeyJustPressed(KEY_ESC)) {
+        if (isKeyJustPressed(m_QUIT)) {
             return SCREEN_EXIT;
         }
     }

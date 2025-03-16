@@ -23,7 +23,9 @@
 /**
  * Gameplay configuration
  */
-#define MAX_LIVES 4
+#define MAX_LIVES 5
+#define POINTS_PER_DOOR 30
+#define POINTS_PER_STUNT 5
 #define EXTRA_LIFE_SCORE 10000
 
 #endif  // _SETTINGS_H_

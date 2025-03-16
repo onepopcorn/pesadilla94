@@ -9,10 +9,11 @@
 #include "entities/whip.h"
 #include "timer.h"
 #include "map.h"
-#include "assets.h"
+#include "hud/hud.h"
 #include "screens.h"
 #include "gameState.h"
 #include "macros.h"
+#include "settings/controls.h"
 
 #include "game.h"
 
@@ -24,48 +25,34 @@ bool running;
 void endTransition(uint8_t id) {
     running = false;
 }
-
-// TODO: Encode positions in map
-Vec2 enemyPositions[4] = {
-    {100, 110},
-    {160, 62},
-    {130, 158},
-    {210, 110}};
-
-void spawnEnemy(uint8_t i) {
-    uint8_t enemyCount = 0;
-    for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
-        if (entities[i].type == TYPE_ENEMY_A) enemyCount++;
-    }
-
-    Vec2 pos = enemyPositions[i];
-    enemySpawn(pos.x, pos.y);
-
-    // stop spawning at max enemy limit
-    if (++enemyCount >= 4) return;
-
-    uint8_t nextEnemy = i >= 3 ? 0 : i + 1;
-    setTimeout(spawnEnemy, nextEnemy, 3000);
-}
-
 // PUBLIC METHODS
 
 enum Screen game() {
-    // BOOSTRAP LEVEL
+    LevelData currentLevel = levels[gameState.level];
 
-    // TODO: Add checks when failing loading the level
-    gameState.doorsLeft = startLevel(gameState.level);
+    gameState.timeLeft = currentLevel.time;
+    gameState.doorsLeft = startLevel(gameState.level);  // TODO: Add checks when failing loading the level
+
     drawMap();
+    drawHUD();
 
-    // TODO: Make this correctly per map or during game play
-    playerSpawn(20, 58);
-    // spawnEnemy(0);
-    for (uint8_t i = 0; i < 4; i++) {
-        Vec2 pos = enemyPositions[i];
-        enemySpawn(pos.x, pos.y);
+    // TODO: Use spawn positions from map data
+
+    uint8_t spawnOffset = currentLevel.positionsIdx;
+    uint8_t enemyCount = currentLevel.enemyCount;
+
+    Vec2 playerPos = spawnPositions[spawnOffset];
+    playerSpawn(playerPos.x, playerPos.y);
+
+    if (enemyCount > 0) {
+        for (uint8_t i = 0; i < enemyCount; i++) {
+            Vec2 pos = spawnPositions[spawnOffset + 1 + i];  // Offest player position
+            enemySpawn(pos.x, pos.y);
+        }
     }
 
     uint32_t previousTime = getMilliseconds();
+    uint32_t secondsCounter = previousTime;
 
     running = true;
     enum GameLoopState gameLoopState = GAME_RUNNING;
@@ -76,6 +63,12 @@ enum Screen game() {
         uint32_t now = getMilliseconds();
         uint32_t delta = now - previousTime;
         previousTime = now;
+        if (now - secondsCounter >= 1000) {
+            secondsCounter = now;
+            if (gameLoopState == GAME_RUNNING && gameState.timeLeft > 0) {
+                updateTime(-1);
+            }
+        }
 
         switch (gameLoopState) {
             case GAME_IN_TRANSITION:
@@ -83,26 +76,26 @@ enum Screen game() {
                 continue;
             case GAME_PAUSED:
                 // Quit
-                if (isKeyJustPressed(KEY_ESC)) {
+                if (isKeyJustPressed(m_QUIT)) {
                     nextScreen = SCREEN_MENU;
                     running = false;
                 }
 
                 // Resume
-                if (isKeyJustPressed(KEY_P)) {
+                if (isKeyJustPressed(m_PAUSE)) {
                     gameLoopState = GAME_RUNNING;
                 }
                 break;
             case GAME_RUNNING:
 
                 // Quit
-                if (isKeyJustPressed(KEY_ESC)) {
+                if (isKeyJustPressed(m_QUIT)) {
                     nextScreen = SCREEN_MENU;
                     running = false;
                 }
 
                 // Pause
-                if (isKeyJustPressed(KEY_P)) gameLoopState = GAME_PAUSED;
+                if (isKeyJustPressed(m_PAUSE)) gameLoopState = GAME_PAUSED;
 
                 // Re-paint tiles that has been overwritten by sprites
                 restoreMapTiles();
@@ -112,18 +105,15 @@ enum Screen game() {
 
                 // Transition to next level
                 if (gameState.doorsLeft == 0) {
-                    // TODO: Handle next screen load
-                    nextScreen = SCREEN_GAME;
+                    nextScreen = ++gameState.level < NUM_LEVELS ? SCREEN_GAME : SCREEN_MENU;
                     gameLoopState = GAME_IN_TRANSITION;
                     setTimeout(&endTransition, 0, 1000);
                 }
 
                 // Transition to game over
                 if (gameState.lives == 0) {
-                    // TODO: Create a GAME OVER screen
-                    nextScreen = SCREEN_MENU;
-                    gameLoopState = GAME_IN_TRANSITION;
-                    setTimeout(&endTransition, 0, 1000);
+                    nextScreen = SCREEN_GAME_OVER;
+                    running = false;
                 }
         }
 
@@ -132,7 +122,7 @@ enum Screen game() {
     }
 
     // CLEANUP
-    running = 0x0;
+    running = true;
     clearAllTimeouts();
     destroyAllEntities();
     clearScreen();
