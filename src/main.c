@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <crt0.h>
+// #include <mikmod.h>
 
 #include "render/video.h"
 #include "io/keyboard.h"
 #include "assets.h"
 #include "timer.h"
+#include "io/sound/sound.h"
 
 #include "screens/screens.h"
 #include "screens/menu.h"
@@ -27,13 +29,9 @@ int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
 /**
  * Systems initializer
  *
- * TODO: Consider load all graphics resources in advance and pass it down to other systems that needs them
  *
  */
 uint8_t initializSystems() {
-    // Initialize video system
-    setVideoMode(VIDEO_VGA_MODE);
-
     uint8_t bufferError = openScreenBuffer();
     if (bufferError) return EXIT_FAILURE;
 
@@ -42,7 +40,20 @@ uint8_t initializSystems() {
     keyboardInit();
 
     // Resources
-    assetsInit();
+    uint8_t assetsError = assetsInit();
+    if (assetsError) return EXIT_FAILURE;
+
+    // Sound
+    uint8_t soundError = soundInit();
+    if (soundError) return EXIT_FAILURE;
+
+    // printf("MikMod version: %s\n", MikMod_InfoDriver());
+    // printf("Current driver: %s\n", MikMod_InfoLoader());
+    // printf("MikMod Error %s\n", MikMod_strerror(MikMod_errno));
+    // return EXIT_FAILURE;
+
+    // Initialize video system
+    setVideoMode(VIDEO_VGA_MODE);
 
     return EXIT_SUCCESS;
 }
@@ -63,6 +74,9 @@ void uninitializSystems() {
 
     // Return to text mode
     setVideoMode(VIDEO_TEXT_MODE);
+
+    // Free sound drivers
+    soundFree();
 }
 
 int main(int argc, char *argv[]) {
@@ -73,8 +87,6 @@ int main(int argc, char *argv[]) {
     fillScreen(0);
 
     enum Screen currentScreen = SCREEN_INTRO;
-    gameState.lives = MAX_LIVES;
-    gameState.level = 1;
 
     while (currentScreen != SCREEN_EXIT) {
         switch (currentScreen) {
@@ -82,6 +94,7 @@ int main(int argc, char *argv[]) {
                 currentScreen = intro();
                 break;
             case SCREEN_MENU:
+                resetGameState();
                 currentScreen = menu();
                 break;
             case SCREEN_GAME:

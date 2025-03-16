@@ -7,8 +7,9 @@ BIN := ../out/game.exe
 
 CC := c:/djgpp/bin/i586-pc-msdosdjgpp-gcc.exe
 DC := objdump
-CFLAGS	:= -I. -c -std=gnu99 -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
-LDFLAGS := -s
+CFLAGS	:= -I. -IC:\djgpp\include -c -std=gnu99 -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
+LDFLAGS := -LC:\djgpp\lib -s
+LIBS := -lmikmod
 
 SRCS	:= $(shell find $(SRC_DIR) -name '*.c')
 OBJS	:= $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
@@ -33,7 +34,7 @@ clean:
 
 $(BIN): $(OBJS)
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(OBJS) -o $@
+	$(CC) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
 
 $(OBJ_DIR)/%.o:%.c
 	@mkdir -p $(@D)

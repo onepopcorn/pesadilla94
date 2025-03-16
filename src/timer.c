@@ -6,6 +6,7 @@
 #include <pc.h>
 
 #include "settings/settings.h"
+#include "io/sound/sound.h"
 #include "timer.h"
 
 typedef struct {
@@ -31,6 +32,8 @@ static void timerHandler() {
         }
     }
 
+    soundUpdate();
+
     outportb(0x20, 0x20);  // End-of-interrupt (EOI) signal to PIC
 }
 
@@ -51,7 +54,7 @@ uint32_t getMilliseconds() {
 }
 
 // Register a timeout callback
-uint8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
+int8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
     // Find an empty slot
@@ -59,7 +62,13 @@ uint8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
         if (timeouts[i].callback == NULL) {
             timeouts[i].callback = callback;
             timeouts[i].param = param;
-            timeouts[i].endTime = milliseconds + ms;
+            // Prevent overflow
+            if (UINT32_MAX - milliseconds < ms) {
+                timeouts[i].endTime = ms - (UINT32_MAX - milliseconds);
+            } else {
+                timeouts[i].endTime = milliseconds + ms;
+            }
+
             return 0;  // Success
         }
     }

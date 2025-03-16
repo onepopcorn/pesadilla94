@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+// #include <mikmod.h>
 
 #include "resources.h"
 
@@ -15,7 +17,7 @@ static void *loadResource(const char *filePath, uint8_t resourceType) {
     FILE *file = fopen(filePath, "rb");
 
     if (!file) {
-        perror("Error opening sprites files");
+        perror("Error opening asset files");
         return NULL;
     }
 
@@ -49,6 +51,19 @@ static void *loadResource(const char *filePath, uint8_t resourceType) {
         return (void *)map;
     }
 
+    // if (resourceType == RES_TYPE_SOUND) {
+    //     SAMPLE *sfx = (SAMPLE *)malloc(fileSize);
+    //     if (!sfx) {
+    //         perror("Not enough memory to open sfx resource");
+    //         fclose(file);
+    //         return NULL;
+    //     }
+
+    //     fread(sfx, fileSize, 1, file);
+    //     fclose(file);
+    //     return (void *)sfx;
+    // }
+
     fclose(file);
     return NULL;
 }
@@ -72,3 +87,8 @@ Map *loadMap(const char *filePath) {
     Map *map = loadResource(filePath, RES_TYPE_MAP);
     return map;
 }
+
+// SAMPLE *loadSfx(const char *filePath) {
+//     SAMPLE *sfx = loadResource(filePath, RES_TYPE_SOUND);
+//     return sfx;
+// }
