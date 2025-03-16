@@ -6,6 +6,7 @@ extern Sprite* playerSprite;
 extern Sprite* enemySprite;
 extern Sprite* whipSprite;
 extern Sprite* tileset;
+extern Sprite* miscSprite;
 
 uint8_t assetsInit();
 void assetsFree();

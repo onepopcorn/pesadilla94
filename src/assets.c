@@ -9,6 +9,7 @@ Sprite *playerSprite;
 Sprite *enemySprite;
 Sprite *whipSprite;
 Sprite *tileset;
+Sprite *miscSprite;
 
 uint8_t
 assetsInit() {
@@ -44,6 +45,12 @@ assetsInit() {
         return EXIT_FAILURE;
     }
 
+    miscSprite = loadSprite("misc.spr");
+    if (!miscSprite) {
+        perror("Error opening misc.spr");
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
 
@@ -64,4 +71,7 @@ void assetsFree() {
 
     free(tileset);
     tileset = NULL;
+
+    free(miscSprite);
+    miscSprite = NULL;
 }
