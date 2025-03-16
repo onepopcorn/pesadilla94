@@ -9,6 +9,7 @@ typedef enum PlayerState {
     STATE_STAIRS_OUT,
     STATE_DYING,
     STATE_SHOOTING,
+    STATE_PICKING_UP,
 } PlayerState;
 
 Entity* playerSpawn(uint16_t x, uint16_t y);

@@ -15,7 +15,7 @@
 #endif
 
 Entity entities[MAX_ENTITIES] = {0};
-uint8_t lastEntityIdx = -1;
+int8_t lastEntityIdx = -1;
 uint8_t nextId = 0;
 
 Entity* createEntity(uint16_t x, uint16_t y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions)) {
@@ -64,6 +64,9 @@ Entity* createEntity(uint16_t x, uint16_t y, uint8_t type, Sprite* spr, void (*u
  *
  */
 void updateEntities(uint32_t delta) {
+    // Skip the whole update if there are no entities
+    if (lastEntityIdx < 0) return;
+
     static uint32_t accumulatedTime = 0;
 
     // Handle animations with a global counter
@@ -79,7 +82,6 @@ void updateEntities(uint32_t delta) {
     uint8_t entityIdx = 0;
 
     do {
-        // TODO: Check collisions with player bullets
         Entity* entity = &entities[entityIdx];
 
         if (!m_isFlagSet(entity->flags, ENTITY_ALIVE)) continue;
@@ -115,7 +117,6 @@ void updateEntities(uint32_t delta) {
         // Delete entity if dead
         if (!m_isFlagSet(entity->flags, ENTITY_ALIVE)) destroyEntity(entityIdx);
 
-        // } while (entityIdx-- > 0);
     } while (entityIdx++ < lastEntityIdx);
 }
 
@@ -126,7 +127,7 @@ void renderEntity(uint8_t index, char frameNeedsUpdate) {
     drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
 #ifdef DEBUG_ENTITIES
-    writeNumber(entity->x, entity->y, index);
+    showEntityId(entity->x, entity->y, index);
 #endif
 
 #ifdef DEBUG_COLLISIONS

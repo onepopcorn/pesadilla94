@@ -9,6 +9,7 @@
 #include "macros.h"
 #include "entities/enemy.h"
 #include "entities/player.h"
+#include "hud/hud.h"
 
 #ifdef DEBUG
 #include "debug/logger.h"
@@ -37,8 +38,7 @@ void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
 
         // Player collided with enemy
         if (entity->type == TYPE_PLAYER) {
-            // m_setFlag(entity->flags, ENTITY_FLASHING);
-            // playerDie();
+            playerDie();
             continue;
         }
 
@@ -48,6 +48,7 @@ void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
             logDebug("*? {idx:%d id:%d type:%d} Should Stunt enemy", idx, entity->id, entity->type);
 #endif
             enemyStun(idx);
+            updatePoints(POINTS_PER_STUNT);
         }
     }
 }
@@ -108,9 +109,9 @@ uint8_t checkTilesCollision(uint8_t entityIdx) {
 
             // flip the bit that represents the tile type
             // TODO: Apply tile collision limits. Refactor this to make it more clean
-            Rect tileHitbox = {0, 0, 0, 0};
             uint16_t tileXPos = tileColumn * TILE_SIZE;
             uint16_t tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
+            Rect tileHitbox = {0, 0, 0, 0};
 
             switch (tileType) {
                 case TILE_TYPE_WALL_LEFT:
@@ -135,6 +136,12 @@ uint8_t checkTilesCollision(uint8_t entityIdx) {
                     tileHitbox = (Rect){tileXPos + 6, tileYPos + 10, 2, 2};
                     if (checkAABBCollision(hitboxRect, tileHitbox)) {
                         tileCollisions |= COLLISION_STAIRS;
+                    }
+                    break;
+                case TILE_TYPE_VENDING:
+                    tileHitbox = (Rect){tileXPos + 6, tileYPos + 10, 2, 2};
+                    if (checkAABBCollision(hitboxRect, tileHitbox)) {
+                        tileCollisions |= COLLISION_VENDING;
                     }
                     break;
             }

@@ -32,7 +32,7 @@ void enemyWakeup(uint8_t id) {
         return;
     }
 
-    m_unsetFlag(enemy->flags, ENTITY_STUNT | ENTITY_FLASHING);
+    m_unsetFlag(enemy->flags, ENTITY_STUNT);
     m_setAnimation(enemy, ANIM_ENEMY1_WALK);
     enemy->vx = m_isFlagSet(enemy->flags, ENTITY_FLIP) ? ENEMY_SPEED_L : ENEMY_SPEED_R;
     enemy->collisionMask = ENEMY_COLLISION_MASK;
@@ -64,7 +64,7 @@ void enemyStun(uint8_t idx) {
     logDebug("* {idx:%d id:%d type:%d} Stunt enemy", idx, enemy->id, enemy->type);
 #endif
 
-    m_setFlag(enemy->flags, ENTITY_STUNT | ENTITY_FLASHING);
+    m_setFlag(enemy->flags, ENTITY_STUNT);
     m_setAnimation(enemy, ANIM_ENEMY1_STUNT);
     enemy->vx = 0;
     enemy->collisionMask = TYPE_NONE;

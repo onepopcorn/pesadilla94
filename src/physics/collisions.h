@@ -4,10 +4,14 @@
 #include <stdbool.h>
 #include "geom.h"
 
-#define COLLISION_WALL_L 0x01
-#define COLLISION_WALL_R 0x02
-#define COLLISION_DOOR 0x04
-#define COLLISION_STAIRS 0x08
+enum Collisions {
+    COLLISION_WALL_L = 0x01,
+    COLLISION_WALL_R = 0x02,
+    COLLISION_DOOR = 0x04,
+    COLLISION_STAIRS = 0x08,
+    COLLISION_VENDING = 0x10,
+
+};
 
 void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx);
 
