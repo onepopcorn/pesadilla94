@@ -99,7 +99,7 @@ int readHeader(FILE *file, FILE *outFile, int frames) {
 
     // fwrite(pixelData, sizeof(uint8_t), numPixels, outFile);
     fwrite(spriteData, sizeof(uint8_t), numPixels, outFile);
-    printf("File saved correctly\n");
+    printf("File saved correctly\n\n");
 
     // Free allocated memory
     free(pixelData);
@@ -123,6 +123,9 @@ int main(int argc, char *argv[]) {
         perror("Error output file must be different from input file\n");
         return EXIT_FAILURE;
     }
+
+    printf("\n");
+    printf("Converting %s\n", input);
 
     FILE *inputFile = fopen(input, "rb");
     FILE *outFile = fopen(output, "wb");

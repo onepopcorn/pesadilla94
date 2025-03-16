@@ -5,6 +5,8 @@
 #include "../../shared/files/level.h"
 #include "../../vendor/c-simple-json-parser/json.h"
 
+#pragma pack(1)
+
 /**
  * @brief Reads a file and returns its content as a string
  *
@@ -93,6 +95,10 @@ int findStairIdxByStairId(StairsData *data, int id, int count) {
  * @return StairsData* The updated stairs data
  */
 StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, int tileWidth, int tileHeight) {
+    if (stairsData.value.as_array->count < 1) {
+        return NULL;
+    }
+
     StairsData *data = malloc(sizeof(StairsData) * stairsData.value.as_array->count);
 
     // Update ID to use tilemap tile index
@@ -193,111 +199,6 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
                 }
             }
         }
-    }
-
-    return data;
-}
-
-/**
- * @brief Updates the doors data to use the tilemap tile index for the ID and the progress and item values
- *
- * @param doorsData The doors data array
- * @param mapWidth The map width
- * @param tileWidth The tile width
- * @param tileHeight The tile height
- * @return DoorData* The updated doors data
- */
-DoorData findDoorData(DoorData *doorsData, int id, int count) {
-    for (int i = 0; i < count; i++) {
-        if (doorsData[i].id == id) {
-            return doorsData[i];
-        }
-    }
-
-    return (DoorData){-1, -1, -1};
-}
-
-/**
- * @brief Updates the doors data to use the tilemap tile index for the ID and the progress and item values
- *
- * @param doorsData The doors data array
- * @param mapWidth The map width
- * @param tileWidth The tile width
- * @return DoorData* The updated doors data
- */
-DoorData *transformDoorsData(typed(json_element) doorsData, int mapWidth, int tileWidth, int tileHeight) {
-    DoorData *data = malloc(sizeof(DoorData) * doorsData.value.as_array->count);
-
-    for (int i = 0; i < doorsData.value.as_array->count; i++) {
-        typed(json_element) door = doorsData.value.as_array->elements[i];
-
-        // Get X value
-        result(json_element) xNode = json_object_find(door.value.as_object, "x");
-        if (result_is_err(json_element)(&xNode)) {
-            typed(json_error) error = result_unwrap_err(json_element)(&xNode);
-            fprintf(stderr, "Error getting element \"x\": %s\n", json_error_to_string(error));
-            return NULL;
-        }
-
-        typed(json_element) x = result_unwrap(json_element)(&xNode);
-
-        // Get Y value
-        result(json_element) yNode = json_object_find(door.value.as_object, "y");
-        if (result_is_err(json_element)(&yNode)) {
-            typed(json_error) error = result_unwrap_err(json_element)(&yNode);
-            fprintf(stderr, "Error getting element \"y\": %s\n", json_error_to_string(error));
-            return NULL;
-        }
-
-        typed(json_element) y = result_unwrap(json_element)(&yNode);
-
-        int xCoord = (int)x.value.as_number.value.as_long / tileWidth;
-        int yCoord = (int)y.value.as_number.value.as_long / tileHeight;
-
-        // Get tile index from X and Y values
-        int tileIndex = (yCoord * mapWidth) + xCoord;
-        data[i].id = tileIndex;
-
-        // Get properties values
-        result(json_element) propertiesNode = json_object_find(door.value.as_object, "properties");
-        if (result_is_err(json_element)(&propertiesNode)) {
-            typed(json_error) error = result_unwrap_err(json_element)(&propertiesNode);
-            fprintf(stderr, "Error getting element \"properties\": %s\n", json_error_to_string(error));
-            return NULL;
-        }
-
-        typed(json_element) properties = result_unwrap(json_element)(&propertiesNode);
-
-        for (int j = 0; j < properties.value.as_array->count; j++) {
-            typed(json_element) property = properties.value.as_array->elements[j];
-
-            // Get custom property name node
-            result(json_element) propertyNameNode = json_object_find(property.value.as_object, "name");
-            if (result_is_err(json_element)(&propertyNameNode)) {
-                typed(json_error) error = result_unwrap_err(json_element)(&propertyNameNode);
-                fprintf(stderr, "Error getting element \"name\": %s\n", json_error_to_string(error));
-                return NULL;
-            }
-
-            // Get custom property value node
-            result(json_element) propertyValueNode = json_object_find(property.value.as_object, "value");
-            if (result_is_err(json_element)(&propertyValueNode)) {
-                typed(json_error) error = result_unwrap_err(json_element)(&propertyValueNode);
-                fprintf(stderr, "Error getting element \"value\": %s\n", json_error_to_string(error));
-                return NULL;
-            }
-
-            typed(json_element) propertyName = result_unwrap(json_element)(&propertyNameNode);
-            typed(json_element) propertyValue = result_unwrap(json_element)(&propertyValueNode);
-
-            // Get Item value
-            if (strcmp(propertyName.value.as_string, "item") == 0) {
-                data[i].item = propertyValue.value.as_number.value.as_long;
-            }
-        }
-
-        // All doors defaults to 255 so we can countdown progress
-        data[i].progress = 255;
     }
 
     return data;
@@ -482,26 +383,8 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     // Second layer is the stairs data
     typed(json_element) stairs_layer = layersArray.value.as_array->elements[1];
 
-    // Third layer is the doors data
-    typed(json_element) doors_layer = layersArray.value.as_array->elements[2];
-
-    // Get stairs layer data
+    // Get stairs layer data. Stairs data can be empty
     result(json_element) stairsDataNode = json_object_find(stairs_layer.value.as_object, "objects");
-    if (result_is_err(json_element)(&stairsDataNode)) {
-        typed(json_error) error = result_unwrap_err(json_element)(&stairsDataNode);
-        fprintf(stderr, "Error getting element \"objects\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
-        return NULL;
-    }
-
-    // Get doors layer data
-    result(json_element) doorsDataNode = json_object_find(doors_layer.value.as_object, "objects");
-    if (result_is_err(json_element)(&doorsDataNode)) {
-        typed(json_error) error = result_unwrap_err(json_element)(&doorsDataNode);
-        fprintf(stderr, "Error getting element \"objects\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
-        return NULL;
-    }
 
     // Get tilemap data from map layer
     result(json_element) dataNode = json_object_find(map_layer.value.as_object, "data");
@@ -513,23 +396,28 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     }
 
     typed(json_element) dataIds = result_unwrap(json_element)(&dataNode);
-    int mapSize = (int)mapWidth.value.as_number.value.as_long *
-                  (int)mapHeight.value.as_number.value.as_long;
+    int mapSize = (unsigned char)mapWidth.value.as_number.value.as_long *
+                  (unsigned char)mapHeight.value.as_number.value.as_long;
 
     // Create map struct
     Map *map = malloc(sizeof(Map) + sizeof(Tile) * mapSize);
-    map->width = (int)mapWidth.value.as_number.value.as_long;
-    map->height = (int)mapHeight.value.as_number.value.as_long;
-    map->tileWidth = (int)width.value.as_number.value.as_long;
-    map->tileHeight = (int)tileHeight.value.as_number.value.as_long;
+    map->width = (unsigned char)mapWidth.value.as_number.value.as_long;
+    map->height = (unsigned char)mapHeight.value.as_number.value.as_long;
+    map->tileWidth = (unsigned char)width.value.as_number.value.as_long;
+    map->tileHeight = (unsigned char)tileHeight.value.as_number.value.as_long;
     map->doorsCount = 0;
 
     // Parse stairs data
-    typed(json_element) stairsData = result_unwrap(json_element)(&stairsDataNode);
-    StairsData *stairsParsedData = transformStairsData(stairsData, map->width, map->tileWidth, map->tileHeight);
-
-    typed(json_element) doorsData = result_unwrap(json_element)(&doorsDataNode);
-    DoorData *doorsParsedData = transformDoorsData(doorsData, map->width, map->tileWidth, map->tileHeight);
+    StairsData *stairsParsedData = NULL;
+    int stairsCount = 0;
+    if (!result_is_err(json_element)(&stairsDataNode)) {
+        typed(json_element) stairsData = result_unwrap(json_element)(&stairsDataNode);
+        stairsCount = stairsData.value.as_array->count;
+        stairsParsedData = transformStairsData(stairsData, map->width, map->tileWidth, map->tileHeight);
+        printf("Parsing stairs data: %d stairs\n", stairsCount);
+    } else {
+        printf("Parsing stairs data: 0 No stairs\n");
+    }
 
     for (int i = 0; i < mapSize; i++) {
         int tileId = (int)dataIds.value.as_array->elements[i].value.as_number.value.as_long;
@@ -541,9 +429,9 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
             continue;
         }
 
-        // Manage stair data
-        if (tileType == TILE_TYPE_STAIRS) {
-            StairsData stair = findStairData(stairsParsedData, i, stairsData.value.as_array->count);
+        // Manage stair data. Map may not contain stairs data
+        if (tileType == TILE_TYPE_STAIRS && stairsParsedData != NULL && stairsCount > 0) {
+            StairsData stair = findStairData(stairsParsedData, i, stairsCount);
             if (stair.id != -1) {
                 map->data[i] = (Tile){tileType, tileId, {{stair.up, stair.down}}};
             }
@@ -552,16 +440,10 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
 
         // Manage door data
         if (tileType == TILE_TYPE_DOOR) {
-            DoorData door = findDoorData(doorsParsedData, i, doorsData.value.as_array->count);
-            if (door.id != -1) {
-                map->data[i] = (Tile){tileType, tileId, {{door.progress, door.item}}};
-                map->doorsCount++;
-            }
-            continue;
+            // 254 because each frame substracts 2 and that prevents number wrapping up
+            map->data[i] = (Tile){tileType, tileId, {{254}}};
+            map->doorsCount++;
         }
-
-        // Error if stair or door data is not found
-        // fprintf(stderr, "Error: Stair or door data not found for tile ID %d\n", tileId);
     }
 
     free((void *)tilemap);
@@ -569,9 +451,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
 
     free((void *)stairsParsedData);
     stairsParsedData = NULL;
-
-    free((void *)doorsParsedData);
-    doorsParsedData = NULL;
 
     return map;
 }
@@ -599,11 +478,17 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    printf("\n");
+    printf("Processing %s\n", tilemap);
+
     // parse tileset json file and return a pointer to an array of tile types
     int *tileTypes = parseTileset(tileset);
+    printf("Parsing tileset: Ok\n");
 
     // parse map json file and return a pointer to an array of Tile structs
     Map *map = parseMap(tilemap, tileTypes);
+    if (map == NULL) return EXIT_FAILURE;
+    printf("Parsing map data: Ok\n\n");
 
     // write output map file
     FILE *outFile = fopen(output, "wb");

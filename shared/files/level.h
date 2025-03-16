@@ -1,11 +1,14 @@
 #ifndef _MAP_FORMAT_H
 #define _MAP_FORMAT_H
 
-#define TILE_TYPE_BACKGROUND 0
-#define TILE_TYPE_WALL_LEFT 1
-#define TILE_TYPE_WALL_RIGHT 2
-#define TILE_TYPE_DOOR 3
-#define TILE_TYPE_STAIRS 4
+enum TileType {
+    TILE_TYPE_BACKGROUND = 0,
+    TILE_TYPE_WALL_LEFT = 1,
+    TILE_TYPE_WALL_RIGHT = 2,
+    TILE_TYPE_DOOR = 3,
+    TILE_TYPE_STAIRS = 4,
+    TILE_TYPE_VENDING = 5,
+};
 
 /**
  * Custom Tilemap format
@@ -24,7 +27,6 @@ typedef struct Tile {
         } stairs;
         struct {
             uint8_t progress;
-            uint8_t item;
         } door;
     } data;
 } Tile;
@@ -54,5 +56,12 @@ typedef struct DoorData {
     uint8_t progress;
     uint8_t item;
 } DoorData;
+
+typedef struct LevelData {
+    char *filename;
+    uint8_t time;
+    uint8_t enemyCount;
+    uint8_t positionsIdx;
+} LevelData;
 
 #endif
