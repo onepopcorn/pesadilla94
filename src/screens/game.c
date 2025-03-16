@@ -17,6 +17,8 @@
 
 #include "game.h"
 
+#define CHEAT_MODE 1
+
 enum Screen nextScreen;
 bool running;
 
@@ -96,6 +98,11 @@ enum Screen game() {
 
                 // Pause
                 if (isKeyJustPressed(m_PAUSE)) gameLoopState = GAME_PAUSED;
+
+#if CHEAT_MODE == 1
+                if (isKeyJustPressed(KEY_S)) gameState.doorsLeft = 0;
+                if (isKeyJustPressed(KEY_K)) playerDie();
+#endif
 
                 // Re-paint tiles that has been overwritten by sprites
                 restoreMapTiles();
