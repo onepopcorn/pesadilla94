@@ -3,15 +3,18 @@
 
 #include "physics/geom.h"
 
-// TODO: set defines for changing tiles (e.g. open/closed doors)
+// Used to swap tiles for open/close doors or exhausting vending machine
 #define TILE_DOOR_OPEN_TOP 25
 #define TILE_DOOR_OPEN_BOTTOM 26
 #define TILE_DOOR_CLOSED_TOP 16
 #define TILE_DOOR_CLOSED_BOTTOM 17
+#define TILE_VENDING_DISABLED_TOP 38
+#define TILE_VENDING_DISABLED_BOTTOM 39
 
-#define NUM_LEVELS 3
+#define NUM_LEVELS 4
 
-extern const char* maps[NUM_LEVELS];
+extern const LevelData levels[];
+extern const Vec2 spawnPositions[];
 extern uint8_t currentLevel;
 
 uint8_t startLevel(uint8_t level);
@@ -30,7 +33,9 @@ Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up);
 
 Tile* openDoor(uint16_t x, uint16_t y);
 
-Tile* closeDoor(uint16_t x, uint16_t y);
+void closeDoor(uint16_t x, uint16_t y);
+
+void disableVendingMachine(uint16_t x, uint16_t y);
 
 void restoreMapTiles();
 

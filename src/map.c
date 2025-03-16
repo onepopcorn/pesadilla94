@@ -10,12 +10,42 @@
 
 #include "map.h"
 
+#define FLOOR_1_Y 58
+#define FLOOR_2_Y 110
+#define FLOOR_3_Y 158
+
+// Static data
+
+// Map filenames
 Map* currentMap;
-uint8_t currentLevel;  // To check if needs to load the map or use the one already un memory
-const char* maps[NUM_LEVELS] = {
-    "school1.map",
-    "school1.map",
-    "school1.map",
+
+// level file | time | enemy count | positions array index
+const LevelData levels[NUM_LEVELS] = {
+    {"level1.map", 20, 0, 0},
+    {"level2.map", 50, 0, 1},
+    {"level3.map", 120, 1, 2},
+    {"level4.map", 120, 1, 4},
+    // {"school1.map", 120, 4, 6},
+};
+
+// Spawn positions. Player is always first
+const Vec2 spawnPositions[] = {
+    // Level 1 Enemies: 0
+    {120, 106},  // Player
+    // Level 2 Enemies: 0
+    {112, 106},  // Player
+    // Level 3 Enemies: 1
+    {20, 106},  // Player
+    {100, 110},
+    // Level 4 Enemies: 1
+    {20, 106},
+    {100, 158},
+    // Level X Enemies 4
+    // {20, 58},  // Player
+    // {100, 110},
+    // {160, 62},
+    // {130, 158},
+    // {210, 110}
 };
 
 // Approximate list of tiles to be redrawn using max entities number and max number of tiles a single entity can "touch"
@@ -41,11 +71,7 @@ uint8_t startLevel(uint8_t level) {
         return EXIT_FAILURE;
     }
 
-    // Level is already loaded, don't load it again
-    // if (currentLevel == level) return currentMap->doorsCount;
-
-    currentLevel = level;
-    currentMap = loadMap(maps[level - 1]);
+    currentMap = loadMap(levels[level].filename);
     if (!currentMap) {
         perror("Error failed to open map data file");
         return EXIT_FAILURE;
@@ -170,7 +196,7 @@ Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up) {
 Tile* openDoor(uint16_t x, uint16_t y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
-    // TODO: Use defines for changing tiles
+    // TODO: Use macros for changing tiles
     if (tile->data.door.progress > 0) {
         above->id = TILE_DOOR_OPEN_TOP;
         tile->id = TILE_DOOR_OPEN_BOTTOM;
@@ -184,16 +210,20 @@ Tile* openDoor(uint16_t x, uint16_t y) {
  * @param x sprite x coordinate
  * @param y sprite y coordinate
  */
-Tile* closeDoor(uint16_t x, uint16_t y) {
+void closeDoor(uint16_t x, uint16_t y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
-    // TODO: Use defines for changin tiles
     if (tile->data.door.progress > 0) {
         above->id = TILE_DOOR_CLOSED_TOP;
         tile->id = TILE_DOOR_CLOSED_BOTTOM;
     }
+}
 
-    return tile;
+void disableVendingMachine(uint16_t x, uint16_t y) {
+    Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
+    Tile* above = tile - currentMap->width;
+    above->id = TILE_VENDING_DISABLED_TOP;
+    tile->id = TILE_VENDING_DISABLED_BOTTOM;
 }
 
 /**
@@ -207,7 +237,7 @@ uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileColumn, uint8_t tileRow) {
     }
 
 #ifdef DEBUG_TILES
-    // NOTE This has a performance hit
+    // NOTE This has a performance penalty
     uint8_t tileWidth = currentMap->tileWidth;
     uint8_t tileHeight = currentMap->tileHeight;
     drawRectColor((Rect){tileColumn * tileWidth, tileRow * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
