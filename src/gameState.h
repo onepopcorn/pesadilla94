@@ -5,9 +5,12 @@ typedef struct GameState {
     uint8_t lives;
     uint8_t doorsLeft;
     uint8_t level;
-    uint32_t score;
+    uint16_t score;
+    uint8_t timeLeft;
 } GameState;
 
 extern GameState gameState;
+
+void resetGameState();
 
 #endif  // _GAME_STATE_H
