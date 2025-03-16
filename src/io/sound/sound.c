@@ -5,11 +5,7 @@
 SAMPLE *sfx_whip;
 
 uint8_t soundInit() {
-    // MikMod_InitThreads();
-
     MikMod_RegisterDriver(&drv_sb);
-    // MikMod_RegisterAllDrivers();
-
     md_mode |= DMODE_SOFT_SNDFX;
     md_device = 1;
     if (MikMod_Init("")) {

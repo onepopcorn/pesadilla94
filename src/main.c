@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <crt0.h>
-// #include <mikmod.h>
 
 #include "render/video.h"
 #include "io/keyboard.h"
@@ -46,11 +45,6 @@ uint8_t initializSystems() {
     // Sound
     uint8_t soundError = soundInit();
     if (soundError) return EXIT_FAILURE;
-
-    // printf("MikMod version: %s\n", MikMod_InfoDriver());
-    // printf("Current driver: %s\n", MikMod_InfoLoader());
-    // printf("MikMod Error %s\n", MikMod_strerror(MikMod_errno));
-    // return EXIT_FAILURE;
 
     // Initialize video system
     setVideoMode(VIDEO_VGA_MODE);
