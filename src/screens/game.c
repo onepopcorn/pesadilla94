@@ -14,6 +14,7 @@
 #include "gameState.h"
 #include "macros.h"
 #include "settings/controls.h"
+#include "render/effects.h"
 
 #include "game.h"
 
@@ -21,13 +22,6 @@
 
 enum Screen nextScreen;
 bool running;
-
-// PRIVATE METHODS
-
-void endTransition(uint8_t id) {
-    running = false;
-}
-// PUBLIC METHODS
 
 enum Screen game() {
     LevelData currentLevel = levels[gameState.level];
@@ -38,8 +32,7 @@ enum Screen game() {
     drawMap();
     drawHUD();
 
-    // TODO: Use spawn positions from map data
-
+    // Spawn player and enemies
     uint8_t spawnOffset = currentLevel.positionsIdx;
     uint8_t enemyCount = currentLevel.enemyCount;
 
@@ -59,6 +52,10 @@ enum Screen game() {
     running = true;
     enum GameLoopState gameLoopState = GAME_RUNNING;
 
+    restorePalette();
+    waitVSync();
+    dumpBuffer();
+
     // UPDATE
     while (running) {
         // Manage timers
@@ -73,9 +70,6 @@ enum Screen game() {
         }
 
         switch (gameLoopState) {
-            case GAME_IN_TRANSITION:
-                // Just wait until transition ends
-                continue;
             case GAME_PAUSED:
                 // Quit
                 if (isKeyJustPressed(m_QUIT)) {
@@ -102,6 +96,10 @@ enum Screen game() {
 #if CHEAT_MODE == 1
                 if (isKeyJustPressed(KEY_S)) gameState.doorsLeft = 0;
                 if (isKeyJustPressed(KEY_K)) playerDie();
+                if (isKeyJustPressed(KEY_W)) {
+                    gameState.lives = 1;
+                    playerDie();
+                }
 #endif
 
                 // Re-paint tiles that has been overwritten by sprites
@@ -112,9 +110,10 @@ enum Screen game() {
 
                 // Transition to next level
                 if (gameState.doorsLeft == 0) {
-                    nextScreen = ++gameState.level < NUM_LEVELS ? SCREEN_GAME : SCREEN_MENU;
-                    gameLoopState = GAME_IN_TRANSITION;
-                    setTimeout(&endTransition, 0, 1000);
+                    // TODO: HANDLE THIS LOGIC IN ENDLEVEL FUNCTION AFTER ADDING POINTS
+                    // nextScreen = ++gameState.level < NUM_LEVELS ? SCREEN_LEVEL_END : SCREEN_MENU;
+                    nextScreen = SCREEN_LEVEL_END;
+                    running = false;
                 }
 
                 // Transition to game over
@@ -132,7 +131,7 @@ enum Screen game() {
     running = true;
     clearAllTimeouts();
     destroyAllEntities();
-    clearScreen();
+    // clearScreen();
     endLevel();
 
     waitVSync();

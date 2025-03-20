@@ -4,11 +4,14 @@ BIN_DIR  := ../out
 OBJ_DIR  := ../obj
 BIN := ../out/game.exe
 
+DJGPP := $(DJGPP_PATH)/bin/i586-pc-msdosdjgpp-gcc.exe
+DJGPP_INC := $(DJGPP_PATH)/include
+DJGPP_LIB := $(DJGPP_PATH)/lib
 
-CC := c:/djgpp/bin/i586-pc-msdosdjgpp-gcc.exe
+CC := $(DJGPP)
 DC := objdump
-CFLAGS	:= -I. -IC:\djgpp\include -c -std=gnu99 -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
-LDFLAGS := -LC:\djgpp\lib -s
+CFLAGS	:= -I. -I$(DJGPP_INC) -c -std=gnu99 -Wall -Werror -pedantic -O3 -fomit-frame-pointer -ffast-math -march=i386
+LDFLAGS := -L$(DJGPP_LIB) -s
 LIBS := -lmikmod
 
 SRCS	:= $(shell find $(SRC_DIR) -name '*.c')

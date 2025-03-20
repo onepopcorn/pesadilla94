@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <mikmod.h>
 
 #include "render/video.h"
 #include "io/keyboard.h"
@@ -10,6 +9,7 @@
 #include "text.h"
 #include "io/sound/sound.h"
 #include "settings/controls.h"
+#include "render/effects.h"
 
 #include "intro.h"
 

@@ -61,6 +61,8 @@ void destroyAllEntities();
 
 void updateEntities(uint32_t delta);
 
+void renderAllEntities();
+
 void renderEntity(uint8_t index, char frameNeedsUpdate);
 
 extern struct Entity entities[MAX_ENTITIES];

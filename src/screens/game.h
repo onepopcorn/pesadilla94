@@ -4,7 +4,6 @@
 enum GameLoopState {
     GAME_PAUSED,
     GAME_RUNNING,
-    GAME_IN_TRANSITION,
 };
 
 enum Screen

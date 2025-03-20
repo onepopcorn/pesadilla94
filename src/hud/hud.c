@@ -13,10 +13,11 @@
 #include "text.h"
 #include "hud.h"
 
-#define HUD_Y 8
+#define HUD_Y 10
 #define HUD_X_LIVES 5
 #define HUD_X_DOORS 60
-#define HUD_X_TIME 132
+#define HUD_X_TIME 116
+#define HUD_X_HAND 188
 #define HUD_X_SCORE 320 - (STR_HUD_SCORE_LEN + 1) * HUD_FONT_W  // One char right padding
 
 #define HUD_FONT_W 8
@@ -31,13 +32,16 @@ void drawHUD() {
     drawSprite(HUD_X_LIVES, HUD_Y, miscSprite, 1, true, COLOR_TRANSPARENT);
     updateLives(0);
 
+    // draw doors left
+    drawSprite(HUD_X_DOORS, HUD_Y, miscSprite, 2, false, COLOR_TRANSPARENT);
+    updateDoors(0);
+
     // draw initial time
-    drawSprite(HUD_X_TIME, HUD_Y + 2, miscSprite, 0, false, COLOR_TRANSPARENT);
+    drawSprite(HUD_X_TIME, HUD_Y, miscSprite, 0, false, COLOR_TRANSPARENT);
     updateTime(0);
 
-    // draw doors left
-    drawSprite(HUD_X_DOORS, HUD_Y + 2, miscSprite, 2, false, COLOR_TRANSPARENT);
-    updateDoors(0);
+    // Draw sticky hand. Starts deactivated
+    updateWeapon(true);
 
     // draw initial score
     drawText(HUD_X_SCORE, HUD_Y, font, STR_HUD_SCORE, COLOR_WHITE, 0);
@@ -90,4 +94,10 @@ void updateTime(int8_t time) {
     buffer[5] = '\0';
 
     drawText(HUD_X_TIME + 16, HUD_Y + 7, font, buffer, COLOR_WHITE, 0);
+}
+
+void updateWeapon(char deactivated) {
+    uint8_t frame = 3 + deactivated * 2;
+    drawSprite(HUD_X_HAND, HUD_Y, miscSprite, frame, false, COLOR_TRANSPARENT);
+    drawSprite(HUD_X_HAND + 16, HUD_Y, miscSprite, frame + 1, false, COLOR_TRANSPARENT);
 }

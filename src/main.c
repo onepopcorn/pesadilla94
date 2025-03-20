@@ -13,7 +13,10 @@
 #include "screens/intro.h"
 #include "screens/game.h"
 #include "screens/gameover.h"
+#include "screens/levelend.h"
 #include "settings/settings.h"
+#include "render/effects.h"
+
 #include "gameState.h"
 
 /**
@@ -48,6 +51,8 @@ uint8_t initializSystems() {
 
     // Initialize video system
     setVideoMode(VIDEO_VGA_MODE);
+
+    initVideoEffects();
 
     return EXIT_SUCCESS;
 }
@@ -93,6 +98,9 @@ int main(int argc, char *argv[]) {
                 break;
             case SCREEN_GAME:
                 currentScreen = game();
+                break;
+            case SCREEN_LEVEL_END:
+                currentScreen = levelend();
                 break;
             case SCREEN_GAME_OVER:
                 currentScreen = gameover();

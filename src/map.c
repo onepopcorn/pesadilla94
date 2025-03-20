@@ -21,10 +21,11 @@ Map* currentMap;
 
 // level file | time | enemy count | positions array index
 const LevelData levels[NUM_LEVELS] = {
-    {"level1.map", 20, 0, 0},
-    {"level2.map", 50, 0, 1},
-    {"level3.map", 120, 1, 2},
-    {"level4.map", 120, 1, 4},
+    {"level1.map", 15, 0, 0},
+    {"level2.map", 24, 0, 1},
+    {"level3.map", 40, 1, 2},
+    {"level4.map", 60, 1, 4},
+    {"level5.map", 90, 3, 6},
     // {"school1.map", 120, 4, 6},
 };
 
@@ -39,6 +40,11 @@ const Vec2 spawnPositions[] = {
     {100, 110},
     // Level 4 Enemies: 1
     {20, 106},
+    {100, 158},
+    // Level 5 Enemies: 3
+    {20, 58},
+    {280, 62},
+    {150, 110},
     {100, 158},
     // Level X Enemies 4
     // {20, 58},  // Player

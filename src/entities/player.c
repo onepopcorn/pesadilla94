@@ -17,9 +17,10 @@
 
 #include "player.h"
 
-#define PLAYER_SPEED 0.9
-#define PLAYER_SHOOT_RECHARGE_TIME 500
-#define PLAYER_INVULNERABILITY_TIME 800
+#define PLAYER_SPEED 0.8
+#define PLAYER_SHOOT_RECHARGE_TIME 2000
+#define PLAYER_INVULNERABILITY_TIME 3000
+#define PLAYER_GRACE_PERIOD 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
 Entity *player;
@@ -32,6 +33,7 @@ Tile *searchDoorTile = NULL;
 
 void enableWhip(uint8_t id) {
     playerCanShoot = true;
+    updateWeapon(false);
 }
 
 void invulnerabilityEnd(uint8_t id) {
@@ -46,7 +48,7 @@ void respawn() {
         m_setAnimation(player, ANIM_PLAYER_IDLE);
         m_setFlag(player->flags, ENTITY_FLASHING);
         playerState = STATE_IDLE;
-        setTimeout(invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME * 2);
+        setTimeout(invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
     }
 }
 
@@ -69,10 +71,11 @@ void useStairs(bool up) {
 
     // Give player some invulnerability time after using stairs
     player->collisionMask = TYPE_NONE;  // Disable collisions during stairs transition
-    setTimeout(&invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
+    setTimeout(&invulnerabilityEnd, player->id, PLAYER_GRACE_PERIOD);
 }
 
 void spawnShot() {
+    updateWeapon(true);
     // Can't shoot if too close to the wall player is facing
     if ((player->x < 10 && m_isFlagSet(player->flags, ENTITY_FLIP)) || (player->x > 280 && !m_isFlagSet(player->flags, ENTITY_FLIP))) {
         playerState = STATE_IDLE;
@@ -140,6 +143,7 @@ Entity *playerSpawn(uint16_t x, uint16_t y) {
 
     playerState = STATE_IDLE;
     playerCanShoot = false;
+    updateWeapon(true);
     return player;
 }
 
@@ -176,6 +180,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
         case STATE_PICKING_UP:
             if (player->frame == ANIM_PLAYER_SEARCH_LEN - 2) {
                 disableVendingMachine(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                updateWeapon(false);
                 playerState = STATE_IDLE;
             }
             break;

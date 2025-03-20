@@ -5,9 +5,9 @@ typedef enum Screen {
     SCREEN_MENU,
     SCREEN_INTRO,
     SCREEN_GAME,
+    SCREEN_LEVEL_END,
     SCREEN_GAME_OVER,
     SCREEN_EXIT,
 } Screen;
 
-
-#endif // _SCREENS_H
+#endif  // _SCREENS_H

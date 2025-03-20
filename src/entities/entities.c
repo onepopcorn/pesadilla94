@@ -78,7 +78,6 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    // uint8_t entityIdx = lastEntityIdx;
     uint8_t entityIdx = 0;
 
     do {
@@ -118,6 +117,12 @@ void updateEntities(uint32_t delta) {
         if (!m_isFlagSet(entity->flags, ENTITY_ALIVE)) destroyEntity(entityIdx);
 
     } while (entityIdx++ < lastEntityIdx);
+}
+
+void renderAllEntities() {
+    for (int8_t i = lastEntityIdx; i >= 0; i--) {
+        renderEntity(i, true);
+    }
 }
 
 void renderEntity(uint8_t index, char frameNeedsUpdate) {

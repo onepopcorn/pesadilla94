@@ -4,7 +4,8 @@
 // Set langauge TODO: Allow compile for language with a make variable
 #define LANG_ES 1
 #define LANG_EN 2
-#define LANG LANG_EN
+
+#define LANG LANG_ES
 
 #define STR_BRAND "ONEPOPCORN 2025\0"
 #define STR_BRAND_LEN 16
@@ -21,6 +22,9 @@
 #define STR_HUD_SCORE "PUNTOS"
 #define STR_HUD_SCORE_LEN 6
 
+#define STR_LEVEL_END "COMPLETADO!"
+#define STR_LEVEL_END_LEN 11
+
 #elif LANG == LANG_EN
 
 // ---------------------- ENGLISH ---------------------- //
@@ -32,6 +36,9 @@
 
 #define STR_HUD_SCORE "SCORE"
 #define STR_HUD_SCORE_LEN 5
+
+#define STR_LEVEL_END "DONE!"
+#define STR_LEVEL_END_LEN 5
 
 #endif
 

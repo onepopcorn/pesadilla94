@@ -12,7 +12,7 @@ assets: $(LEVEL_MAPS)
 	$(SPRITE_CLI) fede.bmp ../out/fede.spr 22
 	$(SPRITE_CLI) manoloca.bmp ../out/whip.spr 1
 	$(SPRITE_CLI) joystick.bmp ../out/enemy1.spr 7
-	$(SPRITE_CLI) misc.bmp ../out/misc.spr 3
+	$(SPRITE_CLI) misc.bmp ../out/misc.spr 7
 	$(SPRITE_CLI) tiles.bmp ../out/tiles.spr 39
 	$(SPRITE_CLI) intro.bmp ../out/intro.spr 1
 # Maps
