@@ -1,5 +1,4 @@
-# DOSBOX := "D:/Program Files (x86)/DOSBoxOptionals/dosbox.exe"
-DOSBOX := "d:/Program Files (x86)/DOSBox-0.74/DOSBox.exe"
+DOSBOX := "$(DOSBOX_PATH)/DOSBox.exe"
 
 all: assets
 	@ echo -----------------
