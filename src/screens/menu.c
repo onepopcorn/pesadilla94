@@ -6,7 +6,7 @@
 #include "text.h"
 #include "settings/controls.h"
 #include "render/effects.h"
-#include "io/sound/sound.h"
+// #include "io/sound/sound.h"
 
 #include "menu.h"
 
@@ -15,7 +15,7 @@ enum Screen menu() {
     clearScreen();
     waitFrames(15);
 
-    playWhip();
+    // playWhip();
     drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 96, font, STR_MENU_L1, COLOR_ORANGE, 31);
 
     waitVSync();

@@ -15,11 +15,10 @@ assets: $(LEVEL_MAPS)
 	$(SPRITE_CLI) misc.bmp ../out/misc.spr 7
 	$(SPRITE_CLI) tiles.bmp ../out/tiles.spr 39
 	$(SPRITE_CLI) intro.bmp ../out/intro.spr 1
-# Maps
-	$(MAP_CLI) school.json school-tiles.json ../out/school1.map
 # Sounds
 	cp whip.wav ../out/whip.wav
 
+# Maps
 %.map: %.json school-tiles.json
 	$(MAP_CLI) $< school-tiles.json ../out/$@
 

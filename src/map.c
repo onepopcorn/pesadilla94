@@ -25,8 +25,8 @@ const LevelData levels[NUM_LEVELS] = {
     {"level2.map", 24, 0, 1},
     {"level3.map", 40, 1, 2},
     {"level4.map", 60, 1, 4},
-    {"level5.map", 90, 3, 6},
-    // {"school1.map", 120, 4, 6},
+    {"level5.map", 80, 3, 6},
+    {"level6.map", 90, 4, 10},
 };
 
 // Spawn positions. Player is always first
@@ -46,13 +46,12 @@ const Vec2 spawnPositions[] = {
     {280, 62},
     {150, 110},
     {100, 158},
-    // Level X Enemies 4
-    // {20, 58},  // Player
-    // {100, 110},
-    // {160, 62},
-    // {130, 158},
-    // {210, 110}
-};
+    // Level 6 Enemies 4
+    {20, 58},  // Player
+    {100, 110},
+    {160, 62},
+    {130, 158},
+    {210, 110}};
 
 // Approximate list of tiles to be redrawn using max entities number and max number of tiles a single entity can "touch"
 #define MAX_DIRTY_TILES (MAX_ENTITIES * MAX_TILE_PER_ENTITY)
