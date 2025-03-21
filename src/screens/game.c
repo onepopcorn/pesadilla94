@@ -52,9 +52,9 @@ enum Screen game() {
     running = true;
     enum GameLoopState gameLoopState = GAME_RUNNING;
 
-    restorePalette();
     waitVSync();
     dumpBuffer();
+    restorePalette();
 
     // UPDATE
     while (running) {
@@ -94,7 +94,10 @@ enum Screen game() {
                 if (isKeyJustPressed(m_PAUSE)) gameLoopState = GAME_PAUSED;
 
 #if CHEAT_MODE == 1
-                if (isKeyJustPressed(KEY_S)) gameState.doorsLeft = 0;
+                if (isKeyJustPressed(KEY_S)) {
+                    gameState.doorsLeft = 0;
+                    gameState.timeLeft = 0;
+                }
                 if (isKeyJustPressed(KEY_K)) playerDie();
                 if (isKeyJustPressed(KEY_W)) {
                     gameState.lives = 1;
