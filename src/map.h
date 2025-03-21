@@ -11,7 +11,7 @@
 #define TILE_VENDING_DISABLED_TOP 38
 #define TILE_VENDING_DISABLED_BOTTOM 39
 
-#define NUM_LEVELS 6
+#define NUM_LEVELS 7
 
 extern const LevelData levels[];
 extern const Vec2 spawnPositions[];
