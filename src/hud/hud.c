@@ -44,7 +44,7 @@ void drawHUD() {
     updateWeapon(true);
 
     // draw initial score
-    drawText(HUD_X_SCORE, HUD_Y, font, STR_HUD_SCORE, COLOR_WHITE, 0);
+    drawText(HUD_X_SCORE, HUD_Y, font, STR_HUD_SCORE, COLOR_TRANSPARENT, 0);
     updatePoints(0);
 }
 
@@ -56,7 +56,7 @@ void updatePoints(int8_t points) {
     uint8_t len = strlen(buffer);
 
     m_clearRect(312 - len * HUD_FONT_W, HUD_Y + 10, len);
-    drawText(312 - len * HUD_FONT_W, HUD_Y + 10, font, buffer, COLOR_WHITE, 0);
+    drawText(312 - len * HUD_FONT_W, HUD_Y + 10, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
 void updateLives(int8_t amount) {
@@ -64,7 +64,7 @@ void updateLives(int8_t amount) {
     m_clearRect(HUD_X_LIVES + 16, HUD_Y + 7, 4);
 
     char buffer[5] = {'X', '0' + gameState.lives, '\0'};
-    drawText(HUD_X_LIVES + 16, HUD_Y + 7, font, buffer, COLOR_WHITE, 0);
+    drawText(HUD_X_LIVES + 16, HUD_Y + 7, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
 void updateDoors(int8_t amount) {
@@ -74,7 +74,7 @@ void updateDoors(int8_t amount) {
     char buffer[5];
     buffer[0] = 'X';
     itoa(gameState.doorsLeft, &buffer[1], 10);
-    drawText(HUD_X_DOORS + 20, HUD_Y + 7, font, buffer, COLOR_WHITE, 0);
+    drawText(HUD_X_DOORS + 20, HUD_Y + 7, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
 // TODO: Consider using BCD to prevent using modulo and division operations
@@ -93,7 +93,7 @@ void updateTime(int8_t time) {
     buffer[4] = '0' + (seconds % 10);
     buffer[5] = '\0';
 
-    drawText(HUD_X_TIME + 16, HUD_Y + 7, font, buffer, COLOR_WHITE, 0);
+    drawText(HUD_X_TIME + 16, HUD_Y + 7, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
 void updateWeapon(char deactivated) {

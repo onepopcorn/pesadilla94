@@ -16,7 +16,7 @@ enum Screen menu() {
     waitFrames(15);
 
     // playWhip();
-    drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 96, font, STR_MENU_L1, COLOR_ORANGE, 31);
+    drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 96, font, STR_MENU_L1, COLOR_TRANSPARENT, 31);
 
     waitVSync();
     dumpBuffer();

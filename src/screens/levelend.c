@@ -19,7 +19,7 @@ enum Screen levelend() {
 
     // Do not clear screen just draw on top of it
     drawRectColor((Rect){END_TXT_X - 5, END_TXT_Y - 5, STR_LEVEL_END_LEN * font->width + 10, font->height + 10}, COLOR_BLACK);
-    drawText(END_TXT_X, END_TXT_Y, font, STR_LEVEL_END, COLOR_WHITE, 0);
+    drawText(END_TXT_X, END_TXT_Y, font, STR_LEVEL_END, COLOR_TRANSPARENT, 0);
     dumpBuffer();
     waitFrames(60);
 

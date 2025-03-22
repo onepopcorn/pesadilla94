@@ -38,7 +38,7 @@ enum Screen intro() {
     while (running) {
         switch (curentSequence) {
             case SEQ_DRAW_BRANDING:
-                drawText(100, 96, font, STR_BRAND, COLOR_ORANGE, 30);
+                drawText(100, 96, font, STR_BRAND, COLOR_TRANSPARENT, 30);
                 setTimeout(&nextSequence, SEQ_DRAW_INTRO, 4000);
                 curentSequence = SEQ_BRANDING;
                 break;
@@ -70,7 +70,7 @@ enum Screen intro() {
                         text[i + 1] = '\0';
                     }
                     current_charnum++;
-                    drawText(35, 200 - 32, font, text, COLOR_ORANGE, 31);
+                    drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 31);
                 } else {
                     setTimeout(&nextSequence, SEQ_END, 4000);
                     curentSequence = SEQ_OUTRO;
