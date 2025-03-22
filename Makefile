@@ -1,4 +1,4 @@
-DOSBOX := "$(DOSBOX_PATH)/DOSBox.exe"
+DOSBOX := $(DOSBOX_PATH)
 
 all: assets
 	@ echo -----------------
