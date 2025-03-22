@@ -1,3 +1,4 @@
+#include <dos.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -17,12 +18,14 @@ typedef struct {
 
 volatile static uint32_t milliseconds = 0;
 
-static Timeout timeouts[MAX_TIMERS] = {0};  // Array to track multiple timeouts
+volatile static Timeout timeouts[MAX_TIMERS] = {0};  // Array to track multiple timeouts
 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
 static void timerHandler() {
     milliseconds += 55;  // ~55 ms per tick at 18.2 Hz
+
+    disable();
 
     // Check each registered timeout
     for (uint8_t i = 0; i < MAX_TIMERS; i++) {
@@ -31,6 +34,8 @@ static void timerHandler() {
             timeouts[i].callback = NULL;  // Remove callback after calling
         }
     }
+
+    enable();
 
     soundUpdate();
 
@@ -57,6 +62,8 @@ uint32_t getMilliseconds() {
 int8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
+    disable();
+
     // Find an empty slot
     for (uint8_t i = 0; i < MAX_TIMERS; i++) {
         if (timeouts[i].callback == NULL) {
@@ -69,13 +76,21 @@ int8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
                 timeouts[i].endTime = milliseconds + ms;
             }
 
+            enable();
             return 0;  // Success
         }
     }
+
+    enable();
 
     return 1;  // No available slot
 }
 
 void clearAllTimeouts() {
-    memset(timeouts, 0, sizeof(timeouts));
+    // memset(timeouts, 0, sizeof(timeouts));
+    for (uint8_t i = 0; i < MAX_TIMERS; i++) {
+        timeouts[0].callback = NULL;
+        timeouts[0].param = 0;
+        timeouts[0].endTime = 0;
+    }
 }
