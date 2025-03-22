@@ -20,7 +20,6 @@
 #define PLAYER_SPEED 0.8
 #define PLAYER_SHOOT_RECHARGE_TIME 2000
 #define PLAYER_INVULNERABILITY_TIME 3000
-#define PLAYER_GRACE_PERIOD 800
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
 Entity *player;
@@ -69,9 +68,7 @@ void useStairs(bool up) {
     destination.y = pos.y - player->sprite->height / 2 + 1;
     destination.x = pos.x;
 
-    // Give player some invulnerability time after using stairs
     player->collisionMask = TYPE_NONE;  // Disable collisions during stairs transition
-    setTimeout(&invulnerabilityEnd, player->id, PLAYER_GRACE_PERIOD);
 }
 
 void spawnShot() {
@@ -203,7 +200,10 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             break;
 
         case STATE_STAIRS_OUT:
-            if (player->frame >= ANIM_PLAYER_STAIRS_LEN - 2) playerState = STATE_IDLE;
+            if (player->frame >= ANIM_PLAYER_STAIRS_LEN - 2) {
+                playerState = STATE_IDLE;
+                player->collisionMask = PLAYER_COLLISION_MASK;
+            }
             break;
 
         case STATE_DYING:
