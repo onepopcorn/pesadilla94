@@ -28,6 +28,11 @@ else ifeq ($(DEBUG),all)
     CFLAGS += -DDEBUG_COLLISIONS -DDEBUG_TILES -DDEBUG
 endif
 
+CHEATS ?=
+ifeq ($(CHEATS),on)
+	CFLAGS += -DCHEATS
+endif
+
 
 all: $(BIN)
 	cp ../vendor/CWSDPMI.exe ../out/CWSDPMI.exe

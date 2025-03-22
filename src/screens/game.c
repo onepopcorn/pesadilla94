@@ -18,7 +18,9 @@
 
 #include "game.h"
 
+#ifdef CHEATS
 #define CHEAT_MODE 1
+#endif
 
 enum Screen nextScreen;
 bool running;
@@ -134,7 +136,6 @@ enum Screen game() {
     running = true;
     clearAllTimeouts();
     destroyAllEntities();
-    // clearScreen();
     endLevel();
 
     waitVSync();
