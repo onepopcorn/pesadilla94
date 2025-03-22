@@ -28,6 +28,7 @@ const LevelData levels[NUM_LEVELS] = {
     {"level5.map", 80, 3, 6},
     {"level6.map", 90, 4, 10},
     {"level7.map", 60, 4, 15},
+    {"level8.map", 100, 5, 20},
 };
 
 // Spawn positions. Player is always first
@@ -53,12 +54,19 @@ const Vec2 spawnPositions[] = {
     {160, 62},
     {130, 158},
     {210, 110},
-    // Level7 Enemies 4
+    // Level 7 Enemies 4
     {10, 154},  // Player
     {130, 158},
     {50, 110},
     {200, 110},
     {300, 158},
+    // Level 8 Enemies 5
+    {10, 58},  // Player
+    {70, 62},
+    {300, 62},
+    {45, 110},
+    {200, 110},
+    {10, 158},
     // END
 };
 
