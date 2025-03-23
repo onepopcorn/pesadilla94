@@ -199,6 +199,7 @@ void drawTile(uint16_t x, uint16_t y, Sprite* tileset, uint8_t id) {
 }
 
 void clearScreen() {
+    waitVSync();
     fillScreen(0);
     dumpBuffer();
 }

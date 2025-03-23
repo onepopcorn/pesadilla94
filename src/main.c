@@ -63,6 +63,7 @@ uint8_t initializSystems() {
  */
 void uninitializSystems() {
     // Restore interrupts
+    clearAllTimeouts();
     timerFree();
     keyboardFree();
 
@@ -70,6 +71,9 @@ void uninitializSystems() {
     closeScreenBuffer();
 
     assetsFree();
+
+    restorePalette();
+    clearScreen();
 
     // Return to text mode
     setVideoMode(VIDEO_TEXT_MODE);

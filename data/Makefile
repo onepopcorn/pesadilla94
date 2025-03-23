@@ -1,12 +1,14 @@
 SPRITE_CLI := ../tools/bin/bmp2data.exe
 MAP_CLI := ../tools/bin/tiled2map.exe
 
-# Find all JSON files starting with "level"
+
 LEVEL_JSONS := $(wildcard level*.json)
-# Generate corresponding .map filenames
 LEVEL_MAPS := $(LEVEL_JSONS:.json=.map)
 
-assets: $(LEVEL_MAPS)
+WAV_FILES := $(wildcard *.wav)
+WAV_DESTS := $(patsubst %.wav,../out/%.wav,$(WAV_FILES))
+
+assets: $(LEVEL_MAPS) $(WAV_DESTS)
 # Sprites
 	$(SPRITE_CLI) font.bmp ../out/font.fnt 59
 	$(SPRITE_CLI) fede.bmp ../out/fede.spr 22
@@ -15,8 +17,12 @@ assets: $(LEVEL_MAPS)
 	$(SPRITE_CLI) misc.bmp ../out/misc.spr 7
 	$(SPRITE_CLI) tiles.bmp ../out/tiles.spr 39
 	$(SPRITE_CLI) intro.bmp ../out/intro.spr 1
+	$(SPRITE_CLI) menu.bmp ../out/menu.spr 1
+
+
 # Sounds
-	cp whip.wav ../out/whip.wav
+../out/%.wav: %.wav
+	cp $< $@
 
 # Maps
 %.map: %.json school-tiles.json

@@ -13,13 +13,16 @@
 
 #include "intro.h"
 
-enum Sequence curentSequence;
+static enum Sequence curentSequence;
 
 void nextSequence(uint8_t sequence) {
     curentSequence = sequence;
 }
 
 enum Screen intro() {
+    // Setup in screen enter
+    enum Screen nextScreen = SCREEN_MENU;
+
     // TODO: Intro scroll & fake image camera movement
     Sprite *introBg = loadSprite("intro.spr");
     if (!introBg) {
@@ -32,6 +35,7 @@ enum Screen intro() {
     uint8_t running = true;
     uint8_t current_charnum = 0;
     uint8_t counter = 0;
+
     char *text = malloc(sizeof(char) * sizeof(STR_INTRO_L1));
     text[0] = '\0';
 
@@ -89,12 +93,19 @@ enum Screen intro() {
         }
 
         if (isKeyJustPressed(m_QUIT)) {
-            return SCREEN_EXIT;
+            nextScreen = SCREEN_EXIT;
+            running = false;
         }
 
         waitVSync();
         dumpBuffer();
     }
+
+    // Clean up on screen leave
+    clearAllTimeouts();
+
+    fadeToBlack(255, 10);
+    clearScreen();
 
     free(text);
     text = NULL;
@@ -102,7 +113,5 @@ enum Screen intro() {
     free(introBg);
     introBg = NULL;
 
-    clearAllTimeouts();
-
-    return SCREEN_MENU;
+    return nextScreen;
 }
