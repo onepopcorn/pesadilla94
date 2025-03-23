@@ -23,7 +23,8 @@ enum Screen menu() {
     }
 
     drawSprite(0, 0, menuBg, 0, false, COLOR_TRANSPARENT);
-    drawText(160 - (STR_MENU_L1_LEN / 2 * 8) + 30, 90, font, STR_MENU_L1, COLOR_TRANSPARENT, 15);
+    drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 110, font, STR_MENU_L1, 55, 30);
+    drawText(160 - (STR_MENU_L2_LEN / 2 * 8), 120, font, STR_MENU_L2, 55, 30);
 
     waitVSync();
     dumpBuffer();
