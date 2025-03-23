@@ -7,6 +7,8 @@
 #include "assets.h"
 #include "text.h"
 #include "map.h"
+#include "io/keyboard.h"
+#include "settings/controls.h"
 
 #include "levelend.h"
 
@@ -21,10 +23,14 @@ enum Screen levelend() {
     drawRectColor((Rect){END_TXT_X - 5, END_TXT_Y - 5, STR_LEVEL_END_LEN * font->width + 10, font->height + 10}, COLOR_BLACK);
     drawText(END_TXT_X, END_TXT_Y, font, STR_LEVEL_END, COLOR_TRANSPARENT, 0);
     dumpBuffer();
-    waitFrames(60);
+    // waitFrames(60);
 
     // TODO: Skip counting by key press
     while (gameState.timeLeft > 0) {
+        if (isKeyJustPressed(m_SHOOT) || isKeyJustPressed(m_QUIT)) {
+            break;
+        }
+
         uint32_t now = getMilliseconds();
         previousTime = now;
         // Speed up seconds to count faster
@@ -37,6 +43,7 @@ enum Screen levelend() {
         dumpBuffer();
     }
 
+    waitFrames(60);
     fadeToBlack(255, 10);
     waitVSync();
 
