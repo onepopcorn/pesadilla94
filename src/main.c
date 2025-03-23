@@ -14,6 +14,7 @@
 #include "screens/game.h"
 #include "screens/gameover.h"
 #include "screens/levelend.h"
+#include "screens/ending.h"
 #include "settings/settings.h"
 #include "render/effects.h"
 
@@ -105,6 +106,9 @@ int main(int argc, char *argv[]) {
                 break;
             case SCREEN_GAME_OVER:
                 currentScreen = gameover();
+                break;
+            case SCREEN_ENDING:
+                currentScreen = ending();
                 break;
             default:
                 currentScreen = SCREEN_EXIT;

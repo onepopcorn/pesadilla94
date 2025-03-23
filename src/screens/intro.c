@@ -3,6 +3,7 @@
 
 #include "render/video.h"
 #include "io/keyboard.h"
+#include "io/resources.h"
 #include "assets.h"
 #include "screens.h"
 #include "timer.h"
@@ -120,7 +121,7 @@ enum Screen intro() {
                     text[i + 1] = '\0';
                 }
                 current_charnum++;
-                drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 31);
+                drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 34);
 
                 if (current_charnum > sizeof(STR_INTRO_L2)) {
                     currentSequence = SEQ_WAIT;

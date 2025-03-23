@@ -19,6 +19,7 @@ assets: $(LEVEL_MAPS) $(WAV_DESTS)
 	$(SPRITE_CLI) intro.bmp ../out/intro.spr 1
 	$(SPRITE_CLI) intro2.bmp ../out/intro2.spr 1
 	$(SPRITE_CLI) menu.bmp ../out/menu.spr 1
+	$(SPRITE_CLI) ending.bmp ../out/ending.spr 1
 
 
 # Sounds

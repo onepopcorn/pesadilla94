@@ -48,5 +48,5 @@ enum Screen levelend() {
     waitVSync();
 
     // TODO: Move to game ending instead of next game screen if there're no more levels
-    return ++gameState.level < NUM_LEVELS ? SCREEN_GAME : SCREEN_MENU;
+    return ++gameState.level < NUM_LEVELS ? SCREEN_GAME : SCREEN_ENDING;
 }
