@@ -7,14 +7,17 @@
 
 #define LANG LANG_ES
 
-#define STR_BRAND "ONEPOPCORN 2025\0"
+#define STR_BRAND "@ONEPOPCORN 2025\0"
 #define STR_BRAND_LEN 16
 
-#if LANG == LANG_ES
+// Use a buffer big enough to hold the biggest of the strings in any language
+#define STR_MAX_TEXT_BUFFER 80
 
 // ---------------------- SPANISH ---------------------- //
+#if LANG == LANG_ES
+
 #define STR_INTRO_L1 "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!\0"
-#define STR_INTRO_L2 "SE TE CAEN LOS PARPADOS Y NO AGUANTAS MAS\0"
+#define STR_INTRO_L2 "ES TARDE, SE TE CAEN LOS       PARPADOS Y YA NO AGUANTAS MAS\0"
 
 #define STR_MENU_L1 "PULSA DISPARO PARA EMPEZAR\0"
 #define STR_MENU_L1_LEN 26
@@ -25,11 +28,11 @@
 #define STR_LEVEL_END "COMPLETADO!\0"
 #define STR_LEVEL_END_LEN 11
 
+// ---------------------- ENGLISH ---------------------- //
 #elif LANG == LANG_EN
 
-// ---------------------- ENGLISH ---------------------- //
 #define STR_INTRO_L1 "FEDERICO! YOU DID NOT STUDY FOR THE FINALS!\0"
-#define STR_INTRO_L2 "YOU ARE NODDING OFF\0"
+#define STR_INTRO_L2 "IT'S LATE, YOU ARE NODDING OFF\0"
 
 #define STR_MENU_L1 "PRESS FIRE TO START\0"
 #define STR_MENU_L1_LEN 19

@@ -50,6 +50,7 @@ uint8_t initializSystems() {
     if (soundError) return EXIT_FAILURE;
 
     // Initialize video system
+    waitVSync();
     setVideoMode(VIDEO_VGA_MODE);
 
     initVideoEffects();
@@ -63,19 +64,16 @@ uint8_t initializSystems() {
  */
 void uninitializSystems() {
     // Restore interrupts
-    clearAllTimeouts();
     timerFree();
     keyboardFree();
 
     // Free memory
+    clearScreen();
     closeScreenBuffer();
-
     assetsFree();
 
-    restorePalette();
-    clearScreen();
-
     // Return to text mode
+    waitVSync();
     setVideoMode(VIDEO_TEXT_MODE);
 
     // Free sound drivers
@@ -86,8 +84,7 @@ int main(int argc, char *argv[]) {
     uint8_t systemErrors = initializSystems();
     if (systemErrors) return EXIT_FAILURE;
 
-    waitFrames(3);
-    fillScreen(0);
+    clearScreen();
 
     enum Screen currentScreen = SCREEN_INTRO;
 

@@ -13,10 +13,10 @@
 
 #include "intro.h"
 
-static enum Sequence curentSequence;
+static enum Sequence currentSequence;
 
-void nextSequence(uint8_t sequence) {
-    curentSequence = sequence;
+void switchToNextSequence(uint8_t sequence) {
+    currentSequence = sequence;
 }
 
 enum Screen intro() {
@@ -30,60 +30,101 @@ enum Screen intro() {
         return EXIT_FAILURE;
     }
 
-    curentSequence = SEQ_DRAW_BRANDING;
+    Sprite *introBg2 = loadSprite("intro2.spr");
+    if (!introBg2) {
+        perror("Error opening intro2.spr file");
+        return EXIT_FAILURE;
+    }
+
+    currentSequence = SEQ_DRAW_BRANDING;
 
     uint8_t running = true;
     uint8_t current_charnum = 0;
-    uint8_t counter = 0;
 
-    char *text = malloc(sizeof(char) * sizeof(STR_INTRO_L1));
+    char *text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
 
+    fadeToBlack(0, 0);
+
     while (running) {
-        switch (curentSequence) {
+        switch (currentSequence) {
+            case SEQ_WAIT:
+                // Just wait
+                break;
+
+            // Draw onepopcorn logo
             case SEQ_DRAW_BRANDING:
                 drawText(100, 96, font, STR_BRAND, COLOR_TRANSPARENT, 30);
-                setTimeout(&nextSequence, SEQ_DRAW_INTRO, 4000);
-                curentSequence = SEQ_BRANDING;
+
+                dumpBuffer();
+                fadeIn(255, 10);
+
+                currentSequence = SEQ_WAIT;
+                setTimeout(&switchToNextSequence, SEQ_DRAW_INTRO, 1000);
                 break;
 
-            case SEQ_BRANDING:
-                if (isKeyJustPressed(m_SHOOT)) {
-                    clearAllTimeouts();
-                    curentSequence = SEQ_DRAW_INTRO;
-                }
-                break;
-
+            // Draw first intro part
             case SEQ_DRAW_INTRO:
-                fillScreen(COLOR_BLACK);
+                fadeToBlack(255, 0);
+
                 drawSprite(0, 0, introBg, 0, false, COLOR_TRANSPARENT);
-                curentSequence = SEQ_WAIT_INTRO;
+
+                dumpBuffer();
+                fadeIn(255, 10);
+
+                currentSequence = SEQ_INTRO;
                 break;
 
-            case SEQ_WAIT_INTRO:
-                setTimeout(&nextSequence, SEQ_INTRO, 3000);
-                if (isKeyJustPressed(m_SHOOT)) {
-                    curentSequence = SEQ_INTRO;
-                }
-                break;
-
+            // Run first intro part
             case SEQ_INTRO:
-                if (current_charnum <= sizeof(STR_INTRO_L1) && ++counter) {
-                    for (uint8_t i = 0; i < current_charnum - 1; i++) {
-                        text[i] = STR_INTRO_L1[i];
-                        text[i + 1] = '\0';
-                    }
-                    current_charnum++;
-                    drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 31);
-                } else {
-                    setTimeout(&nextSequence, SEQ_END, 4000);
-                    curentSequence = SEQ_OUTRO;
+                for (uint8_t i = 0; i < current_charnum; i++) {
+                    text[i] = STR_INTRO_L1[i];
+                    text[i + 1] = '\0';
                 }
+                current_charnum++;
+                drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 31);
+
+                // Jump to next intro screen when done
+                if (current_charnum > sizeof(STR_INTRO_L1)) {
+                    currentSequence = SEQ_WAIT;
+                    setTimeout(&switchToNextSequence, SEQ_DRAW_INTRO2, 2000);
+                }
+
                 break;
 
-            case SEQ_OUTRO:
-                if (isKeyJustPressed(m_SHOOT)) {
-                    running = false;
+            // Draw second intro part
+            case SEQ_DRAW_INTRO2:
+                fadeToBlack(255, 10);
+
+                // Reset typewriting effect
+                current_charnum = 0;
+                text[0] = '\0';
+
+                // Clear text
+                drawRectColor((Rect){0, 200 - 32, 160, 32}, COLOR_BLACK);
+                drawRectColor((Rect){160, 200 - 32, 160, 32}, COLOR_BLACK);
+
+                // Draw next image
+                drawSprite(0, 0, introBg2, 0, false, COLOR_TRANSPARENT);
+
+                dumpBuffer();
+                fadeIn(255, 10);
+
+                currentSequence = SEQ_INTRO2;
+                break;
+
+            // Run second intro part
+            case SEQ_INTRO2:
+                for (uint8_t i = 0; i < current_charnum; i++) {
+                    text[i] = STR_INTRO_L2[i];
+                    text[i + 1] = '\0';
+                }
+                current_charnum++;
+                drawText(35, 200 - 32, font, text, COLOR_TRANSPARENT, 31);
+
+                if (current_charnum > sizeof(STR_INTRO_L2)) {
+                    currentSequence = SEQ_WAIT;
+                    setTimeout(&switchToNextSequence, SEQ_END, 3000);
                 }
                 break;
 
@@ -92,8 +133,8 @@ enum Screen intro() {
                 break;
         }
 
-        if (isKeyJustPressed(m_QUIT)) {
-            nextScreen = SCREEN_EXIT;
+        if (isKeyJustPressed(m_QUIT) || isKeyJustPressed(m_SHOOT)) {
+            nextScreen = SCREEN_MENU;
             running = false;
         }
 
@@ -112,6 +153,9 @@ enum Screen intro() {
 
     free(introBg);
     introBg = NULL;
+
+    free(introBg2);
+    introBg2 = NULL;
 
     return nextScreen;
 }

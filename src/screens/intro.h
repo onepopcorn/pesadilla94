@@ -3,11 +3,11 @@
 
 enum Sequence {
     SEQ_DRAW_BRANDING,
-    SEQ_BRANDING,
     SEQ_DRAW_INTRO,
-    SEQ_WAIT_INTRO,
+    SEQ_DRAW_INTRO2,
+    SEQ_WAIT,
     SEQ_INTRO,
-    SEQ_OUTRO,
+    SEQ_INTRO2,
     SEQ_END,
 };
 

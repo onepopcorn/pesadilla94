@@ -8,7 +8,7 @@ uint8_t Controls[CONTROLS_NUM] = {
     KEY_RIGHT,
     KEY_UP,
     KEY_DOWN,
-    KEY_CTRL_L,
+    KEY_SPACE,
     KEY_ESC,
     KEY_P,
     // Cheats

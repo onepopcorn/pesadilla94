@@ -115,8 +115,6 @@ enum Screen game() {
 
                 // Transition to next level
                 if (gameState.doorsLeft == 0) {
-                    // TODO: HANDLE THIS LOGIC IN ENDLEVEL FUNCTION AFTER ADDING POINTS
-                    // nextScreen = ++gameState.level < NUM_LEVELS ? SCREEN_LEVEL_END : SCREEN_MENU;
                     nextScreen = SCREEN_LEVEL_END;
                     running = false;
                 }

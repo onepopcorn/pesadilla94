@@ -50,6 +50,7 @@ void timerInit() {
 }
 
 void timerFree() {
+    clearAllTimeouts();
     if (_go32_dpmi_set_protected_mode_interrupt_vector(IRS_TIMER, &old_handler) == -1)
         fprintf(stderr, "Failed to free the timer :(\n");
 }

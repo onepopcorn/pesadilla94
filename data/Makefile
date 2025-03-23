@@ -17,6 +17,7 @@ assets: $(LEVEL_MAPS) $(WAV_DESTS)
 	$(SPRITE_CLI) misc.bmp ../out/misc.spr 7
 	$(SPRITE_CLI) tiles.bmp ../out/tiles.spr 39
 	$(SPRITE_CLI) intro.bmp ../out/intro.spr 1
+	$(SPRITE_CLI) intro2.bmp ../out/intro2.spr 1
 	$(SPRITE_CLI) menu.bmp ../out/menu.spr 1
 
 
