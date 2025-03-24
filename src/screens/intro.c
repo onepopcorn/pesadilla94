@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "version.h"
 #include "render/video.h"
 #include "io/keyboard.h"
 #include "io/resources.h"
@@ -55,7 +56,8 @@ enum Screen intro() {
 
             // Draw onepopcorn logo
             case SEQ_DRAW_BRANDING:
-                drawText(100, 96, font, STR_BRAND, COLOR_TRANSPARENT, 30);
+                drawText(160 - (sizeof(STR_BRAND) / 2 * 8), 96, font, STR_BRAND, COLOR_TRANSPARENT, 0);
+                drawText(160 - (sizeof(VERSION) / 2 * 8), 180, font, VERSION, COLOR_TRANSPARENT, 0);
 
                 dumpBuffer();
                 fadeIn(255, 10);
@@ -69,6 +71,9 @@ enum Screen intro() {
                 fadeToBlack(255, 0);
 
                 drawSprite(0, 0, introBg, 0, false, COLOR_TRANSPARENT);
+
+                // Clean version text
+                drawRectColor((Rect){160 - (sizeof(VERSION) / 2 * 8), 180, sizeof(VERSION) * 8, 8}, COLOR_BLACK);
 
                 dumpBuffer();
                 fadeIn(255, 10);
