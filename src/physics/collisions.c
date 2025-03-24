@@ -47,7 +47,7 @@ void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
 #ifdef DEBUG
             logDebug("*? {idx:%d id:%d type:%d} Should Stunt enemy", idx, entity->id, entity->type);
 #endif
-            enemyStun(idx);
+            enemyStun(entity);
             updatePoints(POINTS_PER_STUNT);
         }
     }

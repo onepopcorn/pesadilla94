@@ -23,7 +23,7 @@
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
 Entity *player;
-uint8_t playerCanShoot = true;
+uint8_t playerCanShoot = false;
 Vec2 destination;
 PlayerState playerState = STATE_IDLE;
 Tile *searchDoorTile = NULL;
@@ -150,7 +150,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             m_setAnimation(player, ANIM_PLAYER_WALK);
 
             // Shoot
-            if (isKeyJustPressed(m_SHOOT) && playerCanShoot) {
+            if (m_isKeyDown(m_SHOOT) && playerCanShoot) {
                 playerState = STATE_SHOOTING;
             }
 
@@ -158,14 +158,14 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             if (m_isKeyDown(m_LEFT) && !m_isKeyDown(m_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
                 entity->vx = -PLAYER_SPEED;
                 m_setFlag(entity->flags, ENTITY_FLIP);
-                return;
+                break;
             }
 
             // Move right
             if (m_isKeyDown(m_RIGHT) && !m_isKeyDown(m_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
                 entity->vx = PLAYER_SPEED;
                 m_unsetFlag(entity->flags, ENTITY_FLIP);
-                return;
+                break;
             }
 
             playerState = STATE_IDLE;
@@ -216,7 +216,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             m_setAnimation(player, ANIM_PLAYER_IDLE);
 
             // Shoot
-            if (isKeyJustPressed(m_SHOOT) && playerCanShoot) {
+            if (m_isKeyDown(m_SHOOT) && playerCanShoot) {
                 playerState = STATE_SHOOTING;
             }
 
@@ -234,7 +234,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                 }
             }
 
-            // Searcg Vending macchine
+            // Search Vending macchine
             if (!playerCanShoot && m_isFlagSet(tileCollisions, COLLISION_VENDING) && isKeyJustPressed(m_UP)) {
                 pickupWeapon();
             }

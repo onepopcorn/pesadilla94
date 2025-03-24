@@ -56,9 +56,10 @@ struct Entity *enemySpawn(short x, short y) {
     return entity;
 }
 
-// TODO: Use entity unique ID instead of position or pointer because we move entities around when an entity is destroyed
-void enemyStun(uint8_t idx) {
-    Entity *enemy = &entities[idx];
+void enemyStun(Entity *enemy) {
+    if (!enemy) {
+        return;
+    }
 
 #ifdef DEBUG
     logDebug("* {idx:%d id:%d type:%d} Stunt enemy", idx, enemy->id, enemy->type);
