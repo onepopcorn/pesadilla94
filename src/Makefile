@@ -33,6 +33,13 @@ ifeq ($(CHEATS),on)
 	CFLAGS += -DCHEATS
 endif
 
+LANG ?=
+ifeq ($(LANG),es)
+	CFLAGS += -DLANG=1
+else ifeq ($(LANG), en)
+	CFLAGS += -DLANG=2
+endif
+
 
 all: $(BIN)
 	cp ../vendor/CWSDPMI.exe ../out/CWSDPMI.exe
