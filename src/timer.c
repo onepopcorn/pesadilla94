@@ -1,4 +1,4 @@
-// #include <dos.h>
+#include <dos.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -25,8 +25,6 @@ static _go32_dpmi_seginfo old_handler, new_handler;
 static void timerHandler() {
     milliseconds += 55;  // ~55 ms per tick at 18.2 Hz
 
-    // disable();
-
     // Check each registered timeout
     for (uint8_t i = 0; i < MAX_TIMERS; i++) {
         if (timeouts[i].callback && milliseconds >= timeouts[i].endTime) {
@@ -34,8 +32,6 @@ static void timerHandler() {
             timeouts[i].callback = NULL;  // Remove callback after calling
         }
     }
-
-    // enable();
 
     // soundUpdate();
 
@@ -63,7 +59,7 @@ uint32_t getMilliseconds() {
 int8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
     if (!callback) return -1;  // Ignore if NULL function
 
-    // disable();
+    disable();
 
     // Find an empty slot
     for (uint8_t i = 0; i < MAX_TIMERS; i++) {
@@ -77,12 +73,12 @@ int8_t setTimeout(void (*callback)(uint8_t), uint8_t param, uint32_t ms) {
                 timeouts[i].endTime = milliseconds + ms;
             }
 
-            // enable();
+            enable();
             return 0;  // Success
         }
     }
 
-    // enable();
+    enable();
 
     return 1;  // No available slot
 }
