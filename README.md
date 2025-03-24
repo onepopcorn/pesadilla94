@@ -2,7 +2,7 @@
 
 Source code of the game for MSDOS Club podcast contest.
 
-See the game [manual](docs/MANUAL.md) to know how to play. RTFM!
+Play the game [here](https://onepopcorn.github.io/pesadilla94/) and read the manual to know how to play. RTFM!
 
 This game has been developed using [DJGPP](https://www.delorie.com/djgpp/) compiler under a Windows machine. In order to compile the game you will need to have DJGPP installed correctly on your system.
 
