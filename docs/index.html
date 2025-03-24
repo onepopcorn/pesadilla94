@@ -6,16 +6,30 @@
         <title>Pesadilla '94</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
         <style>
+            @font-face {
+                font-family: 'Day-Of-The-Tentacle';
+                src: url('Day-Of-The-Tentacle.ttf.woff') format('woff'),
+                    url('Day-Of-The-Tentacle.ttf.svg#Day-Of-The-Tentacle')
+                        format('svg'),
+                    url('Day-Of-The-Tentacle.ttf.eot'),
+                    url('Day-Of-The-Tentacle.ttf.eot?#iefix')
+                        format('embedded-opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
             body {
-                font-family: Arial, Helvetica, sans-serif;
+                font-family: 'Day-Of-The-Tentacle', Arial, Helvetica, sans-serif;
                 padding: 0;
                 margin: 0;
-                background-color: black;
+                background-color: purple;
             }
 
             #content {
                 padding: 1em;
                 color: white;
+                max-width: 1024px;
+                margin: auto;
             }
         </style>
     </head>
