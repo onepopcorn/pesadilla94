@@ -13,7 +13,8 @@
 #include "text.h"
 #include "hud.h"
 
-#define HUD_Y 10
+#define HUD_Y 5
+#define HUD_LVL_Y HUD_Y + 22
 #define HUD_X_LIVES 5
 #define HUD_X_DOORS 60
 #define HUD_X_TIME 116
@@ -40,12 +41,16 @@ void drawHUD() {
     drawSprite(HUD_X_TIME, HUD_Y, miscSprite, 0, false, COLOR_TRANSPARENT);
     updateTime(0);
 
-    // Draw sticky hand. Starts deactivated
+    // draw sticky hand. Starts deactivated
     updateWeapon(true);
 
     // draw initial score
     drawText(HUD_X_SCORE, HUD_Y, font, STR_HUD_SCORE, COLOR_TRANSPARENT, 0);
     updatePoints(0);
+
+    // draw current level
+    drawText(HUD_X_LIVES, HUD_LVL_Y, font, STR_HUD_LEVEL, COLOR_TRANSPARENT, 0);
+    updateLevel();
 }
 
 void updatePoints(int8_t points) {
@@ -100,4 +105,13 @@ void updateWeapon(char deactivated) {
     uint8_t frame = 3 + deactivated * 2;
     drawSprite(HUD_X_HAND, HUD_Y, miscSprite, frame, false, COLOR_TRANSPARENT);
     drawSprite(HUD_X_HAND + 16, HUD_Y, miscSprite, frame + 1, false, COLOR_TRANSPARENT);
+}
+
+void updateLevel() {
+    uint8_t xPos = HUD_X_LIVES - 4 + sizeof(STR_HUD_LEVEL) * 8;
+    m_clearRect(xPos, HUD_LVL_Y, 2);
+
+    char buffer[6];
+    sprintf(buffer, "%d", gameState.level + 1);
+    drawText(xPos, HUD_LVL_Y, font, buffer, COLOR_TRANSPARENT, 0);
 }

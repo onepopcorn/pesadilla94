@@ -30,6 +30,8 @@
 #define STR_HUD_SCORE "PUNTOS\0"
 #define STR_HUD_SCORE_LEN 6
 
+#define STR_HUD_LEVEL "NIVEL-"
+
 #define STR_LEVEL_END "COMPLETADO!\0"
 #define STR_LEVEL_END_LEN 11
 
@@ -51,6 +53,8 @@
 
 #define STR_HUD_SCORE "SCORE\0"
 #define STR_HUD_SCORE_LEN 5
+
+#define STR_HUD_LEVEL "LEVEL-"
 
 #define STR_LEVEL_END "DONE!\0"
 #define STR_LEVEL_END_LEN 5

@@ -7,5 +7,6 @@ void updateLives(int8_t lives);
 void updateTime(int8_t timeleft);
 void updateDoors(int8_t doors);
 void updateWeapon(char deactivated);
+void updateLevel();
 
 #endif  // _HUD_H
