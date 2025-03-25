@@ -1,5 +1,12 @@
 DOSBOX := $(DOSBOX_PATH)
 
+LANG ?=
+ifeq ($(LANG), en)
+	SUFFIX := en
+else
+	SUFFIX := es
+endif
+
 all: assets
 	@ echo -----------------
 	@echo  - BUILD GAME -
@@ -33,4 +40,7 @@ clean_all:
 	@make --no-print-directory -C src clean
 	@make --no-print-directory -C tools clean
 
-.PHONY: all clean run tools clean_all
+pack: all
+	./compress.bat $(SUFFIX)
+
+.PHONY: all clean run tools clean_all pack
