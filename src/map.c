@@ -10,9 +10,10 @@
 
 #include "map.h"
 
-#define FLOOR_1_Y 58
+#define FLOOR_1_Y 62
 #define FLOOR_2_Y 110
 #define FLOOR_3_Y 158
+#define FLOOR_PLAYER_Y_OFFSET 4
 
 // Static data
 
@@ -30,52 +31,62 @@ const LevelData levels[NUM_LEVELS] = {
     {"level7.map", 60, 4, 15},
     {"level8.map", 100, 5, 20},
     {"level9.map", 90, 6, 26},
+    {"level10.map", 60, 7, 33},
 };
 
 // Spawn positions. Player is always first
 const Vec2 spawnPositions[] = {
     // Level 1 Enemies: 0
-    {120, 106},  // Player
+    {120, FLOOR_2_Y - FLOOR_PLAYER_Y_OFFSET},
     // Level 2 Enemies: 0
-    {112, 106},  // Player
+    {112, FLOOR_2_Y - FLOOR_PLAYER_Y_OFFSET},
     // Level 3 Enemies: 1
-    {20, 106},  // Player
-    {100, 110},
+    {20, FLOOR_2_Y - FLOOR_PLAYER_Y_OFFSET},
+    {100, FLOOR_2_Y},
     // Level 4 Enemies: 1
-    {20, 106},
-    {100, 158},
+    {20, FLOOR_2_Y - FLOOR_PLAYER_Y_OFFSET},
+    {100, FLOOR_3_Y},
     // Level 5 Enemies: 3
-    {20, 58},
-    {280, 62},
-    {150, 110},
-    {100, 158},
+    {20, FLOOR_1_Y - FLOOR_PLAYER_Y_OFFSET},
+    {280, FLOOR_1_Y},
+    {150, FLOOR_2_Y},
+    {100, FLOOR_3_Y},
     // Level 6 Enemies 4
-    {20, 58},  // Player
-    {100, 110},
-    {160, 62},
-    {130, 158},
-    {210, 110},
+    {20, FLOOR_1_Y - FLOOR_PLAYER_Y_OFFSET},
+    {100, FLOOR_2_Y},
+    {160, FLOOR_1_Y},
+    {130, FLOOR_3_Y},
+    {210, FLOOR_2_Y},
     // Level 7 Enemies 4
-    {10, 154},  // Player
-    {130, 158},
-    {50, 110},
-    {200, 110},
-    {300, 158},
+    {20, 154},
+    {130, FLOOR_3_Y},
+    {50, FLOOR_2_Y},
+    {200, FLOOR_2_Y},
+    {300, FLOOR_3_Y},
     // Level 8 Enemies 5
-    {10, 58},  // Player
-    {70, 62},
-    {300, 62},
-    {45, 110},
-    {200, 110},
-    {10, 158},
-    // Level 9 Enemies 4
-    {100, 58},  // Player
-    {10, 110},
-    {80, 110},
-    {200, 110},
-    {300, 110},
-    {10, 158},
-    {300, 158},
+    {20, FLOOR_1_Y - FLOOR_PLAYER_Y_OFFSET},
+    {70, FLOOR_1_Y},
+    {300, FLOOR_1_Y},
+    {45, FLOOR_2_Y},
+    {200, FLOOR_2_Y},
+    {10, FLOOR_3_Y},
+    // Level 9 Enemies 6
+    {100, FLOOR_1_Y - FLOOR_PLAYER_Y_OFFSET},
+    {10, FLOOR_2_Y},
+    {80, FLOOR_2_Y},
+    {200, FLOOR_2_Y},
+    {300, FLOOR_2_Y},
+    {10, FLOOR_3_Y},
+    {300, FLOOR_3_Y},
+    // Level 10 Enemies 7
+    {20, FLOOR_1_Y - FLOOR_PLAYER_Y_OFFSET},
+    {20, FLOOR_2_Y},
+    {90, FLOOR_2_Y},
+    {200, FLOOR_1_Y},
+    {180, FLOOR_2_Y},
+    {290, FLOOR_3_Y},
+    {190, FLOOR_3_Y},
+    {300, FLOOR_2_Y},
     // END
 };
 
