@@ -4,7 +4,7 @@ Source code of the game for MSDOS Club podcast contest.
 
 Go [here](https://onepopcorn.github.io/pesadilla94/) and read the manual to know how to play. RTFM!
 
-To play the game get the latest binaries from [here](https://github.com/onepopcorn/pesadilla94/releases/latest) and play it in your emulator of choice or on a real machine (I haven't test it on a real machine). For simplicity, I recommend downloading the binary and using [this](https://www.neilb.net/doswasmx/) online emulator
+To play the game get the latest binaries from [here](https://github.com/onepopcorn/pesadilla94/releases/latest) and play it in your emulator of choice or on a real machine (I haven't test it on a real machine). For simplicity, I recommend downloading the binary and use [this](https://www.neilb.net/doswasmx/) online emulator
 
 This game has been developed using [DJGPP](https://www.delorie.com/djgpp/) compiler under a Windows machine. In order to compile the game you will need to have DJGPP installed correctly on your system.
 
