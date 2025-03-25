@@ -23,6 +23,7 @@ volatile static Timeout timeouts[MAX_TIMERS] = {0};  // Array to track multiple 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
 static void timerHandler() {
+    disable();
     milliseconds += 55;  // ~55 ms per tick at 18.2 Hz
 
     // Check each registered timeout
@@ -35,6 +36,7 @@ static void timerHandler() {
 
     // soundUpdate();
 
+    enable();
     outportb(0x20, 0x20);  // End-of-interrupt (EOI) signal to PIC
 }
 

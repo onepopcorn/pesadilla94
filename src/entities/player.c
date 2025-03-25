@@ -47,7 +47,7 @@ void respawn() {
         m_setAnimation(player, ANIM_PLAYER_IDLE);
         m_setFlag(player->flags, ENTITY_FLASHING);
         playerState = STATE_IDLE;
-        setTimeout(invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
+        setTimeout(&invulnerabilityEnd, player->id, PLAYER_INVULNERABILITY_TIME);
     }
 }
 
