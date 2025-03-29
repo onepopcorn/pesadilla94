@@ -4,6 +4,8 @@
 uint8_t soundInit();
 void soundFree();
 void soundUpdate();
-void playWhip();
+
+void startSong();
+void stopSong();
 
 #endif  // _SOUND_H

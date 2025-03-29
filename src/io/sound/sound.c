@@ -2,32 +2,47 @@
 #include <mikmod.h>
 #include "sound.h"
 
-SAMPLE *sfx_whip;
+MODULE *music;
+
+void errorHandling() {
+    printf("MikMod Error occurred: %s\n", MikMod_strerror(MikMod_errno));
+    if (MikMod_critical) {
+        printf("MikMod is in a unsuable state: %s\n", MikMod_strerror(MikMod_critical));
+    }
+}
 
 uint8_t soundInit() {
+    printf("\n");
+    long engineversion = MikMod_GetVersion();
+    printf("Initializing MikMod Sound Library v%ld.%ld.%ld\n\n", (engineversion >> 16) & 255, (engineversion >> 8) & 255, (engineversion) & 255);
+    MikMod_RegisterErrorHandler(errorHandling);
+
     // MikMod_RegisterDriver(&drv_sb);
     MikMod_RegisterAllDrivers();
-    md_mode |= DMODE_SOFT_SNDFX;
-    // md_device = 1;
-    if (MikMod_Init("")) {
-        printf("MikMod error: %s\n", MikMod_strerror(MikMod_errno));
-        return EXIT_FAILURE;
-    }
+    // MikMod_RegisterLoader(&load_s3m);
+    MikMod_RegisterAllLoaders();
 
-    sfx_whip = Sample_Load("whip.wav");
-    if (!sfx_whip) {
-        printf("Failed to load sound effects: %s\n", MikMod_strerror(MikMod_errno));
-        return EXIT_FAILURE;
-    }
+    md_mode |= DMODE_SOFT_SNDFX | DMODE_SOFT_MUSIC;
+    MikMod_Init("");
 
-    MikMod_SetNumVoices(-1, 2);
+    MikMod_SetNumVoices(8, 4);
     MikMod_EnableOutput();
+
+    music = Player_Load("music.s3m", 64, 0);
 
     return EXIT_SUCCESS;
 }
 
+void startSong() {
+    Player_Start(music);
+}
+
+void stopSong() {
+    Player_Stop();
+}
+
 void soundFree() {
-    if (sfx_whip) Sample_Free(sfx_whip);
+    Player_Free(music);
     MikMod_Exit();
 }
 
@@ -38,9 +53,4 @@ void soundUpdate() {
         divider = 0;
         MikMod_Update();
     }
-}
-
-void playWhip() {
-    int handle = Sample_Play(sfx_whip, 0, SFX_CRITICAL);  // No loop
-    Voice_SetVolume(handle, 255);                         // Max volume (0-255)
 }

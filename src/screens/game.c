@@ -2,6 +2,7 @@
 #include "render/video.h"
 #include "io/resources.h"
 #include "io/keyboard.h"
+#include "io/sound/sound.h"
 #include "assets.h"
 #include "entities/entities.h"
 #include "entities/player.h"
@@ -30,6 +31,8 @@ enum Screen game() {
 
     gameState.timeLeft = currentLevel.time;
     gameState.doorsLeft = startLevel(gameState.level);  // TODO: Add checks when failing loading the level
+
+    startSong();
 
     drawMap();
     drawHUD();
@@ -131,6 +134,7 @@ enum Screen game() {
     }
 
     // CLEANUP
+    stopSong();
     running = true;
     clearAllTimeouts();
     destroyAllEntities();

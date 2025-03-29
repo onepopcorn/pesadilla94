@@ -7,7 +7,7 @@
 #include <pc.h>
 
 #include "settings/settings.h"
-// #include "io/sound/sound.h"
+#include "io/sound/sound.h"
 #include "timer.h"
 
 typedef struct {
@@ -34,7 +34,7 @@ static void timerHandler() {
         }
     }
 
-    // soundUpdate();
+    soundUpdate();
 
     enable();
     outportb(0x20, 0x20);  // End-of-interrupt (EOI) signal to PIC
