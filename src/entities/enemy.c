@@ -3,6 +3,7 @@
 
 #include "io/resources.h"
 #include "entities.h"
+#include "io/sound/sound.h"
 #include "assets.h"
 #include "animations.h"
 #include "macros.h"
@@ -69,6 +70,8 @@ void enemyStun(Entity *enemy) {
     m_setAnimation(enemy, ANIM_ENEMY1_STUNT);
     enemy->vx = 0;
     enemy->collisionMask = TYPE_NONE;
+
+    playSound(SFX_ENEMY_HIT);
 
     setTimeout(enemyWakeup, enemy->id, ENEMY_STUNT_TIME);
 }

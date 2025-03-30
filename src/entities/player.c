@@ -27,12 +27,14 @@ uint8_t playerCanShoot = false;
 Vec2 destination;
 PlayerState playerState = STATE_IDLE;
 Tile *searchDoorTile = NULL;
+int8_t sfxSteps = -1;
 
 // PRIVATE METHODS
 
 void enableWhip(uint8_t id) {
     playerCanShoot = true;
     updateWeapon(false);
+    playSound(SFX_WPN_READY);
 }
 
 void invulnerabilityEnd(uint8_t id) {
@@ -57,6 +59,7 @@ void useStairs(bool up) {
     if (pos.x <= 0 || pos.y <= 0) {
         // Abort, there's no destination found
         playerState = STATE_IDLE;
+        playSound(SFX_DOOR_NO_OP);
         return;
     }
     m_setAnimation(player, ANIM_PLAYER_STAIRS);
@@ -72,6 +75,8 @@ void useStairs(bool up) {
 }
 
 void spawnShot() {
+    if (!playerCanShoot) return;
+
     updateWeapon(true);
     // Can't shoot if too close to the wall player is facing
     if ((player->x < 10 && m_isFlagSet(player->flags, ENTITY_FLIP)) || (player->x > 280 && !m_isFlagSet(player->flags, ENTITY_FLIP))) {
@@ -83,6 +88,7 @@ void spawnShot() {
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
     uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
+    // playSound(SFX_WHIP);
     whipSpawn(player->x + offset, player->y + 8, facingRight);
 
     playerCanShoot = false;
@@ -119,6 +125,7 @@ void searchDoor() {
         updatePoints(POINTS_PER_DOOR);
         playerState = STATE_IDLE;
         searchDoorTile = NULL;
+        playSound(SFX_DOOR_DONE);
         return;
     }
 }
@@ -127,6 +134,7 @@ void pickupWeapon() {
     m_snapXToGrid(player);
     playerState = STATE_PICKING_UP;
     playerCanShoot = true;
+    playSound(SFX_WPN_PICKUP);
     m_setAnimation(player, ANIM_PLAYER_SEARCH);
 }
 
@@ -151,23 +159,35 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
 
             // Shoot
             if (m_isKeyDown(m_SHOOT) && playerCanShoot) {
+                // sfxSteps = stopSound(sfxSteps);
                 playerState = STATE_SHOOTING;
             }
 
             // Move left
-            if (m_isKeyDown(m_LEFT) && !m_isKeyDown(m_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
-                entity->vx = -PLAYER_SPEED;
-                m_setFlag(entity->flags, ENTITY_FLIP);
-                break;
+            if (m_isKeyDown(m_LEFT)) {
+                if (!m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
+                    entity->vx = -PLAYER_SPEED;
+                    m_setFlag(entity->flags, ENTITY_FLIP);
+                } else {
+                    entity->vx = 0;
+                    // sfxSteps = stopSound(sfxSteps);
+                }
+                return;
             }
 
             // Move right
-            if (m_isKeyDown(m_RIGHT) && !m_isKeyDown(m_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
-                entity->vx = PLAYER_SPEED;
-                m_unsetFlag(entity->flags, ENTITY_FLIP);
-                break;
+            if (m_isKeyDown(m_RIGHT)) {
+                if (!m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
+                    entity->vx = PLAYER_SPEED;
+                    m_unsetFlag(entity->flags, ENTITY_FLIP);
+                } else {
+                    entity->vx = 0;
+                    // sfxSteps = stopSound(sfxSteps);
+                }
+                return;
             }
 
+            // sfxSteps = stopSound(sfxSteps);
             playerState = STATE_IDLE;
             break;
         case STATE_SEARCHING:
@@ -230,13 +250,20 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && isKeyJustPressed(m_UP)) {
                 searchDoorTile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
                 if (searchDoorTile->data.door.progress > 0) {
+                    playSound(SFX_DOOR_OPEN);
                     playerState = STATE_SEARCHING;
+                } else {
+                    playSound(SFX_DOOR_NO_OP);
                 }
             }
 
             // Search Vending macchine
-            if (!playerCanShoot && m_isFlagSet(tileCollisions, COLLISION_VENDING) && isKeyJustPressed(m_UP)) {
-                pickupWeapon();
+            if (m_isFlagSet(tileCollisions, COLLISION_VENDING) && isKeyJustPressed(m_UP)) {
+                if (!playerCanShoot) {
+                    pickupWeapon();
+                } else {
+                    playSound(SFX_DOOR_NO_OP);
+                }
             }
 
             // Walk
@@ -244,11 +271,31 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                 playerState = STATE_WALKING;
             }
     }
+
+    if (playerState == STATE_WALKING && sfxSteps == -1 && !isLoopRunning(sfxSteps)) {
+        sfxSteps = playSound(SFX_PLAYER_MOVE);
+    }
+
+    if (playerState != STATE_WALKING && sfxSteps > -1) {
+        sfxSteps = stopSound(sfxSteps);
+        /**
+         * This is dirty AF but it's a quick way to debounce walk loop sound
+         *
+         * TODO: Fix player walking sound loop bug. For now this does the trick but this shouldn't be the solution
+         *
+         */
+        stopAllSounds();
+    }
 }
 
 void playerDie() {
     // Close door before dying if player is searching
     if (playerState == STATE_SEARCHING) interruptSearching();
+
+    // Same than above... this is a dirty hack
+    sfxSteps = stopSound(sfxSteps);
+    stopAllSounds();
+    playSound(SFX_DEATH);
 
     m_setAnimation(player, ANIM_PLAYER_DIE);
     player->collisionMask = TYPE_NONE;

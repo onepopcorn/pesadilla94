@@ -5,11 +5,11 @@
 #include "render/video.h"
 #include "io/keyboard.h"
 #include "io/resources.h"
+#include "io/sound/sound.h"
 #include "assets.h"
 #include "screens.h"
 #include "timer.h"
 #include "text.h"
-#include "io/sound/sound.h"
 #include "settings/controls.h"
 #include "render/effects.h"
 
@@ -42,6 +42,7 @@ enum Screen intro() {
 
     uint8_t running = true;
     uint8_t current_charnum = 0;
+    uint8_t sfx;
 
     char *text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
@@ -79,6 +80,7 @@ enum Screen intro() {
                 fadeIn(255, 10);
 
                 currentSequence = SEQ_INTRO;
+                sfx = playSound(SFX_POINTS);
                 break;
 
             // Run first intro part
@@ -94,6 +96,7 @@ enum Screen intro() {
                 if (current_charnum > sizeof(STR_INTRO_L1)) {
                     currentSequence = SEQ_WAIT;
                     setTimeout(&switchToNextSequence, SEQ_DRAW_INTRO2, 2000);
+                    stopSound(sfx);
                 }
 
                 break;
@@ -117,6 +120,7 @@ enum Screen intro() {
                 fadeIn(255, 10);
 
                 currentSequence = SEQ_INTRO2;
+                sfx = playSound(SFX_POINTS);
                 break;
 
             // Run second intro part
@@ -131,6 +135,7 @@ enum Screen intro() {
                 if (current_charnum > sizeof(STR_INTRO_L2)) {
                     currentSequence = SEQ_WAIT;
                     setTimeout(&switchToNextSequence, SEQ_END, 3000);
+                    stopSound(sfx);
                 }
                 break;
 
@@ -150,6 +155,8 @@ enum Screen intro() {
 
     // Clean up on screen leave
     clearAllTimeouts();
+
+    stopAllSounds();
 
     fadeToBlack(255, 10);
     clearScreen();

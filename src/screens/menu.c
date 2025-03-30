@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "render/video.h"
 #include "io/keyboard.h"
+#include "io/sound/sound.h"
 #include "../assets.h"
 #include "screens.h"
 #include "text.h"
@@ -35,6 +36,8 @@ enum Screen menu() {
         if (isKeyJustPressed(m_SHOOT)) {
             nextScreen = SCREEN_GAME;
             running = false;
+            playSound(SFX_MENU_START);
+            waitFrames(30);
         }
 
         if (isKeyJustPressed(m_QUIT)) {

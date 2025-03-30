@@ -8,6 +8,7 @@
 #include "text.h"
 #include "map.h"
 #include "io/keyboard.h"
+#include "io/sound/sound.h"
 #include "settings/controls.h"
 
 #include "levelend.h"
@@ -24,6 +25,12 @@ enum Screen levelend() {
     drawText(END_TXT_X, END_TXT_Y, font, STR_LEVEL_END, COLOR_TRANSPARENT, 0);
     dumpBuffer();
     // waitFrames(60);
+
+    uint8_t voice = -1;
+
+    if (gameState.timeLeft > 0) {
+        voice = playSound(SFX_POINTS);
+    };
 
     // TODO: Skip counting by key press
     while (gameState.timeLeft > 0) {
@@ -42,6 +49,8 @@ enum Screen levelend() {
         waitVSync();
         dumpBuffer();
     }
+
+    if (voice > -1) stopSound(voice);
 
     waitFrames(60);
     fadeToBlack(255, 10);

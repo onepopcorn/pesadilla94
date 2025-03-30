@@ -23,7 +23,7 @@ Map* currentMap;
 // level file | time | enemy count | positions array index
 const LevelData levels[NUM_LEVELS] = {
     {"level1.map", 15, 0, 0},
-    {"level2.map", 24, 0, 1},
+    {"level2.map", 35, 0, 1},
     {"level3.map", 40, 1, 2},
     {"level4.map", 60, 1, 4},
     {"level5.map", 80, 3, 6},

@@ -4,6 +4,7 @@
 #include "render/video.h"
 #include "io/keyboard.h"
 #include "io/resources.h"
+#include "io/sound/sound.h"
 #include "assets.h"
 #include "screens.h"
 #include "render/effects.h"
@@ -29,6 +30,8 @@ enum Screen ending() {
 
     uint16_t charnum = 0;
 
+    int8_t sfx = playSound(SFX_POINTS);
+
     while (true) {
         if (isKeyJustPressed(m_SHOOT) || isKeyJustPressed(m_QUIT)) {
             break;
@@ -44,6 +47,7 @@ enum Screen ending() {
 
             // Show second line
             if (charnum >= sizeof(STR_ENDING)) {
+                stopSound(sfx);
                 waitFrames(60);
                 drawText(10, 200 - 50, font, STR_ENDING2, COLOR_TRANSPARENT, 25);
             }
@@ -52,6 +56,8 @@ enum Screen ending() {
         waitVSync();
         dumpBuffer();
     }
+
+    stopAllSounds();
 
     free(bg);
     bg = NULL;

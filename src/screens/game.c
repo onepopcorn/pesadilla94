@@ -32,8 +32,6 @@ enum Screen game() {
     gameState.timeLeft = currentLevel.time;
     gameState.doorsLeft = startLevel(gameState.level);  // TODO: Add checks when failing loading the level
 
-    startSong();
-
     drawMap();
     drawHUD();
 
@@ -134,8 +132,8 @@ enum Screen game() {
     }
 
     // CLEANUP
-    stopSong();
     running = true;
+    stopAllSounds();
     clearAllTimeouts();
     destroyAllEntities();
     endLevel();

@@ -5,9 +5,6 @@ MAP_CLI := ../tools/bin/tiled2map.exe
 LEVEL_JSONS := $(wildcard level*.json)
 LEVEL_MAPS := $(LEVEL_JSONS:.json=.map)
 
-WAV_FILES := $(wildcard *.wav)
-WAV_DESTS := $(patsubst %.wav,../out/%.wav,$(WAV_FILES))
-
 assets: $(LEVEL_MAPS) $(WAV_DESTS)
 # Sprites
 	$(SPRITE_CLI) font.bmp ../out/font.fnt 59
@@ -21,10 +18,8 @@ assets: $(LEVEL_MAPS) $(WAV_DESTS)
 	$(SPRITE_CLI) menu.bmp ../out/menu.spr 1
 	$(SPRITE_CLI) ending.bmp ../out/ending.spr 1
 
-
 # Sounds
-../out/%.wav: %.wav
-	cp $< $@
+	cp soundfx.it ../out/soundfx.it
 
 # Maps
 %.map: %.json school-tiles.json
