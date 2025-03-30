@@ -1,6 +1,8 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <crt0.h>
+#include <dos.h>
 
 #include "render/video.h"
 #include "io/keyboard.h"
@@ -17,6 +19,8 @@
 #include "screens/ending.h"
 #include "settings/settings.h"
 #include "render/effects.h"
+#include "text.h"
+#include "version.h"
 
 #include "gameState.h"
 
@@ -81,7 +85,21 @@ void uninitializSystems() {
     soundFree();
 }
 
+void instructions() {
+    system("CLS");
+
+    printf("\n%s", STR_NAME);
+    printf(" v%s\n", VERSION);
+
+    printf("%s\n\n", STR_AUTHOR);
+
+    printf(STR_INSTRUCTIONS);
+    while (!kbhit());
+}
+
 int main(int argc, char *argv[]) {
+    instructions();
+
     uint8_t systemErrors = initializSystems();
     if (systemErrors) return EXIT_FAILURE;
 

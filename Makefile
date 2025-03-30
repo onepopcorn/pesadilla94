@@ -41,6 +41,7 @@ clean_all:
 	@make --no-print-directory -C tools clean
 
 pack: all
+	cp dosbox.conf out/dosbox.conf
 	./compress.bat $(SUFFIX)
 
 .PHONY: all clean run tools clean_all pack

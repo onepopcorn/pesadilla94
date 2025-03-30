@@ -15,6 +15,7 @@ MODULE *sfxMod;
 #define MAX_SFX_VOICES 4
 #define SFX_FREQ 11025
 
+// TODO: Pipe this to the stderror
 void errorHandling() {
     printf("MikMod Error occurred: %s\n", MikMod_strerror(MikMod_errno));
     if (MikMod_critical) {
@@ -23,9 +24,6 @@ void errorHandling() {
 }
 
 uint8_t soundInit() {
-    printf("\n");
-    long engineversion = MikMod_GetVersion();
-    printf("Initializing MikMod Sound Library v%ld.%ld.%ld\n\n", (engineversion >> 16) & 255, (engineversion >> 8) & 255, (engineversion) & 255);
     MikMod_RegisterErrorHandler(errorHandling);
 
     MikMod_RegisterDriver(&drv_sb);
@@ -34,7 +32,6 @@ uint8_t soundInit() {
     md_mode |= DMODE_SOFT_SNDFX | DMODE_SOFT_MUSIC;
     md_sndfxvolume = 128;
     md_musicvolume = 64;
-    // md_mixfreq = 11025;
 
     MikMod_Init("");
 
@@ -42,13 +39,6 @@ uint8_t soundInit() {
 
     MikMod_SetNumVoices(-1, MAX_SFX_VOICES);
     MikMod_EnableOutput();
-
-    // Set default volumes/freq to all samples
-    // int num = sfxMod->numsmp;
-    // for (int i = 0; i < num; i++) {
-    //     printf("Sample %d\n", i);
-    // }
-    // return EXIT_FAILURE;
 
     // Need to start module to use its samples
     Player_Start(sfxMod);

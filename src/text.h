@@ -18,6 +18,12 @@
 // ---------------------- SPANISH ---------------------- //
 #if LANG == LANG_ES
 
+#define STR_NAME "PESADILLA DEL '94"
+
+#define STR_AUTHOR "[@onepopcorn 2025]"
+
+#define STR_INSTRUCTIONS "CONTROLES:\n- Usa las flechas IZQUIERDA o DERECHA para mover al personaje.\n- Manten ARRIBA para buscar en las puertas o maquinas de vending.\n- Pulsar ARRIBA or ABAJO para moverte entre plantas con las escaleras.\n- Pulsa ESPACIO para disparar cuando el arma esta cargada.\n\n\nPulsa cualquier tecla para empezar."
+
 #define STR_INTRO_L1 "FEDERICO! NO HAS ESTUDIADO PARA LOS EXAMENES FINALES!\0"
 #define STR_INTRO_L2 "ES TARDE, SE TE CAEN LOS PARPADOS Y YA NO AGUANTAS MAS\0"
 
@@ -41,6 +47,12 @@
 #define STR_ENDING2 "AHORA APAGA EL ORDENADOR Y PONTE A ESTUDIAR.\0"
 // ---------------------- ENGLISH ---------------------- //
 #elif LANG == LANG_EN
+
+#define STR_NAME "Nightmare of '94\0"
+
+#define STR_AUTHOR "[@onepopcorn 2025]"
+
+#define STR_INSTRUCTIONS "CONTROLS:\n- Use LEFT or RIGHT arrow keys to move the player.\n- Hold UP to search behind doors or inside vending machines.\n- Press UP or DOWN to move between floors using the stairs.\n- Press SPACE to shoot when the weapon is ready.\n\n\nPress any key to start."
 
 #define STR_INTRO_L1 "FEDERICO! YOU DID NOT STUDY FOR THE FINALS!\0"
 #define STR_INTRO_L2 "IT'S LATE, YOU ARE NODDING OFF\0"
