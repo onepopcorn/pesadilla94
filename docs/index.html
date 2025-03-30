@@ -86,7 +86,7 @@
     <body>
         <div id="content">
             <h1 id="manual">Pesadilla del '94</h1>
-            <!-- <div id="dosbox"></div>
+            <div id="dosbox"></div>
             <br />
             <button onclick="dosbox.requestFullScreen();">Fullscreen</button>
             <script
@@ -94,7 +94,10 @@
                 src="https://js-dos.com/cdn/js-dos-api.js"
             ></script>
             <script type="text/javascript">
-                const params = ['pes94_es.zip', './game.exe'];
+                const params = [
+                    'https://github.com/onepopcorn/pesadilla94/releases/latest/download/pes94_es.zip',
+                    './game.exe',
+                ];
                 const dosbox = new Dosbox({
                     id: 'dosbox',
                     onload: function (dosbox) {
@@ -104,7 +107,7 @@
                         console.log("App '" + app + "' is runned");
                     },
                 });
-            </script> -->
+            </script>
             <h2 id="historia--history">Historia / History</h2>
 
             <p class="history-block">
