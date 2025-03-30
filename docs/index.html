@@ -86,24 +86,12 @@
     <body>
         <div id="content">
             <h1 id="manual">Pesadilla del '94</h1>
-            <div id="dosbox"></div>
             <br />
-            <button onclick="dosbox.requestFullScreen();">Fullscreen</button>
-            <script
-                type="text/javascript"
-                src="https://js-dos.com/cdn/js-dos-api.js"
-            ></script>
-            <script type="text/javascript">
-                const params = ['pes94_es.zip', './game.exe'];
-                const dosbox = new Dosbox({
-                    id: 'dosbox',
-                    onload: function (dosbox) {
-                        dosbox.run(...params);
-                    },
-                    onrun: function (dosbox, app) {
-                        console.log("App '" + app + "' is runned");
-                    },
-                });
+            <!-- <button onclick="dosbox.requestFullScreen();">Fullscreen</button> -->
+            <script src="https://js-dos.com/6.22/current/js-dos.js"></script>
+            <canvas id="dos"></canvas>
+            <script>
+                Dos(document.getElementById('dos')).run('pes94_es.zip');
             </script>
             <h2 id="historia--history">Historia / History</h2>
 
