@@ -29,7 +29,7 @@ uint8_t soundInit() {
     MikMod_RegisterDriver(&drv_sb);
     MikMod_RegisterLoader(&load_it);
 
-    md_mode |= DMODE_SOFT_SNDFX | DMODE_SOFT_MUSIC;
+    // md_mode |= DMODE_SOFT_SNDFX | DMODE_SOFT_MUSIC;
     md_sndfxvolume = 128;
     md_musicvolume = 64;
 
@@ -58,14 +58,11 @@ int8_t playSound(enum Sfx sfx) {
     Voice_SetVolume(voice, 128);
     Voice_SetFrequency(voice, SFX_FREQ);
 
-    // MikMod_Update();
-
     return voice;
 }
 
 int8_t stopSound(uint8_t voice) {
     Voice_Stop(voice);
-    MikMod_Update();
     return -1;
 }
 
@@ -73,8 +70,6 @@ void stopAllSounds() {
     for (uint8_t i = 0; i < MAX_SFX_VOICES; i++) {
         Voice_Stop(i);
     }
-
-    // MikMod_Update();
 }
 
 char isLoopRunning(int8_t voice) {
@@ -83,7 +78,6 @@ char isLoopRunning(int8_t voice) {
 
 volatile static uint8_t divider = 0;
 void soundUpdate() {
-    MikMod_Update();
     if (++divider == 20) {
         divider = 0;
         MikMod_Update();
