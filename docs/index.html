@@ -56,7 +56,12 @@
                 display: inline-block;
             }
 
-            #fsBtn {
+            .buttons {
+                display: flex;
+                margin: auto;
+            }
+
+            .button {
                 appearance: none;
                 border-radius: 15px;
                 border: 2px solid #ffffff;
@@ -81,6 +86,7 @@
                 aspect-ratio: 16/10;
                 margin: auto;
                 text-shadow: none;
+                background-color: #1a103c;
             }
         </style>
         <!-- js-dos style sheet -->
@@ -96,23 +102,52 @@
                 <div id="dos" style="width: 100%; height: 100%"></div>
             </div>
 
-            <button id="fsBtn">FullScreen</button>
+            <div class="buttons">
+                <button class="button" data-src="pes94_es.jsdos" type="button">
+                    Español
+                </button>
+                <button class="button" data-src="pes94_en.jsdos" type="button">
+                    English
+                </button>
+            </div>
 
             <script>
-                const props = Dos(document.getElementById('dos'), {
-                    url: 'pes94_es.jsdos',
-                    theme: 'synthwave',
-                    backend: 'dosboxX',
-                    kiosk: true,
-                    renderAspect: '16/10',
-                    noCloud: true,
-                });
-
-                document
-                    .getElementById('fsBtn')
-                    .addEventListener('click', () => {
-                        props.setFullScreen(true);
+                function start(url) {
+                    const props = Dos(document.getElementById('dos'), {
+                        url,
+                        theme: 'synthwave',
+                        backend: 'dosboxX',
+                        kiosk: true,
+                        renderAspect: '16/10',
+                        noCloud: true,
+                        autoStart: true,
                     });
+
+                    document
+                        .getElementById('fsBtn')
+                        .addEventListener('click', () => {
+                            props.setFullScreen(true);
+                        });
+                }
+
+                const btnContainer = document.querySelector('.buttons');
+                const btns = btnContainer.querySelectorAll('button');
+
+                const onClick = (e) => {
+                    btns.forEach((b) => removeEventListener('click', onClick));
+                    const fsBtn = document.createElement('button');
+                    fsBtn.classList.add('button');
+                    fsBtn.id = 'fsBtn';
+                    fsBtn.innerText = 'Fullscreen';
+                    btnContainer.innerHTML = '';
+
+                    btnContainer.appendChild(fsBtn);
+
+                    const src = e.currentTarget.dataset.src;
+                    start(src);
+                };
+
+                btns.forEach((b) => b.addEventListener('click', onClick));
             </script>
 
             <h2 id="historia--history">Historia / History</h2>
