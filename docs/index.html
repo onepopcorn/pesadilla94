@@ -97,10 +97,27 @@
             </div>
 
             <script>
-                Dos(document.getElementById('dos'), {
+                const props = Dos(document.getElementById('dos'), {
                     url: 'pes94_es.jsdos',
+                    theme: 'synthwave',
+                    backend: 'dosboxX',
+                    kiosk: true,
+                    renderAspect: '16/10',
+                    noCloud: true,
+                    softKeyboardLayout: [
+                        [
+                            ['{space}'],
+                            [['{up}'], ['{left} {right}'], ['{down}']],
+                        ],
+                    ],
+                });
+
+                getElementById('fsBtn').addEventListener('click', () => {
+                    props.setFullScreen(true);
                 });
             </script>
+
+            <button id="fsBtn">FullScreen</button>
 
             <h2 id="historia--history">Historia / History</h2>
 
