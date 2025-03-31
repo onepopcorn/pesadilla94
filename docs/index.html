@@ -56,14 +56,14 @@
                 display: inline-block;
             }
 
-            button {
+            #fsBtn {
                 appearance: none;
                 border-radius: 15px;
                 border: 2px solid #ffffff;
                 font-size: 1.2em;
                 text-transform: uppercase;
                 padding: 0.5em 1.2em;
-                margin: auto;
+                margin: 2em auto;
                 display: block;
                 font-family: 'Komika';
                 color: white;
@@ -78,7 +78,7 @@
 
             .dosbox-container {
                 width: 640px;
-                height: 400px;
+                aspect-ratio: 16/10;
                 margin: auto;
                 text-shadow: none;
             }
@@ -104,17 +104,13 @@
                     kiosk: true,
                     renderAspect: '16/10',
                     noCloud: true,
-                    softKeyboardLayout: [
-                        [
-                            ['{space}'],
-                            [['{up}'], ['{left} {right}'], ['{down}']],
-                        ],
-                    ],
                 });
 
-                getElementById('fsBtn').addEventListener('click', () => {
-                    props.setFullScreen(true);
-                });
+                document
+                    .getElementById('fsBtn')
+                    .addEventListener('click', () => {
+                        props.setFullScreen(true);
+                    });
             </script>
 
             <button id="fsBtn">FullScreen</button>
