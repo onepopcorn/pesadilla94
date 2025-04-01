@@ -26,22 +26,27 @@
                 text-shadow: 2px 2px black;
             }
 
-            h1 {
+            .content-block h1 {
                 font-size: 2.2rem;
                 text-align: center;
-                margin-bottom: 3em;
+                margin-bottom: 1em;
             }
 
-            h2 {
+            .content-block h2 {
+                font-size: 1.8em;
                 margin-top: 2em;
                 text-align: center;
             }
-            h3 {
+            .content-block h3 {
                 font-size: 1.1em;
                 font-style: normal;
                 margin-top: 3em;
                 letter-spacing: 2px;
                 color: #ff6565;
+            }
+
+            .content-block p {
+                padding: 1em;
             }
 
             #content {
@@ -51,9 +56,20 @@
                 margin: auto;
             }
 
-            img {
-                margin: auto;
+            /* .content-block img {
+                margin: 1em auto;
                 display: inline-block;
+            } */
+
+            .content-img-group {
+                display: flex;
+                margin: 2em auto;
+                justify-content: center;
+                gap: 2em;
+            }
+
+            .content-block {
+                text-align: center;
             }
 
             .buttons {
@@ -96,7 +112,9 @@
     </head>
     <body>
         <div id="content">
-            <h1 id="manual">Pesadilla del '94</h1>
+            <div class="content-block">
+                <h1 id="manual">Pesadilla del '94</h1>
+            </div>
             <br />
             <div class="dosbox-container">
                 <div id="dos" style="width: 100%; height: 100%"></div>
@@ -150,112 +168,130 @@
                 btns.forEach((b) => b.addEventListener('click', onClick));
             </script>
 
-            <h2 id="historia--history">Historia / History</h2>
+            <div class="content-block">
+                <h2 id="historia">Historia</h2>
 
-            <p class="history-block">
-                En las paredes de tu habitación se mezclan los pósters de
-                Sabrina y Arnold Schwarzenegger. Guns n' Roses suena en la
-                radio. Se está haciendo tarde y mañana tienes los exámenes
-                finales pero en lugar de estudiar te has pasado toda la tarde
-                jugando al Wolfenstein 3D. "mein leben" no para de sonar en tu
-                cabeza... que cojones significa eso? Ahora te toca ponerte a
-                estudiar pero, por supuesto, las mates son una mierda y te
-                quedas frito. Bienvenido a Pesadilla del '94.
-            </p>
+                <p class="history-block">
+                    En las paredes de tu habitación se mezclan los pósters de
+                    Sabrina y Arnold Schwarzenegger. Guns n' Roses suena en la
+                    radio. Se está haciendo tarde y mañana tienes los exámenes
+                    finales pero en lugar de estudiar te has pasado toda la
+                    tarde jugando al Wolfenstein 3D. "mein leben" no para de
+                    sonar en tu cabeza... que cojones significa eso? Ahora te
+                    toca ponerte a estudiar pero, por supuesto, las mates son
+                    una mierda y te quedas frito. Bienvenido a Pesadilla del
+                    '94.
+                </p>
 
-            <p class="history-block">
-                In your room there's a mix of Sabrina and Arnold Schwarzenegger
-                posters hanging from the walls. Guns n' Roses is playing on the
-                radio. It's getting late and tomorrow you have the finals but
-                instead of studying you have been playing Wolfenstein 3D the
-                whole afternoon. "mein leben" resonates in your head
-                constantly... what the heck that means? Now it's time to get
-                into work but, of course, maths sucks and you fall alseep.
-                Welcome to Nightare of '94.
-            </p>
-            <h2 id="instrucciones--instructions">
-                Instrucciones / Instructions
-            </h2>
-            <p>
-                Ayuda a Federico a econtrar las respuestas de todos los exámenes
-                buscando en cada una de las aulas. Abre las puertas puertas para
-                encontrarlas todas. Evita los joysticks que intentan distraerte
-                de tu objetivo. Usa las escaleras para esquivar a los enemigos y
-                moverte entre las distintas plantas. Consigue la "mano loca"
-                dentro de las bolsas de patatas chips que hay en las máquinas de
-                vending y úsala para aturdir a los enemigos.
-            </p>
-            <p>
-                Help Federico to find all exam answers by searching inside the
-                classrooms. Open the doors to find them all. Avoid the joysticks
-                that wants to distract you from your goal. Use the stairs to
-                dodge enemies and move between floors. Get the "sticky hand"
-                inside the potato chips from the vending machines and use it to
-                stunt the enemies.
-            </p>
-            <h2 id="controles--controls">Controles / Controls</h2>
-            <h3 id="mueve-al-jugador--move-the-player">
-                Mueve al jugador / Move the player:
-            </h3>
-            <p>Usa las teclas de dirección para mover al player por el mapa.</p>
-            <p>Use arrow keys to move player around the map.</p>
-            <h3 id="busca-en-las-puertas--search-doors">
-                Busca en las puertas / Search doors:
-            </h3>
-            <p>
-                Mantén la tecla arriba delante de una puerta para buscar dentro
-                del aula.
-            </p>
-            <p>
-                Hold up arrow key in front of a door to search inside the
-                classroom.
-            </p>
-            <p>
-                <img src="door1.png" alt="alt door sprite" />
-                <img src="door2.png" alt="alt door open sprite" />
-            </p>
-            <h3 id="muévete-entre-plantas--move-between-floors">
-                Muévete entre plantas / Move between floors:
-            </h3>
-            <p>
-                Pulsa las teclas arriba o abajo para moverte entre las distintas
-                plantas.
-            </p>
-            <p>
-                Use up or down arrow keys to move between floors using the
-                stairs.
-            </p>
-            <p><img src="stairs.png" alt="alt stairs" /></p>
-            <h3 id="usa-el-arma--use-weapon">Usa el arma / Use weapon:</h3>
-            <p>
-                Pulsa espacio para dar un latigazo a los enemigos cuando tienes
-                la "mano loca" y está activada. La "mano loca" necesita un
-                tiempo para volver a estar activa después de ser usada. Estate
-                atento a cuando se ilumine el indicador de "mano loca" en el
-                marcador para saber cuando puede usarlo de nuevo.
-            </p>
-            <p>
-                Use space key to whip the enemies when you have the "sticky
-                hand" equipped and it is ready to be used. The "sticky hand"
-                needs some time to be available again after being used. Look for
-                the HUD "sticky hand" indicator to be lighted up to know you can
-                use the whip again.
-            </p>
-            <p><img src="whip_hud.png" alt="alt mano local" /></p>
-            <p><img src="whip.png" alt="alt shooting" /></p>
-            <p>
-                Para conseguir la "mano loca" primero tienes que cogerla de
-                dentro de las bolsas de patatas que encontrarás en las máquinas
-                de vending pulsando la tecla arriba just delante de ellas.
-            </p>
-            <p>
-                To get the "sticky hand" you must first get it from the potato
-                chips bags inside the vending machines by holding up arrow key
-                in front of it.
-            </p>
-            <p><img src="vending.png" alt="alt vending machine" /></p>
-            <p>A disfrutar!</p>
-            <p>Enjoy!</p>
+                <h2 id="history">History</h2>
+
+                <p class="history-block">
+                    In your room there's a mix of Sabrina and Arnold
+                    Schwarzenegger posters hanging from the walls. Guns n' Roses
+                    is playing on the radio. It's getting late and tomorrow you
+                    have the finals but instead of studying you have been
+                    playing Wolfenstein 3D the whole afternoon. "mein leben"
+                    resonates in your head constantly... what the heck that
+                    means? Now it's time to get into work but, of course, maths
+                    sucks and you fall alseep. Welcome to Nightare of '94.
+                </p>
+                <h2 id="instrucciones">Instrucciones</h2>
+                <p>
+                    Ayuda a Federico a econtrar las respuestas de todos los
+                    exámenes buscando en cada una de las aulas. Abre las puertas
+                    puertas para encontrarlas todas. Evita los joysticks que
+                    intentan distraerte de tu objetivo. Usa las escaleras para
+                    esquivar a los enemigos y moverte entre las distintas
+                    plantas. Consigue la "mano loca" dentro de las bolsas de
+                    patatas chips que hay en las máquinas de vending y úsala
+                    para aturdir a los enemigos.
+                </p>
+                <h2 id="instructions">Instructions</h2>
+                <p>
+                    Help Federico to find all exam answers by searching inside
+                    the classrooms. Open the doors to find them all. Avoid the
+                    joysticks that wants to distract you from your goal. Use the
+                    stairs to dodge enemies and move between floors. Get the
+                    "sticky hand" inside the potato chips from the vending
+                    machines and use it to stunt the enemies.
+                </p>
+                <h2 id="controles--controls">Controles / Controls</h2>
+                <h3 id="mueve-al-jugador">Mueve al jugador:</h3>
+                <p>
+                    Usa las teclas de dirección para mover al personaje por el
+                    mapa.
+                </p>
+                <h3 id="move-the-player">Move the player:</h3>
+                <p>Use arrow keys to move player around the map.</p>
+                <h3 id="busca-en-las-puertas">Busca en las puertas:</h3>
+                <p>
+                    Mantén la tecla arriba delante de una puerta para buscar
+                    dentro del aula.
+                </p>
+                <h3 id="search-doors">Search doors:</h3>
+                <p>
+                    Hold up arrow key in front of a door to search inside the
+                    classroom.
+                </p>
+                <p class="content-img-group">
+                    <img src="door1.png" alt="alt door sprite" />
+                    <img src="door2.png" alt="alt door open sprite" />
+                </p>
+                <h3 id="muévete-entre-plantas">Muévete entre plantas:</h3>
+                <p>
+                    Pulsa las teclas arriba o abajo para moverte entre las
+                    distintas plantas.
+                </p>
+                <h3 id="move-between-floors">Move between floors:</h3>
+                <p>
+                    Use up or down arrow keys to move between floors using the
+                    stairs.
+                </p>
+                <p class="content-img-group">
+                    <img src="stairs.png" alt="alt stairs" />
+                </p>
+                <h3 id="usa-el-arma">Usa el arma:</h3>
+                <p>
+                    Pulsa espacio para dar un latigazo a los enemigos cuando
+                    tienes la "mano loca" y está activada. La "mano loca"
+                    necesita un tiempo para volver a estar activa después de ser
+                    usada. Estate atento a cuando se ilumine el indicador de
+                    "mano loca" en el marcador para saber cuando puede usarlo de
+                    nuevo.
+                </p>
+                <h3 id="use-weapon">Use weapon:</h3>
+                <p>
+                    Use space key to whip the enemies when you have the "sticky
+                    hand" equipped and it is ready to be used. The "sticky hand"
+                    needs some time to be available again after being used. Look
+                    for the HUD "sticky hand" indicator to be lighted up to know
+                    you can use the whip again.
+                </p>
+                <p class="content-img-group">
+                    <img src="whip_hud.png" alt="alt mano local" />
+                </p>
+                <p class="content-img-group">
+                    <img src="whip.png" alt="alt shooting" />
+                </p>
+                <h3 id="consigue-el-arma">Consigue el arma:</h3>
+                <p>
+                    Para conseguir la "mano loca" primero tienes que cogerla de
+                    dentro de las bolsas de patatas que encontrarás en las
+                    máquinas de vending pulsando la tecla arriba just delante de
+                    ellas.
+                </p>
+                <h3 id="get-the-weapon">Get the weapon:</h3>
+                <p>
+                    To get the "sticky hand" you must first get it from the
+                    potato chips bags inside the vending machines by holding up
+                    arrow key in front of it.
+                </p>
+                <p class="content-img-group">
+                    <img src="vending.png" alt="alt vending machine" />
+                </p>
+                <p>A disfrutar!</p>
+                <p>Enjoy!</p>
+            </div>
         </div>
     </body>
 </html>
