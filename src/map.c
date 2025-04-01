@@ -31,7 +31,7 @@ const LevelData levels[NUM_LEVELS] = {
     {"level7.map", 60, 4, 15},
     {"level8.map", 100, 5, 20},
     {"level9.map", 90, 6, 26},
-    {"level10.map", 60, 7, 33},
+    {"level10.map", 90, 7, 33},
 };
 
 // Spawn positions. Player is always first

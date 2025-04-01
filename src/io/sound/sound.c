@@ -42,6 +42,7 @@ uint8_t soundInit() {
 
     // Need to start module to use its samples
     Player_Start(sfxMod);
+    Player_Paused();
 
     return EXIT_SUCCESS;
 }
@@ -67,7 +68,7 @@ int8_t stopSound(uint8_t voice) {
 }
 
 void stopAllSounds() {
-    for (uint8_t i = 0; i < MAX_SFX_VOICES; i++) {
+    for (uint8_t i = 0; i <= MAX_SFX_VOICES; i++) {
         Voice_Stop(i);
     }
 }
@@ -78,7 +79,7 @@ char isLoopRunning(int8_t voice) {
 
 volatile static uint8_t divider = 0;
 void soundUpdate() {
-    if (++divider == 20) {
+    if (++divider == 1000) {
         divider = 0;
         MikMod_Update();
     }
