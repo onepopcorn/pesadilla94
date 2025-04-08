@@ -23,7 +23,7 @@ void soundUpdate();
 
 int8_t playSound(enum Sfx sfx);
 int8_t stopSound(uint8_t voice);
-char isLoopRunning(int8_t voice);
+int8_t isLoopRunning(int8_t voice);
 void stopAllSounds();
 
 #endif  // _SOUND_H

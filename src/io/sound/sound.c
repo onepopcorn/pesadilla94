@@ -3,7 +3,7 @@
 #include "sound.h"
 
 /**
- * Using a modile to store all soundfx samples because for some reason
+ * Using a module to store all soundfx samples because for some reason
  * loading samples from wav files does not work.
  *
  * Be sure to set at least 1 pattern in the .it file or MikMod will
@@ -63,6 +63,9 @@ int8_t playSound(enum Sfx sfx) {
 }
 
 int8_t stopSound(uint8_t voice) {
+    // It seems MikMod does not always stops the voices loops properly
+    // This fixes the bug with loops kept running forever
+    Voice_SetVolume(voice, 0);
     Voice_Stop(voice);
     return -1;
 }
@@ -73,13 +76,15 @@ void stopAllSounds() {
     }
 }
 
-char isLoopRunning(int8_t voice) {
-    return Voice_Stopped(voice);
+int8_t isLoopRunning(int8_t voice) {
+    // If MikMod is not updated VoiceStopped may return incorrect values
+    MikMod_Update();
+    return !Voice_Stopped(voice);
 }
 
 volatile static uint8_t divider = 0;
 void soundUpdate() {
-    if (++divider == 1000) {
+    if (++divider == 20) {
         divider = 0;
         MikMod_Update();
     }

@@ -27,7 +27,7 @@ uint8_t playerCanShoot = false;
 Vec2 destination;
 PlayerState playerState = STATE_IDLE;
 Tile *searchDoorTile = NULL;
-int8_t sfxSteps = -1;
+static int8_t sfxSteps = -1;
 
 // PRIVATE METHODS
 
@@ -88,7 +88,6 @@ void spawnShot() {
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
     uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
-    // playSound(SFX_WHIP);
     whipSpawn(player->x + offset, player->y + 8, facingRight);
 
     playerCanShoot = false;
@@ -153,13 +152,20 @@ Entity *playerSpawn(uint16_t x, uint16_t y) {
 }
 
 void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
+    if (playerState != STATE_WALKING) {
+        stopSound(sfxSteps);
+    }
+
+    // if (playerState == STATE_WALKING && sfxSteps < 0 && !isLoopRunning(sfxSteps)) {
+    //     sfxSteps = playSound(SFX_PLAYER_MOVE);
+    // }
+
     switch (playerState) {
         case STATE_WALKING:
             m_setAnimation(player, ANIM_PLAYER_WALK);
 
             // Shoot
             if (m_isKeyDown(m_SHOOT) && playerCanShoot) {
-                // sfxSteps = stopSound(sfxSteps);
                 playerState = STATE_SHOOTING;
             }
 
@@ -170,7 +176,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                     m_setFlag(entity->flags, ENTITY_FLIP);
                 } else {
                     entity->vx = 0;
-                    // sfxSteps = stopSound(sfxSteps);
+                    playerState = STATE_IDLE;
                 }
                 return;
             }
@@ -182,12 +188,11 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                     m_unsetFlag(entity->flags, ENTITY_FLIP);
                 } else {
                     entity->vx = 0;
-                    // sfxSteps = stopSound(sfxSteps);
+                    playerState = STATE_IDLE;
                 }
                 return;
             }
 
-            // sfxSteps = stopSound(sfxSteps);
             playerState = STATE_IDLE;
             break;
         case STATE_SEARCHING:
@@ -222,7 +227,10 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
         case STATE_STAIRS_OUT:
             if (player->frame >= ANIM_PLAYER_STAIRS_LEN - 2) {
                 playerState = STATE_IDLE;
-                player->collisionMask = PLAYER_COLLISION_MASK;
+                // Don't restore collision if player was killed recently
+                if (!m_isFlagSet(player->flags, ENTITY_FLASHING)) {
+                    player->collisionMask = PLAYER_COLLISION_MASK;
+                }
             }
             break;
 
@@ -238,12 +246,14 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             // Shoot
             if (m_isKeyDown(m_SHOOT) && playerCanShoot) {
                 playerState = STATE_SHOOTING;
+                break;
             }
 
             // Use stairs
             if (m_isFlagSet(tileCollisions, COLLISION_STAIRS) && (isKeyJustPressed(m_UP) || isKeyJustPressed(m_DOWN))) {
                 playerState = STATE_STAIRS_IN;
                 useStairs(m_isKeyDown(m_UP));
+                break;
             }
 
             // Search doors
@@ -252,8 +262,11 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
                 if (searchDoorTile->data.door.progress > 0) {
                     playSound(SFX_DOOR_OPEN);
                     playerState = STATE_SEARCHING;
+                    break;
                 } else {
                     playSound(SFX_DOOR_NO_OP);
+                    closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                    break;
                 }
             }
 
@@ -261,30 +274,19 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
             if (m_isFlagSet(tileCollisions, COLLISION_VENDING) && isKeyJustPressed(m_UP)) {
                 if (!playerCanShoot) {
                     pickupWeapon();
+                    break;
                 } else {
                     playSound(SFX_DOOR_NO_OP);
+                    break;
                 }
             }
 
             // Walk
             if ((m_isKeyDown(m_LEFT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_L)) || (m_isKeyDown(m_RIGHT) && !m_isFlagSet(tileCollisions, COLLISION_WALL_R))) {
                 playerState = STATE_WALKING;
+                sfxSteps = playSound(SFX_PLAYER_MOVE);
+                break;
             }
-    }
-
-    if (playerState == STATE_WALKING && sfxSteps == -1 && !isLoopRunning(sfxSteps)) {
-        sfxSteps = playSound(SFX_PLAYER_MOVE);
-    }
-
-    if (playerState != STATE_WALKING && sfxSteps > -1) {
-        sfxSteps = stopSound(sfxSteps);
-        /**
-         * This is dirty AF but it's a quick way to debounce walk loop sound
-         *
-         * TODO: Fix player walking sound loop bug. For now this does the trick but this shouldn't be the solution
-         *
-         */
-        stopAllSounds();
     }
 }
 
@@ -294,7 +296,6 @@ void playerDie() {
 
     // Same than above... this is a dirty hack
     sfxSteps = stopSound(sfxSteps);
-    stopAllSounds();
     playSound(SFX_DEATH);
 
     m_setAnimation(player, ANIM_PLAYER_DIE);
