@@ -27,6 +27,7 @@ uint8_t soundInit() {
     MikMod_RegisterErrorHandler(errorHandling);
 
     MikMod_RegisterDriver(&drv_sb);
+    MikMod_RegisterDriver(&drv_nos);
     MikMod_RegisterLoader(&load_it);
 
     // md_mode |= DMODE_SOFT_SNDFX | DMODE_SOFT_MUSIC;
