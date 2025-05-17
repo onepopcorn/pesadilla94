@@ -2,6 +2,7 @@ art
 obj
 out
 bin
+captures
 
 *.exe
 TODO.md
