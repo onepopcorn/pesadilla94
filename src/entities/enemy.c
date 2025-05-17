@@ -63,7 +63,7 @@ void enemyStun(Entity *enemy) {
     }
 
 #ifdef DEBUG
-    logDebug("* {idx:%d id:%d type:%d} Stunt enemy", idx, enemy->id, enemy->type);
+    logDebug("* {id:%d type:%d} Stunt enemy", enemy->id, enemy->type);
 #endif
 
     m_setFlag(enemy->flags, ENTITY_STUNT);
