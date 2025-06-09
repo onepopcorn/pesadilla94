@@ -28,17 +28,19 @@ void setVideoMode(uint8_t mode) {
 /**
  * Initialize both screen and back buffers.
  *
- * NOTE: this function disables protected mode to have access to screen buffer. This seems not to be necessary
+ * NOTE: this function disables protected mode to have access to screen buffer.
  *
  * @returns Success (1) or failure (0)
  *
  */
 uint8_t openScreenBuffer(void) {
-    // TODO: Investigate if we really need to disable protected mode. It seems to work fine without disabling it
     // Disable protected mode
-    // if (__djgpp_nearptr_enable() == 0) {
-    //     return EXIT_FAILURE;
-    // }
+    if (__djgpp_nearptr_enable() == 0) {
+        return EXIT_FAILURE;
+    }
+
+    // Video memory address can't be accessed directly, we need to use DJGPP offset
+    screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
 
     back_buffer = (uint8_t*)malloc(SCREEN_MEM_SIZE);
 
@@ -56,7 +58,7 @@ uint8_t openScreenBuffer(void) {
  */
 void closeScreenBuffer(void) {
     // re-enable protected mode
-    // __djgpp_nearptr_disable();
+    __djgpp_nearptr_disable();
     free(back_buffer);
 }
 
@@ -219,9 +221,6 @@ void fillScreen(uint8_t color) {
  *
  */
 void dumpBuffer() {
-    // Video memory address can't be accessed directly, we need to use DJGPP offset
-    screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
-
     // I think memcpy with -O3 does the same
     asm volatile(
         "cld\n\t"                   // Clear direction flag (forward copying)
