@@ -44,4 +44,18 @@ pack: all
 	cp data/dosbox.conf out/dosbox.conf
 	./compress.bat $(SUFFIX)
 
-.PHONY: all clean run tools clean_all pack
+list:
+	@echo ------------------
+	@echo - Commands list -
+	@echo ------------------
+	@echo
+	@printf "all:\n - build all project\n"
+	@printf "clean:\n - clean game files only\n"
+	@printf "clean_all:\n - clean game and tools files\n"
+	@printf "run:\n - compile game & run it in DOSBOX\n"
+	@printf "pack:\n - compile and generate .zip compressed file\n"
+	@printf "list:\n - this command\n"
+
+
+
+.PHONY: all clean run tools clean_all pack list
