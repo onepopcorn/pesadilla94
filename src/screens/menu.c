@@ -17,7 +17,7 @@ enum Screen menu() {
     enum Screen nextScreen = SCREEN_GAME;
     bool running = true;
 
-    Sprite *menuBg = loadSprite("menu.spr");
+    Sprite* menuBg = loadSprite("menu.spr");
     if (!menuBg) {
         perror("Error opening menu.spr file");
         return EXIT_FAILURE;
@@ -27,7 +27,7 @@ enum Screen menu() {
     drawText(160 - (STR_MENU_L1_LEN / 2 * 8), 110, font, STR_MENU_L1, 55, 30);
     drawText(160 - (STR_MENU_L2_LEN / 2 * 8), 120, font, STR_MENU_L2, 55, 30);
 
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
 
     fadeIn(255, 10);

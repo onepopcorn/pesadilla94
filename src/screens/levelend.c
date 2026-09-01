@@ -46,7 +46,7 @@ enum Screen levelend() {
             updateTime(-1);
             updatePoints(1);
         }
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();
     }
 
@@ -54,7 +54,7 @@ enum Screen levelend() {
 
     waitFrames(60);
     fadeToBlack(255, 10);
-    waitVSync();
+    Video_wait_vsync();
 
     // TODO: Move to game ending instead of next game screen if there're no more levels
     return ++gameState.level < NUM_LEVELS ? SCREEN_GAME : SCREEN_ENDING;

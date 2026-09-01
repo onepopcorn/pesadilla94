@@ -25,13 +25,13 @@ enum Screen intro() {
     enum Screen nextScreen = SCREEN_MENU;
 
     // TODO: Intro scroll & fake image camera movement
-    Sprite *introBg = loadSprite("intro.spr");
+    Sprite* introBg = loadSprite("intro.spr");
     if (!introBg) {
         perror("Error opening intro.spr file");
         return EXIT_FAILURE;
     }
 
-    Sprite *introBg2 = loadSprite("intro2.spr");
+    Sprite* introBg2 = loadSprite("intro2.spr");
     if (!introBg2) {
         perror("Error opening intro2.spr file");
         return EXIT_FAILURE;
@@ -43,7 +43,7 @@ enum Screen intro() {
     uint8_t current_charnum = 0;
     uint8_t sfx;
 
-    char *text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
+    char* text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
 
     fadeToBlack(0, 0);
@@ -144,7 +144,7 @@ enum Screen intro() {
             running = false;
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();
     }
 

@@ -55,8 +55,8 @@ uint8_t initializSystems() {
     if (soundError) return EXIT_FAILURE;
 
     // Initialize video system
-    waitVSync();
-    setVideoMode(VIDEO_VGA_MODE);
+    Video_wait_vsync();
+    Video_set_mode(VIDEO_VGA_MODE);
 
     initVideoEffects();
 
@@ -78,8 +78,8 @@ void uninitializSystems() {
     assetsFree();
 
     // Return to text mode
-    waitVSync();
-    setVideoMode(VIDEO_TEXT_MODE);
+    Video_wait_vsync();
+    Video_set_mode(VIDEO_TEXT_MODE);
 
     // Free sound drivers
     soundFree();
@@ -97,7 +97,7 @@ void instructions() {
     while (!kbhit());
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     instructions();
 
     uint8_t systemErrors = initializSystems();

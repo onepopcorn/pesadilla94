@@ -15,7 +15,7 @@
 
 enum Screen ending() {
     // Load resources
-    Sprite *bg = loadSprite("ending.spr");
+    Sprite* bg = loadSprite("ending.spr");
     if (!bg) {
         perror("Error opening ending.spr");
         return EXIT_FAILURE;
@@ -25,7 +25,7 @@ enum Screen ending() {
     dumpBuffer();
     fadeIn(255, 10);
 
-    char *text = malloc(sizeof(STR_ENDING));
+    char* text = malloc(sizeof(STR_ENDING));
     text[0] = '\0';
 
     uint16_t charnum = 0;
@@ -53,7 +53,7 @@ enum Screen ending() {
             }
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();
     }
 

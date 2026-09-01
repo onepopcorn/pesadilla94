@@ -55,7 +55,7 @@ enum Screen game() {
     running = true;
     enum GameLoopState gameLoopState = GAME_RUNNING;
 
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
     restorePalette();
 
@@ -127,7 +127,7 @@ enum Screen game() {
                 }
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();  // Dump backbuffer to video memory
     }
 
@@ -138,7 +138,7 @@ enum Screen game() {
     destroyAllEntities();
     endLevel();
 
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
 
     return nextScreen;

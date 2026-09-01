@@ -16,7 +16,7 @@ enum Screen gameover() {
     playSound(SFX_GAME_OVER);
 
     drawText(160 - (sizeof(STR_GAMEOVER) * 4), 80, font, STR_GAMEOVER, COLOR_TRANSPARENT, 0);
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
 
     fadeIn(255, 10);

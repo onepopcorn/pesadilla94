@@ -18,7 +18,7 @@ static uint8_t* back_buffer;
  *
  * @param mode Video mode to set
  */
-void setVideoMode(uint8_t mode) {
+void Video_set_mode(uint8_t mode) {
     union REGS regs;
     regs.h.ah = 0x00;
     regs.h.al = mode;
@@ -66,7 +66,7 @@ void closeScreenBuffer(void) {
  * Wait for vertical sync to start (CRT trace finishes)
  *
  */
-void waitVSync() {
+void Video_wait_vsync() {
     // wait until retrace starts
     while ((inp(VGA_STATUS_REG) & VSYNC_BITMASK) == 0);
     // wait until retrace ends
@@ -79,7 +79,7 @@ void waitVSync() {
  */
 void waitFrames(uint8_t frames) {
     while (frames--) {
-        waitVSync();
+        Video_wait_vsync();
     }
 }
 
@@ -201,7 +201,7 @@ void drawTile(uint16_t x, uint16_t y, Sprite* tileset, uint8_t id) {
 }
 
 void clearScreen() {
-    waitVSync();
+    Video_wait_vsync();
     fillScreen(0);
     dumpBuffer();
 }

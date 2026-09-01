@@ -22,21 +22,21 @@
 #define COLOR_BLACK 16
 #define COLOR_ORANGE 41
 
-void setVideoMode(uint8_t mode);
+void Video_set_mode(uint8_t mode);
 
 uint8_t openScreenBuffer(void);
 
 void closeScreenBuffer(void);
 
-void waitVSync();
+void Video_wait_vsync();
 
 void waitFrames(uint8_t frames);
 
-void drawText(uint16_t x, uint16_t y, Sprite *font, char *text, uint8_t color, uint8_t max_length);
+void drawText(uint16_t x, uint16_t y, Sprite* font, char* text, uint8_t color, uint8_t max_length);
 
-void drawSprite(uint16_t x, uint16_t y, Sprite *sprite, uint16_t frame, bool flip, uint8_t colorOverride);
+void drawSprite(uint16_t x, uint16_t y, Sprite* sprite, uint16_t frame, bool flip, uint8_t colorOverride);
 
-void drawTile(uint16_t x, uint16_t y, Sprite *tileset, uint8_t id);
+void drawTile(uint16_t x, uint16_t y, Sprite* tileset, uint8_t id);
 
 void clearScreen();
 
