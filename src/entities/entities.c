@@ -18,7 +18,7 @@ Entity entities[MAX_ENTITIES] = {0};
 int8_t lastEntityIdx = -1;
 uint8_t nextId = 0;
 
-Entity* createEntity(uint16_t x, uint16_t y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions)) {
+Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions)) {
     // Check if there's not enough space for more entities
     if (lastEntityIdx + 1 == MAX_ENTITIES) {
 #ifdef DEBUG

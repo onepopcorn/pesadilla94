@@ -4,12 +4,12 @@
 #include <stdint.h>
 
 typedef struct Rect {
-    uint16_t x, y;
-    uint8_t w, h;
+    int x, y;
+    int w, h;
 } Rect;
 
 typedef struct Vec2 {
-    uint16_t x, y;
+    int x, y;
 } Vec2;
 
 #endif  // _GEOM_H

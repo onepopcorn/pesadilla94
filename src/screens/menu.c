@@ -12,12 +12,14 @@
 
 #include "menu.h"
 
-enum Screen menu() {
+enum Screen menu(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
+
     // Setup on screen enter
     enum Screen nextScreen = SCREEN_GAME;
     bool running = true;
 
-    Sprite* menuBg = loadSprite("menu.spr");
+    Sprite* menuBg = loadSprite(arena, "menu.spr");
     if (!menuBg) {
         perror("Error opening menu.spr file");
         return EXIT_FAILURE;
@@ -48,11 +50,8 @@ enum Screen menu() {
 
     // On screen leave
     fadeToBlack(255, 10);
-
     clearScreen();
-
-    free(menuBg);
     menuBg = NULL;
-
+    arena_reset(arena, marker);
     return nextScreen;
 }

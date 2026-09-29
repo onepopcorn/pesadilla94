@@ -1,3 +1,4 @@
+#include "lib/bucket-lib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -13,8 +14,8 @@
  * @returns Pointer to memory allocated to keep the file contents
  *
  */
-static void *loadResource(const char *filePath, uint8_t resourceType) {
-    FILE *file = fopen(filePath, "rb");
+static void* loadResource(Arena* arena, const char* filePath) {
+    FILE* file = fopen(filePath, "rb");
 
     if (!file) {
         perror("Error opening asset files");
@@ -25,47 +26,16 @@ static void *loadResource(const char *filePath, uint8_t resourceType) {
     size_t fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    if (resourceType == RES_TYPE_SPRITE) {
-        Sprite *sprite = (Sprite *)malloc(fileSize);
-        if (!sprite) {
-            perror("Not enough memory to open sprite resource");
-            fclose(file);
-            return NULL;
-        }
-
-        fread(sprite, fileSize, 1, file);
+    void* resource = arena_alloc(arena, fileSize);
+    if (!resource) {
+        perror("Failed to load resource");
         fclose(file);
-        return (void *)sprite;
+        return NULL;
     }
 
-    if (resourceType == RES_TYPE_MAP) {
-        Map *map = (Map *)malloc(fileSize);
-        if (!map) {
-            perror("Not enough memory to open map resource");
-            fclose(file);
-            return NULL;
-        }
-
-        fread(map, fileSize, 1, file);
-        fclose(file);
-        return (void *)map;
-    }
-
-    // if (resourceType == RES_TYPE_SOUND) {
-    //     SAMPLE *sfx = (SAMPLE *)malloc(fileSize);
-    //     if (!sfx) {
-    //         perror("Not enough memory to open sfx resource");
-    //         fclose(file);
-    //         return NULL;
-    //     }
-
-    //     fread(sfx, fileSize, 1, file);
-    //     fclose(file);
-    //     return (void *)sfx;
-    // }
-
+    fread(resource, fileSize, 1, file);
     fclose(file);
-    return NULL;
+    return resource;
 }
 
 /**
@@ -73,9 +43,8 @@ static void *loadResource(const char *filePath, uint8_t resourceType) {
  *
  * @returns Pointer to loaded Sprite data
  */
-Sprite *loadSprite(const char *filePath) {
-    Sprite *sprite = loadResource(filePath, RES_TYPE_SPRITE);
-    return sprite;
+Sprite* loadSprite(Arena* arena, const char* filePath) {
+    return (Sprite*)loadResource(arena, filePath);
 }
 
 /**
@@ -83,12 +52,10 @@ Sprite *loadSprite(const char *filePath) {
  *
  * @returns Pointer to loaded Tilemap data
  */
-Map *loadMap(const char *filePath) {
-    Map *map = loadResource(filePath, RES_TYPE_MAP);
-    return map;
+Map* loadMap(Arena* arena, const char* filePath) {
+    return (Map*)loadResource(arena, filePath);
 }
 
-// SAMPLE *loadSfx(const char *filePath) {
-//     SAMPLE *sfx = loadResource(filePath, RES_TYPE_SOUND);
-//     return sfx;
+// SAMPLE *loadSfx(Arena* arena, const char *filePath) {
+//     return (SAMPLE *)loadResource(filePath, RES_TYPE_SOUND);
 // }

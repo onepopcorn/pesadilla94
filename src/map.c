@@ -7,6 +7,7 @@
 #include "assets.h"
 #include "physics/geom.h"
 #include "render/video.h"
+#include "lib/bucket-lib.h"
 
 #include "map.h"
 
@@ -107,13 +108,13 @@ uint8_t dirtyTilesCount = 0;
  * @param level Level number to load the map from
  *
  */
-uint8_t startLevel(uint8_t level) {
+uint8_t startLevel(Arena* arena, uint8_t level) {
     if (level > NUM_LEVELS) {
         perror("Trying to load a non existing level");
         return EXIT_FAILURE;
     }
 
-    currentMap = loadMap(levels[level].filename);
+    currentMap = loadMap(arena, levels[level].filename);
     if (!currentMap) {
         perror("Error failed to open map data file");
         return EXIT_FAILURE;
@@ -128,7 +129,6 @@ uint8_t startLevel(uint8_t level) {
  */
 void endLevel() {
     // unload current map
-    free(currentMap);
     currentMap = NULL;
 
     // reset dirty tiles

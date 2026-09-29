@@ -2,6 +2,7 @@
 #define _MAP_H
 
 #include "physics/geom.h"
+#include "lib/bucket-lib.h"
 
 // Used to swap tiles for open/close doors or exhausting vending machine
 #define TILE_DOOR_OPEN_TOP 25
@@ -17,7 +18,7 @@ extern const LevelData levels[];
 extern const Vec2 spawnPositions[];
 extern uint8_t currentLevel;
 
-uint8_t startLevel(uint8_t level);
+uint8_t startLevel(Arena* arena, uint8_t level);
 
 void endLevel();
 

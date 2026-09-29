@@ -5,6 +5,7 @@
 
 #include "physics/geom.h"
 #include "io/resources.h"
+#include "lib/bucket-lib.h"
 
 #define VIDEO_VGA_MODE 0x13
 #define VIDEO_TEXT_MODE 0x03
@@ -24,7 +25,7 @@
 
 void Video_set_mode(uint8_t mode);
 
-uint8_t openScreenBuffer(void);
+uint8_t openScreenBuffer(Arena* arena);
 
 void closeScreenBuffer(void);
 

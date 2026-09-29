@@ -16,6 +16,7 @@
 #include "macros.h"
 #include "settings/controls.h"
 #include "render/effects.h"
+#include "lib/bucket-lib.h"
 
 #include "game.h"
 
@@ -26,11 +27,12 @@
 enum Screen nextScreen;
 bool running;
 
-enum Screen game() {
+enum Screen game(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
     LevelData currentLevel = levels[gameState.level];
 
     gameState.timeLeft = currentLevel.time;
-    gameState.doorsLeft = startLevel(gameState.level);  // TODO: Add checks when failing loading the level
+    gameState.doorsLeft = startLevel(arena, gameState.level);  // TODO: Add checks when failing loading the level
 
     drawMap();
     drawHUD();
@@ -141,5 +143,6 @@ enum Screen game() {
     Video_wait_vsync();
     dumpBuffer();
 
+    arena_reset(arena, marker);
     return nextScreen;
 }

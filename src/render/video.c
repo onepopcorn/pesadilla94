@@ -1,7 +1,8 @@
+#include "lib/bucket-lib.h"
+
 #include <dos.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/nearptr.h>
 
@@ -33,7 +34,7 @@ void Video_set_mode(uint8_t mode) {
  * @returns Success (1) or failure (0)
  *
  */
-uint8_t openScreenBuffer(void) {
+uint8_t openScreenBuffer(Arena* arena) {
     // Disable protected mode
     if (__djgpp_nearptr_enable() == 0) {
         return EXIT_FAILURE;
@@ -42,7 +43,7 @@ uint8_t openScreenBuffer(void) {
     // Video memory address can't be accessed directly, we need to use DJGPP offset
     screen_buffer = (uint8_t*)(VIDEO_MEM_START + __djgpp_conventional_base);
 
-    back_buffer = (uint8_t*)malloc(SCREEN_MEM_SIZE);
+    back_buffer = (uint8_t*)arena_alloc(arena, SCREEN_MEM_SIZE);
 
     if (!back_buffer) {
         perror("ERROR: failed to open frame buffer\n");
@@ -59,7 +60,6 @@ uint8_t openScreenBuffer(void) {
 void closeScreenBuffer(void) {
     // re-enable protected mode
     __djgpp_nearptr_disable();
-    free(back_buffer);
 }
 
 /**
@@ -133,6 +133,7 @@ void drawSprite(uint16_t x, uint16_t y, Sprite* sprite, uint16_t frame, bool fli
     uint8_t* src = &sprite->data[offset];
     uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
 
+    // TODO: Optimize this nested loop
     for (uint16_t i = 0; i < height; i++) {
         uint8_t* src_row = src + i * width;
         uint8_t* dst_row = dst + i * SCREEN_WIDTH;

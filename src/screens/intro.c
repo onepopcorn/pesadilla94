@@ -20,18 +20,19 @@ void switchToNextSequence(uint8_t sequence) {
     currentSequence = sequence;
 }
 
-enum Screen intro() {
+enum Screen intro(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
     // Setup in screen enter
     enum Screen nextScreen = SCREEN_MENU;
 
     // TODO: Intro scroll & fake image camera movement
-    Sprite* introBg = loadSprite("intro.spr");
+    Sprite* introBg = loadSprite(arena, "intro.spr");
     if (!introBg) {
         perror("Error opening intro.spr file");
         return EXIT_FAILURE;
     }
 
-    Sprite* introBg2 = loadSprite("intro2.spr");
+    Sprite* introBg2 = loadSprite(arena, "intro2.spr");
     if (!introBg2) {
         perror("Error opening intro2.spr file");
         return EXIT_FAILURE;
@@ -43,7 +44,7 @@ enum Screen intro() {
     uint8_t current_charnum = 0;
     uint8_t sfx;
 
-    char* text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
+    char* text = arena_alloc(arena, sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
 
     fadeToBlack(0, 0);
@@ -155,15 +156,7 @@ enum Screen intro() {
 
     fadeToBlack(255, 10);
     clearScreen();
-
-    free(text);
-    text = NULL;
-
-    free(introBg);
-    introBg = NULL;
-
-    free(introBg2);
-    introBg2 = NULL;
+    arena_reset(arena, marker);
 
     return nextScreen;
 }
