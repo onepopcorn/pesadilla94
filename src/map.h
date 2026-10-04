@@ -5,12 +5,14 @@
 #include "lib/bucket-lib.h"
 
 // Used to swap tiles for open/close doors or exhausting vending machine
-#define TILE_DOOR_OPEN_TOP 25
-#define TILE_DOOR_OPEN_BOTTOM 26
-#define TILE_DOOR_CLOSED_TOP 16
-#define TILE_DOOR_CLOSED_BOTTOM 17
-#define TILE_VENDING_DISABLED_TOP 38
-#define TILE_VENDING_DISABLED_BOTTOM 39
+enum TileCode {
+    TILE_DOOR_OPEN_TOP = 25,
+    TILE_DOOR_OPEN_BOTTOM = 26,
+    TILE_DOOR_CLOSED_TOP = 16,
+    TILE_DOOR_CLOSED_BOTTOM = 17,
+    TILE_VENDING_DISABLED_TOP = 38,
+    TILE_VENDING_DISABLED_BOTTOM = 39,
+};
 
 #define NUM_LEVELS 10
 
