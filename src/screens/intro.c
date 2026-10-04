@@ -40,9 +40,9 @@ enum Screen intro(Arena* arena) {
 
     currentSequence = SEQ_DRAW_BRANDING;
 
-    uint8_t running = true;
-    uint8_t current_charnum = 0;
-    uint8_t sfx;
+    int running = true;
+    int current_charnum = 0;
+    int sfx = -1;
 
     char* text = arena_alloc(arena, sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
@@ -81,7 +81,7 @@ enum Screen intro(Arena* arena) {
 
             // Run first intro part
             case SEQ_INTRO:
-                for (uint8_t i = 0; i < current_charnum; i++) {
+                for (int i = 0; i < current_charnum; i++) {
                     text[i] = STR_INTRO_L1[i];
                     text[i + 1] = '\0';
                 }
@@ -121,7 +121,7 @@ enum Screen intro(Arena* arena) {
 
             // Run second intro part
             case SEQ_INTRO2:
-                for (uint8_t i = 0; i < current_charnum; i++) {
+                for (int i = 0; i < current_charnum; i++) {
                     text[i] = STR_INTRO_L2[i];
                     text[i + 1] = '\0';
                 }

@@ -26,7 +26,7 @@ enum Screen levelend() {
     dumpBuffer();
     // waitFrames(60);
 
-    uint8_t voice = -1;
+    int voice = -1;
 
     if (gameState.timeLeft > 0) {
         voice = playSound(SFX_POINTS);

@@ -41,8 +41,8 @@ int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
  *
  *
  */
-uint8_t initializSystems(Arena* arena) {
-    uint8_t bufferError = openScreenBuffer(arena);
+int initializSystems(Arena* arena) {
+    int bufferError = openScreenBuffer(arena);
     if (bufferError) return EXIT_FAILURE;
 
     // Interrupt based systems
@@ -50,11 +50,11 @@ uint8_t initializSystems(Arena* arena) {
     keyboardInit();
 
     // Resources
-    uint8_t assetsError = assetsInit(arena);
+    int assetsError = assetsInit(arena);
     if (assetsError) return EXIT_FAILURE;
 
     // Sound
-    uint8_t soundError = soundInit();
+    int soundError = soundInit();
     if (soundError) return EXIT_FAILURE;
 
     // Initialize video system
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 
     instructions();
 
-    uint8_t systemErrors = initializSystems(arena_ptr);
+    int systemErrors = initializSystems(arena_ptr);
     if (systemErrors) return EXIT_FAILURE;
 
     clearScreen();

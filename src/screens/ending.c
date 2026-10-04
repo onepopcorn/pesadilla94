@@ -30,7 +30,7 @@ enum Screen ending(Arena* arena) {
     char* text = arena_alloc(arena, sizeof(STR_ENDING));
     text[0] = '\0';
 
-    uint16_t charnum = 0;
+    int charnum = 0;
 
     int8_t sfx = playSound(SFX_POINTS);
 
@@ -40,7 +40,7 @@ enum Screen ending(Arena* arena) {
         }
 
         if (charnum < sizeof(STR_ENDING)) {
-            for (uint8_t i = 0; i < charnum; i++) {
+            for (int i = 0; i < charnum; i++) {
                 text[i] = STR_ENDING[i];
                 text[i + 1] = '\0';
             }

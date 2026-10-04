@@ -22,14 +22,14 @@
  * TODO: Take a pointer to a function for when a collision happens
  */
 void checkCollisionsBetweenEntities(uint8_t idx, uint8_t lastEntityIdx) {
-    Entity *entity = &entities[idx];
+    Entity* entity = &entities[idx];
     if (!m_isFlagSet(entity->flags, ENTITY_ALIVE | ENTITY_CHECK_COLLISION)) return;
 
     Rect entityRect = m_getEntityRect(entity);
     m_unsetFlag(entity->flags, ENTITY_CHECK_COLLISION);
 
-    for (uint8_t i = lastEntityIdx; i > 0; i--) {
-        Entity *other = &entities[i];
+    for (int i = lastEntityIdx; i > 0; i--) {
+        Entity* other = &entities[i];
 
         if (!(entity->collisionMask & other->type) || !(entity->type & other->collisionMask)) continue;
 
@@ -80,37 +80,37 @@ bool checkAABBCollision(Rect rect1, Rect rect2) {
  */
 uint8_t checkTilesCollision(uint8_t entityIdx) {
     // Get current entity
-    Entity *entity = &entities[entityIdx];
+    Entity* entity = &entities[entityIdx];
     Rect spriteRect = {entity->x, entity->y, entity->sprite->width, entity->sprite->height};
     Rect hitboxRect = m_getEntityRect(entity);
 
     Rect tilesRect = getTilesRect(spriteRect);
-    uint8_t hTiles = tilesRect.h;
-    uint8_t wTiles = tilesRect.w;
-    uint8_t minTileColumn = tilesRect.x;
-    uint8_t minTileRow = tilesRect.y;
+    int hTiles = tilesRect.h;
+    int wTiles = tilesRect.w;
+    int minTileColumn = tilesRect.x;
+    int minTileRow = tilesRect.y;
 
     // Use this byte to return the type of walls that the entity is touching
     uint8_t tileCollisions = 0;
 
-    for (uint8_t i = 0; i < hTiles; i++) {
-        for (uint8_t j = 0; j < wTiles; j++) {
-            uint8_t tileColumn = minTileColumn + j;
-            uint8_t tileRow = minTileRow + i;
+    for (int i = 0; i < hTiles; i++) {
+        for (int j = 0; j < wTiles; j++) {
+            int tileColumn = minTileColumn + j;
+            int tileRow = minTileRow + i;
 
-            uint8_t entityIdxInTile = markDirtyTile(entityIdx, tileColumn, tileRow);
+            int entityIdxInTile = markDirtyTile(entityIdx, tileColumn, tileRow);
             if (entityIdxInTile < 0) {
                 // something wrong happend. dirtyTiles array is full
                 // TODO: Log error to stdout
                 break;
             }
 
-            uint8_t tileType = getTile(tileColumn, tileRow)->type;
+            int tileType = getTile(tileColumn, tileRow)->type;
 
             // flip the bit that represents the tile type
             // TODO: Apply tile collision limits. Refactor this to make it more clean
-            uint16_t tileXPos = tileColumn * TILE_SIZE;
-            uint16_t tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
+            int tileXPos = tileColumn * TILE_SIZE;
+            int tileYPos = tileRow * TILE_SIZE + SCREEN_Y_OFFSET;
             Rect tileHitbox = {0, 0, 0, 0};
 
             switch (tileType) {

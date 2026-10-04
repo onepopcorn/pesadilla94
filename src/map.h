@@ -28,17 +28,17 @@ void drawMap();
 
 Rect getTilesRect(Rect spriteRect);
 
-uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileXIndex, uint8_t tileYIndex);
+int markDirtyTile(uint8_t entityIdx, uint8_t tileXIndex, uint8_t tileYIndex);
 
 Tile* getTile(uint8_t col, uint8_t row);
 
-Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up);
+Vec2 getStairsDestination(int x, int y, bool up);
 
-Tile* openDoor(uint16_t x, uint16_t y);
+Tile* openDoor(int x, int y);
 
-void closeDoor(uint16_t x, uint16_t y);
+void closeDoor(int x, int y);
 
-void disableVendingMachine(uint16_t x, uint16_t y);
+void disableVendingMachine(int x, int y);
 
 void restoreMapTiles();
 

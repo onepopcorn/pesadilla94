@@ -2,11 +2,11 @@
 #define _GAME_STATE_H
 
 typedef struct GameState {
-    uint8_t lives;
-    uint8_t doorsLeft;
-    uint8_t level;
-    uint16_t score;
-    uint8_t timeLeft;
+    int lives;
+    int doorsLeft;
+    int level;
+    int score;
+    int timeLeft;
 } GameState;
 
 extern GameState gameState;

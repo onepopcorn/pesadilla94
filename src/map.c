@@ -100,7 +100,7 @@ typedef struct DirtyTile {
 } DirtyTile;
 
 DirtyTile dirtyTiles[MAX_DIRTY_TILES] = {0};
-uint8_t dirtyTilesCount = 0;
+int dirtyTilesCount = 0;
 
 /**
  * Load map resources and set level
@@ -140,13 +140,13 @@ void endLevel() {
  */
 void drawMap() {
     Tile* data = currentMap->data;
-    uint8_t mapWidth = currentMap->width;
-    uint8_t mapHeight = currentMap->height;
-    uint8_t tileWidth = currentMap->tileWidth;
-    uint8_t tileHeight = currentMap->tileHeight;
+    int mapWidth = currentMap->width;
+    int mapHeight = currentMap->height;
+    int tileWidth = currentMap->tileWidth;
+    int tileHeight = currentMap->tileHeight;
 
-    for (uint8_t i = 0; i < mapHeight; i++) {
-        for (uint8_t j = 0; j < mapWidth; j++) {
+    for (int i = 0; i < mapHeight; i++) {
+        for (int j = 0; j < mapWidth; j++) {
             Tile tile = data[j + i * mapWidth];
             // Tiled uses 1-based indexes for maps
             drawTile(j * tileWidth, i * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
@@ -159,14 +159,14 @@ void drawMap() {
  *
  */
 void restoreMapTiles() {
-    uint8_t mapWidth = currentMap->width;
-    uint8_t tileWidth = currentMap->tileWidth;
-    uint8_t tileHeight = currentMap->tileHeight;
+    int mapWidth = currentMap->width;
+    int tileWidth = currentMap->tileWidth;
+    int tileHeight = currentMap->tileHeight;
     Tile* data = currentMap->data;
 
-    for (uint8_t i = 0; i < dirtyTilesCount; i++) {
-        uint8_t x = dirtyTiles[i].x;
-        uint8_t y = dirtyTiles[i].y;
+    for (int i = 0; i < dirtyTilesCount; i++) {
+        int x = dirtyTiles[i].x;
+        int y = dirtyTiles[i].y;
 
         Tile tile = data[x + y * mapWidth];
         drawTile(x * tileWidth, y * tileHeight + SCREEN_Y_OFFSET, tileset, tile.id - 1);
@@ -182,17 +182,17 @@ void restoreMapTiles() {
  * Using integers makes coordinates to round to nearest tile
  */
 Rect getTilesRect(Rect spriteRect) {
-    uint8_t tileWidth = currentMap->tileWidth;
-    uint8_t tileHeight = currentMap->tileHeight;
+    int tileWidth = currentMap->tileWidth;
+    int tileHeight = currentMap->tileHeight;
 
-    uint8_t minTileColumn = spriteRect.x / tileWidth;
-    uint8_t minTileRow = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
+    int minTileColumn = spriteRect.x / tileWidth;
+    int minTileRow = (spriteRect.y - SCREEN_Y_OFFSET) / tileHeight;
 
-    uint8_t maxTileColumn = (spriteRect.x + spriteRect.w) / tileWidth;
-    uint8_t maxTileRow = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
+    int maxTileColumn = (spriteRect.x + spriteRect.w) / tileWidth;
+    int maxTileRow = ((spriteRect.y - SCREEN_Y_OFFSET) + spriteRect.h) / tileHeight;
 
-    uint8_t wTiles = maxTileColumn - minTileColumn + 1;
-    uint8_t hTiles = maxTileRow - minTileRow + 1;
+    int wTiles = maxTileColumn - minTileColumn + 1;
+    int hTiles = maxTileRow - minTileRow + 1;
 
     return (Rect){minTileColumn, minTileRow, wTiles, hTiles};
 }
@@ -218,11 +218,11 @@ Tile* getTile(uint8_t col, uint8_t row) {
  *
  * @return Vec2 tile coordinates destination to move the sprite to
  */
-Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up) {
+Vec2 getStairsDestination(int x, int y, bool up) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
-    uint16_t destTileIdx = up ? tile->data.stairs.up : tile->data.stairs.down;
-    uint16_t dx = destTileIdx % currentMap->width * TILE_SIZE;
-    uint16_t dy = destTileIdx / currentMap->width * TILE_SIZE + SCREEN_Y_OFFSET;
+    int destTileIdx = up ? tile->data.stairs.up : tile->data.stairs.down;
+    int dx = destTileIdx % currentMap->width * TILE_SIZE;
+    int dy = destTileIdx / currentMap->width * TILE_SIZE + SCREEN_Y_OFFSET;
 
     return (Vec2){dx, dy};
 }
@@ -235,7 +235,7 @@ Vec2 getStairsDestination(uint16_t x, uint16_t y, bool up) {
  *
  * @return Tile* pointer to background tile on given coordinates
  */
-Tile* openDoor(uint16_t x, uint16_t y) {
+Tile* openDoor(int x, int y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     // TODO: Use macros for changing tiles
@@ -252,7 +252,7 @@ Tile* openDoor(uint16_t x, uint16_t y) {
  * @param x sprite x coordinate
  * @param y sprite y coordinate
  */
-void closeDoor(uint16_t x, uint16_t y) {
+void closeDoor(int x, int y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     if (tile->data.door.progress > 0) {
@@ -261,7 +261,7 @@ void closeDoor(uint16_t x, uint16_t y) {
     }
 }
 
-void disableVendingMachine(uint16_t x, uint16_t y) {
+void disableVendingMachine(int x, int y) {
     Tile* tile = getTile(x / currentMap->tileWidth, (y - SCREEN_Y_OFFSET) / currentMap->tileHeight);
     Tile* above = tile - currentMap->width;
     above->id = TILE_VENDING_DISABLED_TOP;
@@ -272,7 +272,7 @@ void disableVendingMachine(uint16_t x, uint16_t y) {
  * Marks tile at given coordinates as dirty
  *
  */
-uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileColumn, uint8_t tileRow) {
+int markDirtyTile(uint8_t entityIdx, uint8_t tileColumn, uint8_t tileRow) {
     // dirty tiles buffer is full
     if (dirtyTilesCount >= MAX_DIRTY_TILES) {
         return -1;
@@ -280,12 +280,12 @@ uint8_t markDirtyTile(uint8_t entityIdx, uint8_t tileColumn, uint8_t tileRow) {
 
 #ifdef DEBUG_TILES
     // NOTE This has a performance penalty
-    uint8_t tileWidth = currentMap->tileWidth;
-    uint8_t tileHeight = currentMap->tileHeight;
+    int tileWidth = currentMap->tileWidth;
+    int tileHeight = currentMap->tileHeight;
     drawRectColor((Rect){tileColumn * tileWidth, tileRow * tileHeight + SCREEN_Y_OFFSET, tileWidth, tileHeight}, 34);
 #endif
 
-    for (uint8_t k = 0; k < dirtyTilesCount; k++) {
+    for (int k = 0; k < dirtyTilesCount; k++) {
         const DirtyTile dirtyTile = dirtyTiles[k];
         if (dirtyTile.x == tileColumn && dirtyTile.y == tileRow) {
             // A previous entity already marked this tile return that one

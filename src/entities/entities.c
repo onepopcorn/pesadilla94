@@ -78,7 +78,7 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    uint8_t entityIdx = 0;
+    int entityIdx = 0;
 
     do {
         Entity* entity = &entities[entityIdx];
@@ -120,14 +120,14 @@ void updateEntities(uint32_t delta) {
 }
 
 void renderAllEntities() {
-    for (int8_t i = lastEntityIdx; i >= 0; i--) {
+    for (int i = lastEntityIdx; i >= 0; i--) {
         renderEntity(i, true);
     }
 }
 
 void renderEntity(uint8_t index, char frameNeedsUpdate) {
     Entity* entity = &entities[index];
-    uint16_t frame = getAnimationFrame(frameNeedsUpdate, entity);
+    int frame = getAnimationFrame(frameNeedsUpdate, entity);
     uint8_t color = m_isFlagSet(entity->flags, ENTITY_FLASHING) && (entity->frame & 0x01) ? COLOR_WHITE : COLOR_TRANSPARENT;
     drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
@@ -141,7 +141,7 @@ void renderEntity(uint8_t index, char frameNeedsUpdate) {
 }
 
 Entity* findEntityById(uint8_t id) {
-    for (uint8_t i = lastEntityIdx; i >= 0; i--) {
+    for (int i = lastEntityIdx; i >= 0; i--) {
         Entity* entity = &entities[i];
         if (entity->id == id) {
 #ifdef DEBUG

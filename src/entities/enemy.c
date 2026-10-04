@@ -24,7 +24,7 @@
 // PRIVATE METHODS
 
 void enemyWakeup(uint8_t id) {
-    struct Entity *enemy = findEntityById(id);
+    struct Entity* enemy = findEntityById(id);
 
     if (enemy == NULL || id != enemy->id || !m_isFlagSet(enemy->flags, ENTITY_ALIVE)) {
 #ifdef DEBUG
@@ -45,8 +45,8 @@ void enemyWakeup(uint8_t id) {
 
 // PUBLIC METHODS
 
-struct Entity *enemySpawn(short x, short y) {
-    struct Entity *entity = createEntity(x, y, TYPE_ENEMY_A, enemySprite, enemyUpdate);
+struct Entity* enemySpawn(int x, int y) {
+    struct Entity* entity = createEntity(x, y, TYPE_ENEMY_A, enemySprite, enemyUpdate);
     if (!entity) return NULL;
 
     m_setAnimation(entity, ANIM_ENEMY1_WALK);
@@ -57,7 +57,7 @@ struct Entity *enemySpawn(short x, short y) {
     return entity;
 }
 
-void enemyStun(Entity *enemy) {
+void enemyStun(Entity* enemy) {
     if (!enemy) {
         return;
     }
@@ -77,7 +77,7 @@ void enemyStun(Entity *enemy) {
 }
 
 // TODO: Make this cleaner
-void enemyUpdate(struct Entity *entity, uint8_t tileCollisions) {
+void enemyUpdate(struct Entity* entity, uint8_t tileCollisions) {
     // enemy stunt
     if (m_isFlagSet(entity->flags, ENTITY_STUNT)) {
         return;

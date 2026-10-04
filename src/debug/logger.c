@@ -6,8 +6,8 @@
 
 #include "logger.h"
 
-void logError(const char *format, ...) {
-    FILE *file = fopen("error.log", "a");
+void logError(const char* format, ...) {
+    FILE* file = fopen("error.log", "a");
     if (!file) return;
 
     va_list args;
@@ -19,8 +19,8 @@ void logError(const char *format, ...) {
     fclose(file);
 }
 
-void logDebug(const char *format, ...) {
-    FILE *file = fopen("debug.log", "a");
+void logDebug(const char* format, ...) {
+    FILE* file = fopen("debug.log", "a");
     if (!file) return;
 
     va_list args;
@@ -33,7 +33,7 @@ void logDebug(const char *format, ...) {
 }
 
 #ifdef DEBUG_ENTITIES
-void showEntityId(short x, short y, uint8_t id) {
+void showEntityId(int x, int y, uint8_t id) {
     char buffer[4] = {'0' + id, '\0'};
     drawText(x, y, font, buffer, COLOR_WHITE, 2);
 }

@@ -38,14 +38,14 @@ enum Screen game(Arena* arena) {
     drawHUD();
 
     // Spawn player and enemies
-    uint8_t spawnOffset = currentLevel.positionsIdx;
-    uint8_t enemyCount = currentLevel.enemyCount;
+    int spawnOffset = currentLevel.positionsIdx;
+    int enemyCount = currentLevel.enemyCount;
 
     Vec2 playerPos = spawnPositions[spawnOffset];
     playerSpawn(playerPos.x, playerPos.y);
 
     if (enemyCount > 0) {
-        for (uint8_t i = 0; i < enemyCount; i++) {
+        for (int i = 0; i < enemyCount; i++) {
             Vec2 pos = spawnPositions[spawnOffset + 1 + i];  // Offest player position
             enemySpawn(pos.x, pos.y);
         }

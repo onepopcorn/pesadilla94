@@ -22,11 +22,11 @@
 #define PLAYER_INVULNERABILITY_TIME 3000
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
-Entity *player;
+Entity* player;
 uint8_t playerCanShoot = false;
 Vec2 destination;
 PlayerState playerState = STATE_IDLE;
-Tile *searchDoorTile = NULL;
+Tile* searchDoorTile = NULL;
 static int8_t sfxSteps = -1;
 
 // PRIVATE METHODS
@@ -86,7 +86,7 @@ void spawnShot() {
 
     // Get position where whip should be shown
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
-    uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
+    int offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
     whipSpawn(player->x + offset, player->y + 8, facingRight);
 
@@ -139,7 +139,7 @@ void pickupWeapon() {
 
 // PUBLIC METHODS
 
-Entity *playerSpawn(uint16_t x, uint16_t y) {
+Entity* playerSpawn(int x, int y) {
     player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
     player->collisionMask = PLAYER_COLLISION_MASK;
     player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
@@ -151,7 +151,7 @@ Entity *playerSpawn(uint16_t x, uint16_t y) {
     return player;
 }
 
-void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
+void playerUpdate(struct Entity* entity, uint8_t tileCollisions) {
     if (playerState != STATE_WALKING) {
         stopSound(sfxSteps);
     }
