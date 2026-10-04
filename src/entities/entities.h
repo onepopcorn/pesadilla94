@@ -38,15 +38,15 @@ struct Sprite;
 
 // TODO Consider use fixed-point decimal instead of float for VX
 typedef struct Entity {
-    float vx;
     int x, y;
-    Rect hitbox;
-    uint8_t animation;
-    uint8_t frame;
+    float vx;
+    int animation;
+    int frame;
     uint8_t type;
     uint8_t flags;
     uint8_t collisionMask;
     uint8_t id;
+    Rect hitbox;
     void (*update)(struct Entity* entity, uint8_t tileCollisions);
     struct Sprite* sprite;
 } Entity;
