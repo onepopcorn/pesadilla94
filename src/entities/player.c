@@ -55,7 +55,7 @@ void respawn() {
 
 void useStairs(bool up) {
     // Get player jump position
-    Vec2 pos = getStairsDestination(player->x + player->sprite->width * 0.5, player->y + player->sprite->height, up);
+    Vec2 pos = getStairsDestination(player->x + player->sprite->width / 2, player->y + player->sprite->height, up);
     if (pos.x <= 0 || pos.y <= 0) {
         // Abort, there's no destination found
         playerState = STATE_IDLE;
@@ -95,7 +95,7 @@ void spawnShot() {
 }
 
 void interruptSearching() {
-    closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+    closeDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
     searchDoorTile->data.door.progress = 254;
     searchDoorTile = NULL;
     playerState = STATE_IDLE;
@@ -201,7 +201,7 @@ void playerUpdate(struct Entity* entity, uint8_t tileCollisions) {
 
         case STATE_PICKING_UP:
             if (player->frame == ANIM_PLAYER_SEARCH_LEN - 2) {
-                disableVendingMachine(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                disableVendingMachine(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                 updateWeapon(false);
                 playerState = STATE_IDLE;
             }
@@ -258,14 +258,14 @@ void playerUpdate(struct Entity* entity, uint8_t tileCollisions) {
 
             // Search doors
             if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && isKeyJustPressed(m_UP)) {
-                searchDoorTile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                searchDoorTile = openDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                 if (searchDoorTile->data.door.progress > 0) {
                     playSound(SFX_DOOR_OPEN);
                     playerState = STATE_SEARCHING;
                     break;
                 } else {
                     playSound(SFX_DOOR_NO_OP);
-                    closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                    closeDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                     break;
                 }
             }
