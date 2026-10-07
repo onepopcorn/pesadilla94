@@ -31,6 +31,8 @@
 #define ENTITY_BLOCKED 0x10          // bit 4  00010000
 #define ENTITY_STUNT 0x20            // bit 5  00100000
 
+#define PIXELS_SECOND 70
+
 #define m_getEntityRect(entity) \
     (Rect) { entity->x + entity->hitbox.x, entity->y + entity->hitbox.y, entity->hitbox.w, entity->hitbox.h }
 
@@ -39,7 +41,7 @@ struct Sprite;
 // TODO Consider use fixed-point decimal instead of float for VX
 typedef struct Entity {
     int x, y;
-    float vx;
+    int vx;
     int animation;
     int frame;
     uint8_t type;

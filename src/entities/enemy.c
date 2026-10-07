@@ -15,8 +15,8 @@
 #include "debug/logger.h"
 #endif
 
-#define ENEMY_SPEED_R 0.6
-#define ENEMY_SPEED_L -ENEMY_SPEED_R
+#define ENEMY_SPEED_R ((6 * PIXELS_SECOND) / 10)
+#define ENEMY_SPEED_L (-ENEMY_SPEED_R)
 
 #define ENEMY_COLLISION_MASK TYPE_PLAYER | TYPE_PLAYER_BULLET
 #define ENEMY_STUNT_TIME 3000

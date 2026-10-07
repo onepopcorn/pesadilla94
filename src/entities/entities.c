@@ -100,7 +100,7 @@ void updateEntities(uint32_t delta) {
         // TODO: Move this inside update function for each entity (?)
         // Move entity using delta time for smooth animations
         if (!m_isFlagSet(entity->flags, ENTITY_BLOCKED)) {
-            entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 70 pixels/second
+            entity->x = entity->x + entity->vx * (int)delta / 1000;  // Move 70 pixels/second
         }
 
         // Reset frame number if animation changed during update
