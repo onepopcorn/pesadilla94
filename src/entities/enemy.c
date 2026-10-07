@@ -8,6 +8,7 @@
 #include "animations.h"
 #include "macros.h"
 #include "timer.h"
+#include "physics/collisions.h"
 
 #include "enemy.h"
 
@@ -90,10 +91,10 @@ void enemyUpdate(struct Entity* entity, uint8_t tileCollisions) {
         m_unsetFlag(entity->flags, ENTITY_BLOCKED);
     }
 
-    if (m_isFlagSet(tileCollisions, TILE_TYPE_WALL_LEFT)) {
+    if (m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
         entity->vx = ENEMY_SPEED_R;
         m_unsetFlag(entity->flags, ENTITY_FLIP);
-    } else if (m_isFlagSet(tileCollisions, TILE_TYPE_WALL_RIGHT)) {
+    } else if (m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
         entity->vx = ENEMY_SPEED_L;
         m_setFlag(entity->flags, ENTITY_FLIP);
     }
