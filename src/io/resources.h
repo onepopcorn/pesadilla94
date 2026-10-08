@@ -5,7 +5,7 @@ typedef unsigned char uint8_t;
 
 #include "../shared/files/spritesheet.h"
 #include "../shared/files/level.h"
-#include "lib/bucket-lib.h"
+#include "../shared/lib/bucket-lib.h"
 enum ResoureType {
     RES_TYPE_SPRITE,
     RES_TYPE_MAP,
