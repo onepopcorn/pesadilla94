@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 SPRITE_CLI := ../tools/bin/bmp2data.exe
 MAP_CLI := ../tools/bin/tiled2map.exe
 

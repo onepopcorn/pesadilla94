@@ -205,8 +205,7 @@ Arena arena_create(size_t size) {
     arena.base = (uint8_t*)malloc(size);
 #endif
 
-    if (!arena.base)
-        arena.size = 0;
+    arena.size = arena.base ? size : 0;
     arena.used = 0;
     return arena;
 }
