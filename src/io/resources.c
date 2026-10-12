@@ -19,7 +19,7 @@ static void* loadResource(Arena* arena, const char* filePath) {
 
     if (!file) {
         perror("Error opening asset files");
-        return NULL;
+        goto error;
     }
 
     fseek(file, 0, SEEK_END);
@@ -29,13 +29,16 @@ static void* loadResource(Arena* arena, const char* filePath) {
     void* resource = arena_alloc(arena, fileSize);
     if (!resource) {
         perror("Failed to load resource");
-        fclose(file);
-        return NULL;
+        goto error;
     }
 
     fread(resource, fileSize, 1, file);
     fclose(file);
     return resource;
+
+error:
+    if (file) fclose(file);
+    return NULL;
 }
 
 /**
