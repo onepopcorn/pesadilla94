@@ -1,4 +1,4 @@
-#include <dos.h>
+#include <pc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@ void initVideoEffects() {
 
 // Read the current VGA palette
 void getPalette(Color palette[256]) {
-    outp(0x3C7, 0);  // Start reading from color index 0
+    outportb(0x3C7, 0);  // Start reading from color index 0
     for (int i = 0; i < 256; i++) {
         palette[i].r = inp(0x3C9);
         palette[i].g = inp(0x3C9);
@@ -24,11 +24,11 @@ void getPalette(Color palette[256]) {
 
 // Write a new palette to VGA memory
 void setPalette(Color palette[256]) {
-    outp(0x3C8, 0);  // Start writing from color index 0
+    outportb(0x3C8, 0);  // Start writing from color index 0
     for (int i = 0; i < 256; i++) {
-        outp(0x3C9, palette[i].r);
-        outp(0x3C9, palette[i].g);
-        outp(0x3C9, palette[i].b);
+        outportb(0x3C9, palette[i].r);
+        outportb(0x3C9, palette[i].g);
+        outportb(0x3C9, palette[i].b);
     }
 }
 

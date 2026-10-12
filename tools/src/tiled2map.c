@@ -1,3 +1,6 @@
+#define BUCKET_LIB_IMPLEMENTATION
+#include "../../shared/lib/bucket-lib.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,54 +10,54 @@
 
 #pragma pack(1)
 
+Arena* arena_ptr = NULL;
+
 /**
  * @brief Reads a file and returns its content as a string
  *
  * @param path The path to the file
  * @return const char* The file content
  */
-char *read_file(const char *path) {
-    FILE *file = fopen(path, "rb");  // Open in binary mode
+char* read_file(const char* path) {
+    FILE* file = fopen(path, "rb");  // Open in binary mode
     if (!file) {
         fprintf(stderr, "Error: Cannot open file \"%s\"\n", path);
-        return NULL;
+        goto error;
     }
 
     // Get file size
     if (fseek(file, 0, SEEK_END) != 0) {  // Handle seek error
-        fclose(file);
-        return NULL;
+        goto error;
     }
 
     long len = ftell(file);
     if (len == -1) {  // Handle error
-        fclose(file);
-        return NULL;
+        goto error;
     }
 
     rewind(file);  // Move back to the beginning
 
-    // Allocate buffer
-    char *buffer = malloc(len + 1);
+    char* buffer = arena_alloc(arena_ptr, len + 1);
     if (!buffer) {
         fprintf(stderr, "Error: Memory allocation failed\n");
-        fclose(file);
-        return NULL;
+        goto error;
     }
 
-    // Read file into buffer
     size_t bytesRead = fread(buffer, 1, len, file);
-    fclose(file);
 
     // Ensure read success
     if (bytesRead != (size_t)len) {
         fprintf(stderr, "Error: File read failed\n");
-        free(buffer);
-        return NULL;
+        goto error;
     }
 
+    fclose(file);
     buffer[len] = '\0';  // Null-terminate
-    return buffer;       // Caller must free this
+    return buffer;
+
+error:
+    if (file) (fclose(file));
+    return NULL;
 }
 
 /**
@@ -65,7 +68,7 @@ char *read_file(const char *path) {
  * @param count The number of stairs data
  * @return StairsData The stairs data
  */
-StairsData findStairData(StairsData *data, int tileIdx, int count) {
+StairsData findStairData(StairsData* data, int tileIdx, int count) {
     for (int i = 0; i < count; i++) {
         if (data[i].tileIdx == tileIdx) {
             return data[i];
@@ -75,7 +78,7 @@ StairsData findStairData(StairsData *data, int tileIdx, int count) {
     return (StairsData){-1, -1, -1};
 }
 
-int findStairIdxByStairId(StairsData *data, int id, int count) {
+int findStairIdxByStairId(StairsData* data, int id, int count) {
     for (int i = 0; i < count; i++) {
         if (data[i].id == id) {
             return data[i].tileIdx;
@@ -94,12 +97,12 @@ int findStairIdxByStairId(StairsData *data, int id, int count) {
  * @param tileHeight The tile height
  * @return StairsData* The updated stairs data
  */
-StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, int tileWidth, int tileHeight) {
+StairsData* transformStairsData(typed(json_element) stairsData, int mapWidth, int tileWidth, int tileHeight) {
     if (stairsData.value.as_array->count < 1) {
         return NULL;
     }
 
-    StairsData *data = malloc(sizeof(StairsData) * stairsData.value.as_array->count);
+    StairsData* data = arena_alloc(arena_ptr, sizeof(StairsData) * stairsData.value.as_array->count);
 
     // Update ID to use tilemap tile index
     for (int i = 0; i < stairsData.value.as_array->count; i++) {
@@ -143,6 +146,8 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
         int tileIndex = (yCoord * mapWidth) + xCoord;
         data[i].id = id.value.as_number.value.as_long;
         data[i].tileIdx = tileIndex;
+        data[i].up = 0;
+        data[i].down = 0;
     }
 
     // Update Up/Down values based on the tilemap tile index
@@ -210,8 +215,8 @@ StairsData *transformStairsData(typed(json_element) stairsData, int mapWidth, in
  * @param tilesetFile The path to the tileset JSON file
  * @return int* The array of tile types
  */
-int *parseTileset(const char *tilesetFile) {
-    const char *tileset = read_file(tilesetFile);
+int* parseTileset(const char* tilesetFile, int* outCount) {
+    const char* tileset = read_file(tilesetFile);
     if (tileset == NULL) {
         fprintf(stderr, "Error reading tileset file\n");
         return NULL;
@@ -221,7 +226,6 @@ int *parseTileset(const char *tilesetFile) {
     if (result_is_err(json_element)(&rootNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&rootNode);
         fprintf(stderr, "Error parsing JSON: %s\n", json_error_to_string(error));
-        free((void *)tileset);
         return NULL;
     }
 
@@ -234,7 +238,6 @@ int *parseTileset(const char *tilesetFile) {
     if (result_is_err(json_element)(&tileCountNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tileCountNode);
         fprintf(stderr, "Error getting element \"tilecount\": %s\n", json_error_to_string(error));
-        free((void *)tileset);
         return NULL;
     }
 
@@ -245,16 +248,14 @@ int *parseTileset(const char *tilesetFile) {
     if (result_is_err(json_element)(&tilesNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tilesNode);
         fprintf(stderr, "Error getting element \"tiles\": %s\n", json_error_to_string(error));
-        free((void *)tileset);
         return NULL;
     }
 
     typed(json_element) tilesArray = result_unwrap(json_element)(&tilesNode);
 
     int count = tileCount.value.as_number.value.as_long;
-    int *tiles = (int *)malloc(sizeof(int) * count);
-    if (tiles == NULL) {
-        free((void *)tileset);  // Free allocated memory for `tileset`
+    int* tiles = (int*)arena_alloc(arena_ptr, sizeof(int) * count);
+    if (tiles == NULL) {  // Free allocated memory for `tileset`
         return NULL;
     }
 
@@ -266,7 +267,7 @@ int *parseTileset(const char *tilesetFile) {
         if (result_is_err(json_element)(&tileIdNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&tileIdNode);
             fprintf(stderr, "Error getting element \"id\": %s\n", json_error_to_string(error));
-            free((void *)tileset);
+
             return NULL;
         }
 
@@ -275,7 +276,7 @@ int *parseTileset(const char *tilesetFile) {
         if (result_is_err(json_element)(&tileTypeNode)) {
             typed(json_error) error = result_unwrap_err(json_element)(&tileTypeNode);
             fprintf(stderr, "Error getting element \"type\": %s\n", json_error_to_string(error));
-            free((void *)tileset);
+
             return NULL;
         }
 
@@ -289,9 +290,9 @@ int *parseTileset(const char *tilesetFile) {
         }
     }
 
-    free((void *)tileset);
     json_free(&root);
 
+    *outCount = count;
     return tiles;
 }
 
@@ -301,11 +302,12 @@ int *parseTileset(const char *tilesetFile) {
  *
  * @param tilemapFile The path to the tilemap JSON file
  * @param tileTypes The array of tile types
+ * @param tileTypeCount Total number of tile types
  * @return Map* The parsed map data
  * @return NULL If an error occurs
  */
-Map *parseMap(const char *tilemapFile, int *tileTypes) {
-    const char *tilemap = read_file(tilemapFile);
+Map* parseMap(const char* tilemapFile, int* tileTypes, int tileTypeCount) {
+    const char* tilemap = read_file(tilemapFile);
     if (tilemap == NULL) {
         fprintf(stderr, "Error reading tilemap file\n");
         return NULL;
@@ -315,7 +317,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&rootNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&rootNode);
         fprintf(stderr, "Error parsing JSON: %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -327,7 +328,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&tileHeightNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tileHeightNode);
         fprintf(stderr, "Error getting element \"tileHeight\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -338,7 +338,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&tileWidthNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&tileWidthNode);
         fprintf(stderr, "Error getting element \"tileWidth\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -350,7 +349,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&mapHeightNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&mapHeightNode);
         fprintf(stderr, "Error getting element \"height\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -360,7 +358,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&mapWidthNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&mapWidthNode);
         fprintf(stderr, "Error getting element \"width\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -371,7 +368,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&layersNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&layersNode);
         fprintf(stderr, "Error getting element \"layers\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -391,7 +387,6 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     if (result_is_err(json_element)(&dataNode)) {
         typed(json_error) error = result_unwrap_err(json_element)(&dataNode);
         fprintf(stderr, "Error getting element \"data\": %s\n", json_error_to_string(error));
-        free((void *)tilemap);
         return NULL;
     }
 
@@ -400,7 +395,7 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
                   (unsigned char)mapHeight.value.as_number.value.as_long;
 
     // Create map struct
-    Map *map = malloc(sizeof(Map) + sizeof(Tile) * mapSize);
+    Map* map = arena_alloc(arena_ptr, sizeof(Map) + sizeof(Tile) * mapSize);
     map->width = (unsigned char)mapWidth.value.as_number.value.as_long;
     map->height = (unsigned char)mapHeight.value.as_number.value.as_long;
     map->tileWidth = (unsigned char)width.value.as_number.value.as_long;
@@ -408,7 +403,7 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
     map->doorsCount = 0;
 
     // Parse stairs data
-    StairsData *stairsParsedData = NULL;
+    StairsData* stairsParsedData = NULL;
     int stairsCount = 0;
     if (!result_is_err(json_element)(&stairsDataNode)) {
         typed(json_element) stairsData = result_unwrap(json_element)(&stairsDataNode);
@@ -421,6 +416,10 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
 
     for (int i = 0; i < mapSize; i++) {
         int tileId = (int)dataIds.value.as_array->elements[i].value.as_number.value.as_long;
+        if (tileId < 1 || tileId > tileTypeCount) {
+            fprintf(stderr, "Error %s: gid %d out of range 1..%d at tile index %d\n", tilemapFile, tileId, tileTypeCount, i);
+            return NULL;
+        }
         int tileType = tileTypes[tileId - 1];  // Tiled uses 1-based indexing for tileset and 0-based indexing for tilemap
 
         // Skip tiles that are not stairs or doors
@@ -445,11 +444,7 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
             map->doorsCount++;
         }
     }
-
-    free((void *)tilemap);
     tilemap = NULL;
-
-    free((void *)stairsParsedData);
     stairsParsedData = NULL;
 
     return map;
@@ -462,15 +457,15 @@ Map *parseMap(const char *tilemapFile, int *tileTypes) {
  * @param argv Arguments
  * @return int Exit status
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc != 4) {
         printf("Usage: %s <tilemap_file> <tileset_file> <output_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
-    const char *tilemap = argv[1];
-    const char *tileset = argv[2];
-    const char *output = argv[3];
+    const char* tilemap = argv[1];
+    const char* tileset = argv[2];
+    const char* output = argv[3];
 
     // Prevent overwrite input
     if (tilemap == output || tileset == output) {
@@ -478,20 +473,33 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    Arena arena = arena_create(MiB(16));
+    arena_ptr = &arena;
+
     printf("\n");
     printf("Processing %s\n", tilemap);
 
     // parse tileset json file and return a pointer to an array of tile types
-    int *tileTypes = parseTileset(tileset);
+    int tileTypeCount = 0;
+    int* tileTypes = parseTileset(tileset, &tileTypeCount);
+    if (tileTypes == NULL) {
+        fprintf(stderr, "Error parsing tileset \"%s\"\n", tileset);
+        goto error;
+    }
     printf("Parsing tileset: Ok\n");
 
     // parse map json file and return a pointer to an array of Tile structs
-    Map *map = parseMap(tilemap, tileTypes);
-    if (map == NULL) return EXIT_FAILURE;
+    Map* map = parseMap(tilemap, tileTypes, tileTypeCount);
+    if (map == NULL) goto error;
     printf("Parsing map data: Ok\n\n");
 
     // write output map file
-    FILE *outFile = fopen(output, "wb");
+    FILE* outFile = fopen(output, "wb");
+
+    if (!outFile) {
+        printf("Can't open output file\n");
+        goto error;
+    }
 
     // write map and tile dimensions
     fwrite(map, sizeof(char), 5, outFile);
@@ -500,14 +508,11 @@ int main(int argc, char *argv[]) {
     fwrite(map->data, sizeof(Tile) * map->width * map->height, 1, outFile);
 
     fclose(outFile);
-    free((void *)map);
-    free((void *)tileTypes);
 
-    // delete output file if something fails
-    if (tileTypes == NULL || map == NULL) {
-        remove(output);
-        return EXIT_FAILURE;
-    }
+    arena_destroy(arena_ptr);
 
     return EXIT_SUCCESS;
+error:
+    arena_destroy(arena_ptr);
+    return EXIT_FAILURE;
 }

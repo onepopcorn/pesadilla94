@@ -7,6 +7,6 @@ enum GameLoopState {
 };
 
 enum Screen
-game();
+game(Arena* arena);
 
 #endif  // _GAME_SCREEN_H

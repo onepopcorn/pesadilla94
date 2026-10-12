@@ -1,7 +1,7 @@
 SRC_DIR := ./src
 BIN_DIR := ./bin
 CC := gcc
-CCFLAGS := -Wall
+CCFLAGS := -Wall --std=gnu99
 
 SRCS := $(wildcard ./src/*.c)
 BINS := $(patsubst ./src/%.c, ./bin/%.exe, $(SRCS))

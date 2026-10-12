@@ -4,8 +4,8 @@
 
 #include "beeper.h"
 
-void playBeep(uint16_t frequency, uint16_t duration_ms) {
-    uint16_t divisor = 1193180 / frequency;  // PIT frequency divisor
+void playBeep(int frequency, int duration_ms) {
+    int divisor = 1193180 / frequency;  // PIT frequency divisor
 
     outp(0x43, 0xB6);            // Set PIT mode
     outp(0x42, divisor & 0xFF);  // Low byte

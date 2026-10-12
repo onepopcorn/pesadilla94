@@ -18,7 +18,7 @@ Entity entities[MAX_ENTITIES] = {0};
 int8_t lastEntityIdx = -1;
 uint8_t nextId = 0;
 
-Entity* createEntity(uint16_t x, uint16_t y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions)) {
+Entity* createEntity(int x, int y, uint8_t type, Sprite* spr, void (*update)(Entity* entity, uint8_t tileCollisions)) {
     // Check if there's not enough space for more entities
     if (lastEntityIdx + 1 == MAX_ENTITIES) {
 #ifdef DEBUG
@@ -78,7 +78,7 @@ void updateEntities(uint32_t delta) {
         frameNeedsUpdate = true;
     }
 
-    uint8_t entityIdx = 0;
+    int entityIdx = 0;
 
     do {
         Entity* entity = &entities[entityIdx];
@@ -99,8 +99,8 @@ void updateEntities(uint32_t delta) {
 
         // TODO: Move this inside update function for each entity (?)
         // Move entity using delta time for smooth animations
-        if (!m_isFlagSet(entity->flags, ENTITY_BLOCKED)) {
-            entity->x = entity->x + entity->vx * 70 * delta / 1000;  // Move 70 pixels/second
+        if (!m_isFlagSet(entity->flags, ENTITY_BLOCKED) && entity->vx) {
+            entity->x = entity->x + entity->vx * (int)delta / 1000;  // Move 70 pixels/second
         }
 
         // Reset frame number if animation changed during update
@@ -120,14 +120,14 @@ void updateEntities(uint32_t delta) {
 }
 
 void renderAllEntities() {
-    for (int8_t i = lastEntityIdx; i >= 0; i--) {
+    for (int i = lastEntityIdx; i >= 0; i--) {
         renderEntity(i, true);
     }
 }
 
 void renderEntity(uint8_t index, char frameNeedsUpdate) {
     Entity* entity = &entities[index];
-    uint16_t frame = getAnimationFrame(frameNeedsUpdate, entity);
+    int frame = getAnimationFrame(frameNeedsUpdate, entity);
     uint8_t color = m_isFlagSet(entity->flags, ENTITY_FLASHING) && (entity->frame & 0x01) ? COLOR_WHITE : COLOR_TRANSPARENT;
     drawSprite(entity->x, entity->y, entity->sprite, frame, entity->flags & ENTITY_FLIP, color);
 
@@ -141,7 +141,7 @@ void renderEntity(uint8_t index, char frameNeedsUpdate) {
 }
 
 Entity* findEntityById(uint8_t id) {
-    for (uint8_t i = lastEntityIdx; i >= 0; i--) {
+    for (int i = lastEntityIdx; i >= 0; i--) {
         Entity* entity = &entities[i];
         if (entity->id == id) {
 #ifdef DEBUG

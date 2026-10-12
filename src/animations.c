@@ -19,7 +19,7 @@ int8_t animations[] = {
 };
 
 int8_t getAnimationFrame(char nextFrame, Entity* entity) {
-    int16_t currentAnimation = entity->animation;
+    int currentAnimation = entity->animation;
 
     // No need to update the frame, just return current frame
     if (!nextFrame) return animations[currentAnimation + entity->frame];

@@ -17,16 +17,16 @@
 
 #include "player.h"
 
-#define PLAYER_SPEED 0.8
+#define PLAYER_SPEED ((8 * PIXELS_SECOND) / 10)
 #define PLAYER_SHOOT_RECHARGE_TIME 2000
 #define PLAYER_INVULNERABILITY_TIME 3000
 #define PLAYER_COLLISION_MASK TYPE_ENEMY_A | TYPE_ENEMY_B
 
-Entity *player;
+Entity* player;
 uint8_t playerCanShoot = false;
 Vec2 destination;
 PlayerState playerState = STATE_IDLE;
-Tile *searchDoorTile = NULL;
+Tile* searchDoorTile = NULL;
 static int8_t sfxSteps = -1;
 
 // PRIVATE METHODS
@@ -55,7 +55,7 @@ void respawn() {
 
 void useStairs(bool up) {
     // Get player jump position
-    Vec2 pos = getStairsDestination(player->x + player->sprite->width * 0.5, player->y + player->sprite->height, up);
+    Vec2 pos = getStairsDestination(player->x + player->sprite->width / 2, player->y + player->sprite->height, up);
     if (pos.x <= 0 || pos.y <= 0) {
         // Abort, there's no destination found
         playerState = STATE_IDLE;
@@ -86,7 +86,7 @@ void spawnShot() {
 
     // Get position where whip should be shown
     bool facingRight = !m_isFlagSet(player->flags, ENTITY_FLIP);
-    uint16_t offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
+    int offset = facingRight ? player->sprite->width - 1 : 1 - player->sprite->width;
 
     whipSpawn(player->x + offset, player->y + 8, facingRight);
 
@@ -95,7 +95,7 @@ void spawnShot() {
 }
 
 void interruptSearching() {
-    closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+    closeDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
     searchDoorTile->data.door.progress = 254;
     searchDoorTile = NULL;
     playerState = STATE_IDLE;
@@ -139,7 +139,7 @@ void pickupWeapon() {
 
 // PUBLIC METHODS
 
-Entity *playerSpawn(uint16_t x, uint16_t y) {
+Entity* playerSpawn(int x, int y) {
     player = createEntity(x, y, TYPE_PLAYER, playerSprite, playerUpdate);
     player->collisionMask = PLAYER_COLLISION_MASK;
     player->hitbox = (Rect){playerSprite->width / 4, 4, playerSprite->width / 2, playerSprite->height - 4};
@@ -151,7 +151,7 @@ Entity *playerSpawn(uint16_t x, uint16_t y) {
     return player;
 }
 
-void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
+void playerUpdate(struct Entity* entity, uint8_t tileCollisions) {
     if (playerState != STATE_WALKING) {
         stopSound(sfxSteps);
     }
@@ -201,7 +201,7 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
 
         case STATE_PICKING_UP:
             if (player->frame == ANIM_PLAYER_SEARCH_LEN - 2) {
-                disableVendingMachine(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                disableVendingMachine(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                 updateWeapon(false);
                 playerState = STATE_IDLE;
             }
@@ -258,14 +258,14 @@ void playerUpdate(struct Entity *entity, uint8_t tileCollisions) {
 
             // Search doors
             if (m_isFlagSet(tileCollisions, COLLISION_DOOR) && isKeyJustPressed(m_UP)) {
-                searchDoorTile = openDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                searchDoorTile = openDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                 if (searchDoorTile->data.door.progress > 0) {
                     playSound(SFX_DOOR_OPEN);
                     playerState = STATE_SEARCHING;
                     break;
                 } else {
                     playSound(SFX_DOOR_NO_OP);
-                    closeDoor(player->x + player->sprite->width * 0.5, player->y + player->sprite->height);
+                    closeDoor(player->x + player->sprite->width / 2, player->y + player->sprite->height);
                     break;
                 }
             }

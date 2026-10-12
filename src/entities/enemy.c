@@ -8,6 +8,7 @@
 #include "animations.h"
 #include "macros.h"
 #include "timer.h"
+#include "physics/collisions.h"
 
 #include "enemy.h"
 
@@ -15,8 +16,8 @@
 #include "debug/logger.h"
 #endif
 
-#define ENEMY_SPEED_R 0.6
-#define ENEMY_SPEED_L -ENEMY_SPEED_R
+#define ENEMY_SPEED_R ((6 * PIXELS_SECOND) / 10)
+#define ENEMY_SPEED_L (-ENEMY_SPEED_R)
 
 #define ENEMY_COLLISION_MASK TYPE_PLAYER | TYPE_PLAYER_BULLET
 #define ENEMY_STUNT_TIME 3000
@@ -24,7 +25,7 @@
 // PRIVATE METHODS
 
 void enemyWakeup(uint8_t id) {
-    struct Entity *enemy = findEntityById(id);
+    struct Entity* enemy = findEntityById(id);
 
     if (enemy == NULL || id != enemy->id || !m_isFlagSet(enemy->flags, ENTITY_ALIVE)) {
 #ifdef DEBUG
@@ -45,8 +46,8 @@ void enemyWakeup(uint8_t id) {
 
 // PUBLIC METHODS
 
-struct Entity *enemySpawn(short x, short y) {
-    struct Entity *entity = createEntity(x, y, TYPE_ENEMY_A, enemySprite, enemyUpdate);
+struct Entity* enemySpawn(int x, int y) {
+    struct Entity* entity = createEntity(x, y, TYPE_ENEMY_A, enemySprite, enemyUpdate);
     if (!entity) return NULL;
 
     m_setAnimation(entity, ANIM_ENEMY1_WALK);
@@ -57,7 +58,7 @@ struct Entity *enemySpawn(short x, short y) {
     return entity;
 }
 
-void enemyStun(Entity *enemy) {
+void enemyStun(Entity* enemy) {
     if (!enemy) {
         return;
     }
@@ -77,7 +78,7 @@ void enemyStun(Entity *enemy) {
 }
 
 // TODO: Make this cleaner
-void enemyUpdate(struct Entity *entity, uint8_t tileCollisions) {
+void enemyUpdate(struct Entity* entity, uint8_t tileCollisions) {
     // enemy stunt
     if (m_isFlagSet(entity->flags, ENTITY_STUNT)) {
         return;
@@ -90,10 +91,10 @@ void enemyUpdate(struct Entity *entity, uint8_t tileCollisions) {
         m_unsetFlag(entity->flags, ENTITY_BLOCKED);
     }
 
-    if (m_isFlagSet(tileCollisions, TILE_TYPE_WALL_LEFT)) {
+    if (m_isFlagSet(tileCollisions, COLLISION_WALL_L)) {
         entity->vx = ENEMY_SPEED_R;
         m_unsetFlag(entity->flags, ENTITY_FLIP);
-    } else if (m_isFlagSet(tileCollisions, TILE_TYPE_WALL_RIGHT)) {
+    } else if (m_isFlagSet(tileCollisions, COLLISION_WALL_R)) {
         entity->vx = ENEMY_SPEED_L;
         m_setFlag(entity->flags, ENTITY_FLIP);
     }

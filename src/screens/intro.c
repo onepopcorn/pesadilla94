@@ -20,18 +20,19 @@ void switchToNextSequence(uint8_t sequence) {
     currentSequence = sequence;
 }
 
-enum Screen intro() {
+enum Screen intro(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
     // Setup in screen enter
     enum Screen nextScreen = SCREEN_MENU;
 
     // TODO: Intro scroll & fake image camera movement
-    Sprite *introBg = loadSprite("intro.spr");
+    Sprite* introBg = loadSprite(arena, "intro.spr");
     if (!introBg) {
         perror("Error opening intro.spr file");
         return EXIT_FAILURE;
     }
 
-    Sprite *introBg2 = loadSprite("intro2.spr");
+    Sprite* introBg2 = loadSprite(arena, "intro2.spr");
     if (!introBg2) {
         perror("Error opening intro2.spr file");
         return EXIT_FAILURE;
@@ -39,11 +40,11 @@ enum Screen intro() {
 
     currentSequence = SEQ_DRAW_BRANDING;
 
-    uint8_t running = true;
-    uint8_t current_charnum = 0;
-    uint8_t sfx;
+    int running = true;
+    int current_charnum = 0;
+    int sfx = -1;
 
-    char *text = malloc(sizeof(char) * STR_MAX_TEXT_BUFFER);
+    char* text = arena_alloc(arena, sizeof(char) * STR_MAX_TEXT_BUFFER);
     text[0] = '\0';
 
     fadeToBlack(0, 0);
@@ -80,7 +81,7 @@ enum Screen intro() {
 
             // Run first intro part
             case SEQ_INTRO:
-                for (uint8_t i = 0; i < current_charnum; i++) {
+                for (int i = 0; i < current_charnum; i++) {
                     text[i] = STR_INTRO_L1[i];
                     text[i + 1] = '\0';
                 }
@@ -120,7 +121,7 @@ enum Screen intro() {
 
             // Run second intro part
             case SEQ_INTRO2:
-                for (uint8_t i = 0; i < current_charnum; i++) {
+                for (int i = 0; i < current_charnum; i++) {
                     text[i] = STR_INTRO_L2[i];
                     text[i + 1] = '\0';
                 }
@@ -144,7 +145,7 @@ enum Screen intro() {
             running = false;
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();
     }
 
@@ -155,15 +156,7 @@ enum Screen intro() {
 
     fadeToBlack(255, 10);
     clearScreen();
-
-    free(text);
-    text = NULL;
-
-    free(introBg);
-    introBg = NULL;
-
-    free(introBg2);
-    introBg2 = NULL;
+    arena_reset(arena, marker);
 
     return nextScreen;
 }

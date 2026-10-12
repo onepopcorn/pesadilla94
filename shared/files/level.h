@@ -1,6 +1,10 @@
 #ifndef _MAP_FORMAT_H
 #define _MAP_FORMAT_H
 
+#ifndef uint8_t
+#include <stdint.h>
+#endif
+
 enum TileType {
     TILE_TYPE_BACKGROUND = 0,
     TILE_TYPE_WALL_LEFT = 1,

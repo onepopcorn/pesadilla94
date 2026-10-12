@@ -53,18 +53,18 @@ void drawHUD() {
     updateLevel();
 }
 
-void updatePoints(int8_t points) {
+void updatePoints(int points) {
     gameState.score += points;
 
-    char buffer[6] = "00000";
+    char buffer[12] = "00000";
     itoa(gameState.score, buffer, 10);
-    uint8_t len = strlen(buffer);
+    int len = strlen(buffer);
 
     m_clearRect(312 - len * HUD_FONT_W, HUD_Y + 10, len);
     drawText(312 - len * HUD_FONT_W, HUD_Y + 10, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
-void updateLives(int8_t amount) {
+void updateLives(int amount) {
     gameState.lives += amount;
     m_clearRect(HUD_X_LIVES + 16, HUD_Y + 7, 4);
 
@@ -72,23 +72,23 @@ void updateLives(int8_t amount) {
     drawText(HUD_X_LIVES + 16, HUD_Y + 7, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
-void updateDoors(int8_t amount) {
+void updateDoors(int amount) {
     gameState.doorsLeft += amount;
     m_clearRect(HUD_X_DOORS + 20, HUD_Y + 7, 4);
 
-    char buffer[5];
+    char buffer[12];
     buffer[0] = 'X';
     itoa(gameState.doorsLeft, &buffer[1], 10);
     drawText(HUD_X_DOORS + 20, HUD_Y + 7, font, buffer, COLOR_TRANSPARENT, 0);
 }
 
 // TODO: Consider using BCD to prevent using modulo and division operations
-void updateTime(int8_t time) {
+void updateTime(int time) {
     gameState.timeLeft += time;
     m_clearRect(HUD_X_TIME + 16, HUD_Y + 7, 6);
 
-    uint8_t minutes = gameState.timeLeft / 60;
-    uint8_t seconds = gameState.timeLeft % 60;
+    int minutes = gameState.timeLeft / 60;
+    int seconds = gameState.timeLeft % 60;
 
     char buffer[6];  // MM:SS\0
     buffer[0] = '0' + (minutes / 10);
@@ -102,16 +102,16 @@ void updateTime(int8_t time) {
 }
 
 void updateWeapon(char deactivated) {
-    uint8_t frame = 3 + deactivated * 2;
+    int frame = 3 + deactivated * 2;
     drawSprite(HUD_X_HAND, HUD_Y, miscSprite, frame, false, COLOR_TRANSPARENT);
     drawSprite(HUD_X_HAND + 16, HUD_Y, miscSprite, frame + 1, false, COLOR_TRANSPARENT);
 }
 
 void updateLevel() {
-    uint8_t xPos = HUD_X_LIVES - 4 + sizeof(STR_HUD_LEVEL) * 8;
+    int xPos = HUD_X_LIVES - 4 + sizeof(STR_HUD_LEVEL) * 8;
     m_clearRect(xPos, HUD_LVL_Y, 2);
 
-    char buffer[6];
+    char buffer[12];
     sprintf(buffer, "%d", gameState.level + 1);
     drawText(xPos, HUD_LVL_Y, font, buffer, COLOR_TRANSPARENT, 0);
 }

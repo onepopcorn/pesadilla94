@@ -16,6 +16,7 @@
 #include "macros.h"
 #include "settings/controls.h"
 #include "render/effects.h"
+#include "../../shared/lib/bucket-lib.h"
 
 #include "game.h"
 
@@ -26,24 +27,25 @@
 enum Screen nextScreen;
 bool running;
 
-enum Screen game() {
+enum Screen game(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
     LevelData currentLevel = levels[gameState.level];
 
     gameState.timeLeft = currentLevel.time;
-    gameState.doorsLeft = startLevel(gameState.level);  // TODO: Add checks when failing loading the level
+    gameState.doorsLeft = startLevel(arena, gameState.level);  // TODO: Add checks when failing loading the level
 
     drawMap();
     drawHUD();
 
     // Spawn player and enemies
-    uint8_t spawnOffset = currentLevel.positionsIdx;
-    uint8_t enemyCount = currentLevel.enemyCount;
+    int spawnOffset = currentLevel.positionsIdx;
+    int enemyCount = currentLevel.enemyCount;
 
     Vec2 playerPos = spawnPositions[spawnOffset];
     playerSpawn(playerPos.x, playerPos.y);
 
     if (enemyCount > 0) {
-        for (uint8_t i = 0; i < enemyCount; i++) {
+        for (int i = 0; i < enemyCount; i++) {
             Vec2 pos = spawnPositions[spawnOffset + 1 + i];  // Offest player position
             enemySpawn(pos.x, pos.y);
         }
@@ -55,7 +57,7 @@ enum Screen game() {
     running = true;
     enum GameLoopState gameLoopState = GAME_RUNNING;
 
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
     restorePalette();
 
@@ -127,7 +129,7 @@ enum Screen game() {
                 }
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();  // Dump backbuffer to video memory
     }
 
@@ -138,8 +140,9 @@ enum Screen game() {
     destroyAllEntities();
     endLevel();
 
-    waitVSync();
+    Video_wait_vsync();
     dumpBuffer();
 
+    arena_reset(arena, marker);
     return nextScreen;
 }

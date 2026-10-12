@@ -2,10 +2,10 @@
 #define _HUD_H
 
 void drawHUD();
-void updatePoints(int8_t score);
-void updateLives(int8_t lives);
-void updateTime(int8_t timeleft);
-void updateDoors(int8_t doors);
+void updatePoints(int score);
+void updateLives(int lives);
+void updateTime(int timeleft);
+void updateDoors(int doors);
 void updateWeapon(char deactivated);
 void updateLevel();
 

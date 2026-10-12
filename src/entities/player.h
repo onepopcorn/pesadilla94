@@ -12,7 +12,7 @@ typedef enum PlayerState {
     STATE_PICKING_UP,
 } PlayerState;
 
-Entity* playerSpawn(uint16_t x, uint16_t y);
+Entity* playerSpawn(int x, int y);
 
 void playerUpdate(struct Entity* entity, uint8_t tileCollisions);
 

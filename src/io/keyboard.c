@@ -10,21 +10,21 @@
 #define KEYCODE_MASK 0x7F       // 0b01111111
 
 volatile uint8_t keys[0xFF] = {0};
-volatile uint8_t justPressed[0xFF] = {0};
+volatile uint8_t just_pressed[0xFF] = {0};
 
 static _go32_dpmi_seginfo old_handler, new_handler;
 
-static void keyboardHandler() {
+static void keyboard_handler() {
     uint8_t k = inportb(0x60);
     uint8_t key = k & KEYCODE_MASK;
 
     if (k & KEY_RELEASED_MASK) {
         // Key has been released
         keys[key] = 0;
-        justPressed[key] = 0;
+        just_pressed[key] = 0;
     } else {
         // Key has been pressed
-        if (!keys[key]) justPressed[key] = 1;
+        if (!keys[key]) just_pressed[key] = 1;
         keys[key] = 1;
     }
 
@@ -34,7 +34,7 @@ static void keyboardHandler() {
 
 void keyboardInit() {
     _go32_dpmi_get_protected_mode_interrupt_vector(IRS_KEYBOARD, &old_handler);
-    new_handler.pm_offset = (unsigned long)keyboardHandler;
+    new_handler.pm_offset = (unsigned long)keyboard_handler;
     new_handler.pm_selector = _go32_my_cs();
     _go32_dpmi_allocate_iret_wrapper(&new_handler);
     _go32_dpmi_set_protected_mode_interrupt_vector(IRS_KEYBOARD, &new_handler);
@@ -48,8 +48,8 @@ void keyboardFree() {
 }
 
 uint8_t isKeyJustPressed(uint8_t key) {
-    if (justPressed[key]) {
-        justPressed[key] = 0;
+    if (just_pressed[key]) {
+        just_pressed[key] = 0;
         return 1;
     }
 

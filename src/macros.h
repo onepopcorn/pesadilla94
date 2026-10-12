@@ -12,6 +12,6 @@
     }
 
 // This works because sprite is same size as tile. If not, we would need to adjust the x position to center the sprite with the tile
-#define m_snapXToGrid(entity) entity->x = (uint16_t)(entity->x + entity->sprite->width * 0.5) / TILE_SIZE * TILE_SIZE;
+#define m_snapXToGrid(entity) entity->x = (int)(entity->x + entity->sprite->width / 2) / TILE_SIZE * TILE_SIZE;
 
 #endif

@@ -10,8 +10,8 @@
 
 #include "whip.h"
 
-Entity *whipSpawn(uint16_t x, uint16_t y, bool facingRight) {
-    Entity *entity = createEntity(x, y, TYPE_PLAYER_BULLET, whipSprite, whipUpdate);
+Entity* whipSpawn(int x, int y, bool facingRight) {
+    Entity* entity = createEntity(x, y, TYPE_PLAYER_BULLET, whipSprite, whipUpdate);
     if (!entity) return NULL;
 
     entity->collisionMask = TYPE_ENEMY_A | TYPE_ENEMY_B;
@@ -27,7 +27,7 @@ Entity *whipSpawn(uint16_t x, uint16_t y, bool facingRight) {
     return entity;
 }
 
-void whipUpdate(Entity *entity, uint8_t tileCollisions) {
+void whipUpdate(Entity* entity, uint8_t tileCollisions) {
     if (entity->frame == ANIM_WHIP_LEN - 2 || m_isFlagSet(tileCollisions, TILE_TYPE_WALL_LEFT | TILE_TYPE_WALL_RIGHT)) {
         m_unsetFlag(entity->flags, ENTITY_ALIVE);
     }

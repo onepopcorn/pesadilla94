@@ -1,3 +1,6 @@
+#define BUCKET_LIB_IMPLEMENTATION
+#include "../shared/lib/bucket-lib.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -38,8 +41,8 @@ int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
  *
  *
  */
-uint8_t initializSystems() {
-    uint8_t bufferError = openScreenBuffer();
+int initializSystems(Arena* arena) {
+    int bufferError = openScreenBuffer(arena);
     if (bufferError) return EXIT_FAILURE;
 
     // Interrupt based systems
@@ -47,16 +50,16 @@ uint8_t initializSystems() {
     keyboardInit();
 
     // Resources
-    uint8_t assetsError = assetsInit();
+    int assetsError = assetsInit(arena);
     if (assetsError) return EXIT_FAILURE;
 
     // Sound
-    uint8_t soundError = soundInit();
+    int soundError = soundInit();
     if (soundError) return EXIT_FAILURE;
 
     // Initialize video system
-    waitVSync();
-    setVideoMode(VIDEO_VGA_MODE);
+    Video_wait_vsync();
+    Video_set_mode(VIDEO_VGA_MODE);
 
     initVideoEffects();
 
@@ -75,11 +78,10 @@ void uninitializSystems() {
     // Free memory
     clearScreen();
     closeScreenBuffer();
-    assetsFree();
 
     // Return to text mode
-    waitVSync();
-    setVideoMode(VIDEO_TEXT_MODE);
+    Video_wait_vsync();
+    Video_set_mode(VIDEO_TEXT_MODE);
 
     // Free sound drivers
     soundFree();
@@ -97,10 +99,13 @@ void instructions() {
     while (!kbhit());
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
+    Arena arena = arena_create(MiB(1));
+    Arena* arena_ptr = &arena;
+
     instructions();
 
-    uint8_t systemErrors = initializSystems();
+    int systemErrors = initializSystems(arena_ptr);
     if (systemErrors) return EXIT_FAILURE;
 
     clearScreen();
@@ -110,14 +115,14 @@ int main(int argc, char *argv[]) {
     while (currentScreen != SCREEN_EXIT) {
         switch (currentScreen) {
             case SCREEN_INTRO:
-                currentScreen = intro();
+                currentScreen = intro(arena_ptr);
                 break;
             case SCREEN_MENU:
                 resetGameState();
-                currentScreen = menu();
+                currentScreen = menu(arena_ptr);
                 break;
             case SCREEN_GAME:
-                currentScreen = game();
+                currentScreen = game(arena_ptr);
                 break;
             case SCREEN_LEVEL_END:
                 currentScreen = levelend();
@@ -126,7 +131,7 @@ int main(int argc, char *argv[]) {
                 currentScreen = gameover();
                 break;
             case SCREEN_ENDING:
-                currentScreen = ending();
+                currentScreen = ending(arena_ptr);
                 break;
             default:
                 currentScreen = SCREEN_EXIT;
@@ -134,6 +139,8 @@ int main(int argc, char *argv[]) {
     }
 
     uninitializSystems();
+
+    arena_destroy(arena_ptr);
 
     return EXIT_SUCCESS;
 }

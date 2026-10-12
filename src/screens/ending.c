@@ -13,9 +13,11 @@
 
 #include "ending.h"
 
-enum Screen ending() {
+enum Screen ending(Arena* arena) {
+    size_t marker = arena_get_marker(arena);
+
     // Load resources
-    Sprite *bg = loadSprite("ending.spr");
+    Sprite* bg = loadSprite(arena, "ending.spr");
     if (!bg) {
         perror("Error opening ending.spr");
         return EXIT_FAILURE;
@@ -25,10 +27,10 @@ enum Screen ending() {
     dumpBuffer();
     fadeIn(255, 10);
 
-    char *text = malloc(sizeof(STR_ENDING));
+    char* text = arena_alloc(arena, sizeof(STR_ENDING));
     text[0] = '\0';
 
-    uint16_t charnum = 0;
+    int charnum = 0;
 
     int8_t sfx = playSound(SFX_POINTS);
 
@@ -38,7 +40,7 @@ enum Screen ending() {
         }
 
         if (charnum < sizeof(STR_ENDING)) {
-            for (uint8_t i = 0; i < charnum; i++) {
+            for (int i = 0; i < charnum; i++) {
                 text[i] = STR_ENDING[i];
                 text[i + 1] = '\0';
             }
@@ -53,18 +55,15 @@ enum Screen ending() {
             }
         }
 
-        waitVSync();
+        Video_wait_vsync();
         dumpBuffer();
     }
 
     stopAllSounds();
 
-    free(bg);
     bg = NULL;
-
-    free(text);
     text = NULL;
-
+    arena_reset(arena, marker);
     fadeToBlack(255, 10);
 
     return SCREEN_MENU;

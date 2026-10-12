@@ -1,6 +1,6 @@
 #ifndef _ENDING_H
 #define _ENDING_H
 
-enum Screen ending();
+enum Screen ending(Arena* arena);
 
-#endif // _ENDING_H
+#endif  // _ENDING_H
