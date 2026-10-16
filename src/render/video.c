@@ -133,20 +133,30 @@ void drawSprite(int x, int y, Sprite* sprite, int frame, bool flip, uint8_t colo
     uint8_t* src = &sprite->data[offset];
     uint8_t* dst = &back_buffer[(y * SCREEN_WIDTH) + x];
 
-    // TODO: Optimize this nested loop
-    for (int i = 0; i < height; i++) {
-        uint8_t* src_row = src + i * width;
-        uint8_t* dst_row = dst + i * SCREEN_WIDTH;
+    int base = (width - 1) * flip;
+    int sign = 1 - (2 * flip);
 
-        for (int j = 0; j < width; j++) {
-            /**
-             * To flip the sprite we want to substract the column number to the position of the last byte of each row.
-             * So, basically we are reading each row backwards
-             */
-            // TODO: Consider optimiznig this branching
-            uint8_t idx = !flip ? src_row[j] : src_row[width - 1 - j];  // sprite->data
-            if (idx == COLOR_TRANSPARENT) continue;
-            dst_row[j] = colorOverride > COLOR_TRANSPARENT ? colorOverride : idx;
+    if (colorOverride) {
+        for (int i = 0; i < height; i++) {
+            uint8_t* src_row = src + i * width;
+            uint8_t* dst_row = dst + i * SCREEN_WIDTH;
+
+            for (int j = 0; j < width; j++) {
+                uint8_t idx = src_row[base + (j * sign)];
+                if (idx == COLOR_TRANSPARENT) continue;
+                dst_row[j] = colorOverride;
+            }
+        }
+    } else {
+        for (int i = 0; i < height; i++) {
+            uint8_t* src_row = src + i * width;
+            uint8_t* dst_row = dst + i * SCREEN_WIDTH;
+
+            for (int j = 0; j < width; j++) {
+                uint8_t idx = src_row[base + (j * sign)];
+                if (idx == COLOR_TRANSPARENT) continue;
+                dst_row[j] = idx;
+            }
         }
     }
 
