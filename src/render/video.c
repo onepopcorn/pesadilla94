@@ -1,4 +1,4 @@
-#include "../../shared/lib/bucket-lib.h"
+#include "../../vendor/bucket-lib/bucket-lib.h"
 
 #include <dos.h>
 #include <stdio.h>

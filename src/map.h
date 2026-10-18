@@ -2,7 +2,7 @@
 #define _MAP_H
 
 #include "physics/geom.h"
-#include "../shared/lib/bucket-lib.h"
+#include "../vendor/bucket-lib/bucket-lib.h"
 
 // Used to swap tiles for open/close doors or exhausting vending machine
 enum TileCode {

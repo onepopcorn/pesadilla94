@@ -1,5 +1,5 @@
 #define BUCKET_LIB_IMPLEMENTATION
-#include "../../shared/lib/bucket-lib.h"
+#include "../../vendor/bucket-lib/bucket-lib.h"
 
 #include <stdio.h>
 #include <stdlib.h>

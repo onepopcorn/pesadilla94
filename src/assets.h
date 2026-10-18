@@ -1,7 +1,7 @@
 #ifndef _ASSETS_H
 #define _ASSETS_H
 
-#include "../shared/lib/bucket-lib.h"
+#include "../vendor/bucket-lib/bucket-lib.h"
 
 extern Sprite* font;
 extern Sprite* playerSprite;

@@ -1,3 +1,6 @@
 [submodule "vendor/c-simple-json-parser"]
 	path = vendor/c-simple-json-parser
 	url = git@github.com:forkachild/C-Simple-JSON-Parser.git
+[submodule "vendor/bucket-lib"]
+	path = vendor/bucket-lib
+	url = git@github.com:onepopcorn/bucket-lib.git

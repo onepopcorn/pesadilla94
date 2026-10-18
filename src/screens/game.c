@@ -16,7 +16,7 @@
 #include "macros.h"
 #include "settings/controls.h"
 #include "render/effects.h"
-#include "../../shared/lib/bucket-lib.h"
+#include "../../vendor/bucket-lib/bucket-lib.h"
 
 #include "game.h"
 

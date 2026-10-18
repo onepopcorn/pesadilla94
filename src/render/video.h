@@ -5,7 +5,7 @@
 
 #include "physics/geom.h"
 #include "io/resources.h"
-#include "../shared/lib/bucket-lib.h"
+#include "../vendor/bucket-lib/bucket-lib.h"
 
 #define VIDEO_VGA_MODE 0x13
 #define VIDEO_TEXT_MODE 0x03

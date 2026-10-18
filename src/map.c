@@ -7,7 +7,7 @@
 #include "assets.h"
 #include "physics/geom.h"
 #include "render/video.h"
-#include "../shared/lib/bucket-lib.h"
+#include "../vendor/bucket-lib/bucket-lib.h"
 
 #include "map.h"
 
